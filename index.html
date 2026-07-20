@@ -53,14 +53,14 @@ const patterns=[
  {name:'萤火 · FIREFLY',cat:'emotion',icon:'⁙',frames:20,fn:(x,y,p,i)=>((i*7+Math.round(y*11)+p)%19<2)||Math.hypot(x+.35-p%10*.02,y-.22)<.14},
  {name:'地平线 · DAWN',cat:'life',icon:'☀',frames:20,fn:(x,y,p)=>{let h=.35-(p%20)/20*.65;return near(y-h,.065)&&Math.abs(x)<.85||(y<h&&Math.abs(Math.hypot(x,y-h)-.42)<.09)}},
  {name:'情绪眼睛 · EYES',cat:'emotion',icon:'◉◉',frames:16,fn:(x,y,p)=>{let blink=p%16>11;return blink?near(y,.07)&&((x>.12&&x<.72)||(x<-.12&&x>-.72)):(((Math.hypot(x-.38,y)-.25<.075)||(Math.hypot(x+.38,y)-.25<.075))&&Math.abs(y)<.3)}},
- {name:'心意 · HEART',cat:'emotion',icon:'♥',frames:16,fn:(x,y,p)=>heartPixel(x,y,.92+.055*Math.sin(p/16*Math.PI*2))},
+ {name:'心意 · HEART',cat:'emotion',icon:'♥',frames:24,fn:(x,y,p)=>{let t=p%24;if(t<2)return false;let u=Math.min(1,(t-2)/13),e=1-Math.pow(1-u,3);return heartPixel(x,y,.12+.88*e)}},
  {name:'充电 · CHARGE',cat:'system',icon:'▥',frames:20,fn:(x,y,p)=>Math.abs(x)<.43&&Math.abs(y)<.58&&(Math.abs(x)>.31||Math.abs(y)>.47)||Math.abs(x)<.26&&y>.42-(p%20)/20*.84&&y<.43},
  {name:'健身 · WORKOUT',cat:'life',icon:'━',frames:18,fn:(x,y,p)=>{let a=Math.sin(p/18*Math.PI*2)*.45,q=rot(x,y,a);return Math.abs(q.y)<.085&&Math.abs(q.x)<.58||Math.abs(q.x)>.52&&Math.abs(q.x)<.8&&Math.abs(q.y)<.28}},
  {name:'天气 · WEATHER',cat:'life',icon:'☂',frames:24,fn:(x,y,p)=>p%24<8?(Math.hypot(x,y)<.3||ring(x,y,.58,.055)):p%24<16?(y<.05&&Math.hypot(x,y)<.5||y>.18&&((Math.round((x+1)*8)+Math.round(y*8)+p)%5===0)):(Math.hypot(x+.12,y)<.5&&Math.hypot(x-.1,y-.08)>.42)},
  {name:'闹钟 · ALARM',cat:'life',icon:'◷',frames:16,fn:(x,y,p)=>ring(x,y,.58,.07)||near(x,.065)&&y<0||near(y,.065)&&x>0||(p%4<2&&ring(x,y,.82,.045)&&y<-.25)},
  {name:'相机 · CAMERA',cat:'life',icon:'▣',frames:18,fn:(x,y,p)=>p%18<12?(Math.abs(x)<.52&&Math.abs(y)<.4&&(Math.abs(x)>.4||Math.abs(y)>.29)||ring(x,y,.22,.08)):ring(x,y,.65,.07)||Math.hypot(x,y)<.15},
  {name:'通知 · NOTIFY',cat:'system',icon:'!',frames:14,fn:(x,y,p)=>Math.hypot(x,y)<(.18+.06*Math.sin(p*.6))||near(x,.07)&&y<-.25&&y>-.72||Math.hypot(x,y-.58)<.1},
- {name:'心跳回响 · HEARTBEAT',cat:'emotion',icon:'♥',frames:24,fn:(x,y,p)=>{let t=p%24,s=t<5?.86+t*.025:t<10?.985-(t-5)*.017:.9;return heartPixel(x,y,s)||(t>15&&t<22&&ring(x,y,.72+(t-15)*.018,.045))}},
+ {name:'心跳回响 · HEARTBEAT',cat:'emotion',icon:'♥',frames:32,fn:(x,y,p)=>{let t=p%32;if(t<2)return false;let u=Math.min(1,(t-2)/13),e=1-Math.pow(1-u,3),s=t<16?.12+.88*e:1+(t>23?.055*Math.sin((t-23)/8*Math.PI*2):0);return heartPixel(x,y,s)}},
  {name:'酒瓶旋转 · BOTTLE',cat:'life',icon:'♙',frames:32,fn:(x,y,p)=>{let a=Math.sin(p/32*Math.PI*2)*.48,q=rot(x,y,a),X=q.x,Y=q.y,neck=Math.abs(X)<.14&&Y>-.78&&Y<-.36&&(Math.abs(X)>.055||Y<-.66),body=Math.abs(X)<.42&&Y>-.34&&Y<.67&&(Math.abs(X)>.31||Y>.54),shoulder=Y>-.42&&Y<-.22&&Math.abs(Math.abs(X)-(.14+(Y+.42)*1.35))<.09,label=ring(X,Y-.1,.22,.07);return neck||body||shoulder||label}},
  {name:'数字时间 · CLOCK',cat:'system',icon:'09:00',frames:12,fn:(x,y,p)=>clockPixel(x,y,p)},
  {name:'音乐频谱 · SPECTRUM',cat:'life',icon:'▥▥▥',frames:24,fn:(x,y,p)=>{let col=Math.round(x*8),cx=col/8,h=.15+.62*Math.abs(Math.sin(col*.83+p*.34)*Math.cos(col*.31-p*.21));return Math.abs(x-cx)<.055&&Math.abs(y)<h}}
@@ -85,6 +85,6 @@ $('#clear').onclick=()=>{state.custom=true;state.customOn.clear();$('#patternNam
 function pointer(e,drag=false){if(!state.custom)return;let r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*canvas.width,y=(e.clientY-r.top)/r.height*canvas.height,c=canvas.width/2,scale=canvas.width*.405;let best=-1,dist=1e9;state.points.forEach((p,i)=>{let d=Math.hypot(c+p.x*scale-x,c+p.y*scale-y);if(d<dist){dist=d;best=i}});if(best>=0&&dist<28){if(drag)state.customOn.add(best);else state.customOn.has(best)?state.customOn.delete(best):state.customOn.add(best);draw()}}
 canvas.onpointerdown=e=>{state.drag=true;pointer(e)};canvas.onpointermove=e=>{if(state.drag)pointer(e,true)};window.onpointerup=()=>state.drag=false;
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));renderPresets(t.dataset.filter)});
-let initialPattern=Math.max(0,patterns.findIndex(p=>location.hash&&p.name.toLowerCase().includes(location.hash.slice(1).toLowerCase())));rebuild(188);renderPresets();selectPattern(initialPattern);requestAnimationFrame(tick);
+let initialPattern=Math.max(0,patterns.findIndex(p=>location.hash&&p.name.toLowerCase().includes(location.hash.slice(1).toLowerCase())));rebuild(188);renderPresets();selectPattern(initialPattern);state.phase=Math.max(0,+new URLSearchParams(location.search).get('frame')||0);draw();requestAnimationFrame(tick);
 </script>
 </body></html>
