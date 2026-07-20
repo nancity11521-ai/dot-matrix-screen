@@ -37,6 +37,8 @@ const $=s=>document.querySelector(s), canvas=$('#matrix'),ctx=canvas.getContext(
 const state={count:188,points:[],pitch:.125,pattern:0,phase:0,playing:false,fps:6,color:'#fff3cf',brightness:.9,custom:false,customOn:new Set(),drag:false,last:0};
 const near=(v,t=.11)=>Math.abs(v)<t,ring=(x,y,r,t=.08)=>Math.abs(Math.hypot(x,y)-r)<t,rot=(x,y,a)=>({x:x*Math.cos(a)-y*Math.sin(a),y:x*Math.sin(a)+y*Math.cos(a)});
 const heart=(x,y,s=.75)=>{x/=s;y/=s;return Math.pow(x*x+y*y-.43,3)-x*x*y*y*y<0&&y<.58};
+const heartMask=['01100000110','11110001111','11111011111','11111111111','11111111111','01111111110','00111111100','00011111000','00001110000','00000100000'];
+function heartPixel(x,y,scale=1){let gx=Math.round(x/scale*8+7.5)-2,gy=Math.round(y/scale*8+7.5)-4;return gy>=0&&gy<heartMask.length&&gx>=0&&gx<11&&heartMask[gy][gx]==='1'}
 const digits={0:['111','101','101','101','111'],1:['010','110','010','010','111'],2:['111','001','111','100','111'],3:['111','001','111','001','111'],4:['101','101','111','001','001'],5:['111','100','111','001','111'],6:['111','100','111','101','111'],7:['111','001','010','010','010'],8:['111','101','111','101','111'],9:['111','101','111','001','111']};
 function clockPixel(x,y,p){let now=new Date(),txt=String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0'),gx=Math.round(x*8+7.5),row=Math.round(y*8+7.5),gy=row-6;if(gy<0||gy>4)return false;if(gx===7)return p%12<7&&(gy===1||gy===3);let slots=[[0,1],[1,4],[2,8],[3,11]];for(let [di,start] of slots)if(gx>=start&&gx<start+3)return digits[txt[di]][gy][gx-start]==='1';return false}
 const patterns=[
@@ -51,14 +53,14 @@ const patterns=[
  {name:'萤火 · FIREFLY',cat:'emotion',icon:'⁙',frames:20,fn:(x,y,p,i)=>((i*7+Math.round(y*11)+p)%19<2)||Math.hypot(x+.35-p%10*.02,y-.22)<.14},
  {name:'地平线 · DAWN',cat:'life',icon:'☀',frames:20,fn:(x,y,p)=>{let h=.35-(p%20)/20*.65;return near(y-h,.065)&&Math.abs(x)<.85||(y<h&&Math.abs(Math.hypot(x,y-h)-.42)<.09)}},
  {name:'情绪眼睛 · EYES',cat:'emotion',icon:'◉◉',frames:16,fn:(x,y,p)=>{let blink=p%16>11;return blink?near(y,.07)&&((x>.12&&x<.72)||(x<-.12&&x>-.72)):(((Math.hypot(x-.38,y)-.25<.075)||(Math.hypot(x+.38,y)-.25<.075))&&Math.abs(y)<.3)}},
- {name:'心意 · HEART',cat:'emotion',icon:'♥',frames:16,fn:(x,y,p)=>heart(x,y,.62+.12*Math.sin(p/16*Math.PI*2))},
+ {name:'心意 · HEART',cat:'emotion',icon:'♥',frames:16,fn:(x,y,p)=>heartPixel(x,y,.92+.055*Math.sin(p/16*Math.PI*2))},
  {name:'充电 · CHARGE',cat:'system',icon:'▥',frames:20,fn:(x,y,p)=>Math.abs(x)<.43&&Math.abs(y)<.58&&(Math.abs(x)>.31||Math.abs(y)>.47)||Math.abs(x)<.26&&y>.42-(p%20)/20*.84&&y<.43},
  {name:'健身 · WORKOUT',cat:'life',icon:'━',frames:18,fn:(x,y,p)=>{let a=Math.sin(p/18*Math.PI*2)*.45,q=rot(x,y,a);return Math.abs(q.y)<.085&&Math.abs(q.x)<.58||Math.abs(q.x)>.52&&Math.abs(q.x)<.8&&Math.abs(q.y)<.28}},
  {name:'天气 · WEATHER',cat:'life',icon:'☂',frames:24,fn:(x,y,p)=>p%24<8?(Math.hypot(x,y)<.3||ring(x,y,.58,.055)):p%24<16?(y<.05&&Math.hypot(x,y)<.5||y>.18&&((Math.round((x+1)*8)+Math.round(y*8)+p)%5===0)):(Math.hypot(x+.12,y)<.5&&Math.hypot(x-.1,y-.08)>.42)},
  {name:'闹钟 · ALARM',cat:'life',icon:'◷',frames:16,fn:(x,y,p)=>ring(x,y,.58,.07)||near(x,.065)&&y<0||near(y,.065)&&x>0||(p%4<2&&ring(x,y,.82,.045)&&y<-.25)},
  {name:'相机 · CAMERA',cat:'life',icon:'▣',frames:18,fn:(x,y,p)=>p%18<12?(Math.abs(x)<.52&&Math.abs(y)<.4&&(Math.abs(x)>.4||Math.abs(y)>.29)||ring(x,y,.22,.08)):ring(x,y,.65,.07)||Math.hypot(x,y)<.15},
  {name:'通知 · NOTIFY',cat:'system',icon:'!',frames:14,fn:(x,y,p)=>Math.hypot(x,y)<(.18+.06*Math.sin(p*.6))||near(x,.07)&&y<-.25&&y>-.72||Math.hypot(x,y-.58)<.1},
- {name:'心跳回响 · HEARTBEAT',cat:'emotion',icon:'♥',frames:24,fn:(x,y,p)=>{let t=p%24,s=t<6?.52+t*.045:t<12?.79-(t-6)*.025:.64;return heart(x,y,s)||(t>14&&ring(x,y,.72+(t-14)*.018,.045))}},
+ {name:'心跳回响 · HEARTBEAT',cat:'emotion',icon:'♥',frames:24,fn:(x,y,p)=>{let t=p%24,s=t<5?.86+t*.025:t<10?.985-(t-5)*.017:.9;return heartPixel(x,y,s)||(t>15&&t<22&&ring(x,y,.72+(t-15)*.018,.045))}},
  {name:'酒瓶旋转 · BOTTLE',cat:'life',icon:'♙',frames:32,fn:(x,y,p)=>{let a=Math.sin(p/32*Math.PI*2)*.48,q=rot(x,y,a),X=q.x,Y=q.y,neck=Math.abs(X)<.14&&Y>-.78&&Y<-.36&&(Math.abs(X)>.055||Y<-.66),body=Math.abs(X)<.42&&Y>-.34&&Y<.67&&(Math.abs(X)>.31||Y>.54),shoulder=Y>-.42&&Y<-.22&&Math.abs(Math.abs(X)-(.14+(Y+.42)*1.35))<.09,label=ring(X,Y-.1,.22,.07);return neck||body||shoulder||label}},
  {name:'数字时间 · CLOCK',cat:'system',icon:'09:00',frames:12,fn:(x,y,p)=>clockPixel(x,y,p)},
  {name:'音乐频谱 · SPECTRUM',cat:'life',icon:'▥▥▥',frames:24,fn:(x,y,p)=>{let col=Math.round(x*8),cx=col/8,h=.15+.62*Math.abs(Math.sin(col*.83+p*.34)*Math.cos(col*.31-p*.21));return Math.abs(x-cx)<.055&&Math.abs(y)<h}}
