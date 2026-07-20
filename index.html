@@ -76,7 +76,7 @@ const patterns=[
  {name:'地平线 · DAWN',cat:'life',icon:'☀',frames:20,fn:(x,y,p)=>{let h=.35-(p%20)/20*.65;return near(y-h,.065)&&Math.abs(x)<.85||(y<h&&Math.abs(Math.hypot(x,y-h)-.42)<.09)}},
  {name:'情绪眼睛 · EYES',cat:'emotion',icon:'◉◉',frames:16,fn:(x,y,p)=>{let blink=p%16>11;return blink?near(y,.07)&&((x>.12&&x<.72)||(x<-.12&&x>-.72)):(((Math.hypot(x-.38,y)-.25<.075)||(Math.hypot(x+.38,y)-.25<.075))&&Math.abs(y)<.3)}},
  {name:'心意 · HEART',cat:'emotion',icon:'♥',frames:24,fn:(x,y,p)=>{let t=p%24;if(t<2)return false;let u=Math.min(1,(t-2)/13),e=1-Math.pow(1-u,3);return heartPixel(x,y,.12+.88*e)}},
- {name:'充电 · CHARGE',cat:'system',icon:'▥',frames:20,fn:(x,y,p)=>Math.abs(x)<.43&&Math.abs(y)<.58&&(Math.abs(x)>.31||Math.abs(y)>.47)||Math.abs(x)<.26&&y>.42-(p%20)/20*.84&&y<.43},
+ {name:'充电 · CHARGE',cat:'system',icon:'▥',frames:20,fn:(x,y,p)=>(Math.abs(x)<.43&&Math.abs(y)<.58&&(Math.abs(x)>.31||Math.abs(y)>.47))||(Math.abs(x)<.14&&y>-.8&&y<-.58)||(Math.abs(x)<.26&&y>.42-(p%20)/20*.84&&y<.43)},
  {name:'健身 · WORKOUT',cat:'life',icon:'━',frames:18,fn:(x,y,p)=>{let a=Math.sin(p/18*Math.PI*2)*.45,q=rot(x,y,a);return Math.abs(q.y)<.085&&Math.abs(q.x)<.58||Math.abs(q.x)>.52&&Math.abs(q.x)<.8&&Math.abs(q.y)<.28}},
  {name:'晴天 · SUNNY',cat:'life',icon:'☀',frames:24,fn:(x,y,p)=>sunWeatherPixel(x,y,p)},
  {name:'多云 · CLOUDY',cat:'life',icon:'☁',frames:24,fn:(x,y,p)=>sunWeatherPixel(x,y,p,-.38,-.35,true)||cloudWeatherPixel(x,y,.14,.12)},
