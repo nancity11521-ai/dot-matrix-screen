@@ -37,6 +37,8 @@ const $=s=>document.querySelector(s), canvas=$('#matrix'),ctx=canvas.getContext(
 const state={count:188,points:[],pitch:.125,pattern:0,phase:0,playing:false,fps:6,color:'#fff3cf',brightness:.9,custom:false,customOn:new Set(),drag:false,last:0};
 const near=(v,t=.11)=>Math.abs(v)<t,ring=(x,y,r,t=.08)=>Math.abs(Math.hypot(x,y)-r)<t,rot=(x,y,a)=>({x:x*Math.cos(a)-y*Math.sin(a),y:x*Math.sin(a)+y*Math.cos(a)});
 const heart=(x,y,s=.75)=>{x/=s;y/=s;return Math.pow(x*x+y*y-.43,3)-x*x*y*y*y<0&&y<.58};
+const digits={0:['111','101','101','101','111'],1:['010','110','010','010','111'],2:['111','001','111','100','111'],3:['111','001','111','001','111'],4:['101','101','111','001','001'],5:['111','100','111','001','111'],6:['111','100','111','101','111'],7:['111','001','010','010','010'],8:['111','101','111','101','111'],9:['111','101','111','001','111']};
+function clockPixel(x,y,p){let now=new Date(),txt=String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0'),gx=Math.round(x*8+7.5),row=Math.round(y*8+7.5),gy=row-6;if(gy<0||gy>4)return false;if(gx===7)return p%12<7&&(gy===1||gy===3);let slots=[[0,1],[1,4],[2,8],[3,11]];for(let [di,start] of slots)if(gx>=start&&gx<start+3)return digits[txt[di]][gy][gx-start]==='1';return false}
 const patterns=[
  {name:'轨道 · ORBIT',cat:'system',icon:'◎',frames:24,fn:(x,y,p)=>{let q=rot(x,y,p*.12);return ring(x,y,.67,.07)||(ring(x,y,.34,.065)&&q.x<.32)||Math.hypot(q.x-.62,q.y+.12)<.12}},
  {name:'脉冲 · PULSE',cat:'system',icon:'◉',frames:18,fn:(x,y,p)=>ring(x,y,.18+(p%18)/18*.68,.075)||Math.hypot(x,y)<.1},
@@ -55,7 +57,11 @@ const patterns=[
  {name:'天气 · WEATHER',cat:'life',icon:'☂',frames:24,fn:(x,y,p)=>p%24<8?(Math.hypot(x,y)<.3||ring(x,y,.58,.055)):p%24<16?(y<.05&&Math.hypot(x,y)<.5||y>.18&&((Math.round((x+1)*8)+Math.round(y*8)+p)%5===0)):(Math.hypot(x+.12,y)<.5&&Math.hypot(x-.1,y-.08)>.42)},
  {name:'闹钟 · ALARM',cat:'life',icon:'◷',frames:16,fn:(x,y,p)=>ring(x,y,.58,.07)||near(x,.065)&&y<0||near(y,.065)&&x>0||(p%4<2&&ring(x,y,.82,.045)&&y<-.25)},
  {name:'相机 · CAMERA',cat:'life',icon:'▣',frames:18,fn:(x,y,p)=>p%18<12?(Math.abs(x)<.52&&Math.abs(y)<.4&&(Math.abs(x)>.4||Math.abs(y)>.29)||ring(x,y,.22,.08)):ring(x,y,.65,.07)||Math.hypot(x,y)<.15},
- {name:'通知 · NOTIFY',cat:'system',icon:'!',frames:14,fn:(x,y,p)=>Math.hypot(x,y)<(.18+.06*Math.sin(p*.6))||near(x,.07)&&y<-.25&&y>-.72||Math.hypot(x,y-.58)<.1}
+ {name:'通知 · NOTIFY',cat:'system',icon:'!',frames:14,fn:(x,y,p)=>Math.hypot(x,y)<(.18+.06*Math.sin(p*.6))||near(x,.07)&&y<-.25&&y>-.72||Math.hypot(x,y-.58)<.1},
+ {name:'心跳回响 · HEARTBEAT',cat:'emotion',icon:'♥',frames:24,fn:(x,y,p)=>{let t=p%24,s=t<6?.52+t*.045:t<12?.79-(t-6)*.025:.64;return heart(x,y,s)||(t>14&&ring(x,y,.72+(t-14)*.018,.045))}},
+ {name:'酒瓶旋转 · BOTTLE',cat:'life',icon:'♙',frames:32,fn:(x,y,p)=>{let a=Math.sin(p/32*Math.PI*2)*.48,q=rot(x,y,a),X=q.x,Y=q.y,neck=Math.abs(X)<.14&&Y>-.78&&Y<-.36&&(Math.abs(X)>.055||Y<-.66),body=Math.abs(X)<.42&&Y>-.34&&Y<.67&&(Math.abs(X)>.31||Y>.54),shoulder=Y>-.42&&Y<-.22&&Math.abs(Math.abs(X)-(.14+(Y+.42)*1.35))<.09,label=ring(X,Y-.1,.22,.07);return neck||body||shoulder||label}},
+ {name:'数字时间 · CLOCK',cat:'system',icon:'09:00',frames:12,fn:(x,y,p)=>clockPixel(x,y,p)},
+ {name:'音乐频谱 · SPECTRUM',cat:'life',icon:'▥▥▥',frames:24,fn:(x,y,p)=>{let col=Math.round(x*8),cx=col/8,h=.15+.62*Math.abs(Math.sin(col*.83+p*.34)*Math.cos(col*.31-p*.21));return Math.abs(x-cx)<.055&&Math.abs(y)<h}}
 ];
 function buildPoints(n){if(n===188){const rows=[4,8,10,12,14,14,16,16,16,16,14,14,12,10,8,4],a=[];rows.forEach((m,r)=>{for(let i=0;i<m;i++)a.push({x:(i-(m-1)/2)/8,y:(r-7.5)/8})});return a}
  let side=Math.ceil(Math.sqrt(n*4/Math.PI));let candidates=[];while(candidates.length<n){side++;candidates=[];for(let r=0;r<side;r++)for(let c=0;c<side;c++){let x=(c-(side-1)/2)/(side/2),y=(r-(side-1)/2)/(side/2);if(x*x+y*y<=1)candidates.push({x,y,d:x*x+y*y})}}candidates.sort((a,b)=>a.d-b.d);let chosen=candidates.slice(0,n),mx=Math.max(...chosen.map(p=>Math.hypot(p.x,p.y)));return chosen.map(p=>({x:p.x/mx*.92,y:p.y/mx*.92}))}
@@ -77,6 +83,6 @@ $('#clear').onclick=()=>{state.custom=true;state.customOn.clear();$('#patternNam
 function pointer(e,drag=false){if(!state.custom)return;let r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*canvas.width,y=(e.clientY-r.top)/r.height*canvas.height,c=canvas.width/2,scale=canvas.width*.405;let best=-1,dist=1e9;state.points.forEach((p,i)=>{let d=Math.hypot(c+p.x*scale-x,c+p.y*scale-y);if(d<dist){dist=d;best=i}});if(best>=0&&dist<28){if(drag)state.customOn.add(best);else state.customOn.has(best)?state.customOn.delete(best):state.customOn.add(best);draw()}}
 canvas.onpointerdown=e=>{state.drag=true;pointer(e)};canvas.onpointermove=e=>{if(state.drag)pointer(e,true)};window.onpointerup=()=>state.drag=false;
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));renderPresets(t.dataset.filter)});
-rebuild(188);renderPresets();selectPattern(0);requestAnimationFrame(tick);
+let initialPattern=Math.max(0,patterns.findIndex(p=>location.hash&&p.name.toLowerCase().includes(location.hash.slice(1).toLowerCase())));rebuild(188);renderPresets();selectPattern(initialPattern);requestAnimationFrame(tick);
 </script>
 </body></html>
