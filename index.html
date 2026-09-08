@@ -29,7 +29,7 @@ button,input,select{font:inherit}.shell{max-width:1440px;margin:auto;padding:24p
    <div class="screen-wrap"><div class="halo"></div><canvas id="matrix" width="760" height="760"></canvas></div>
    <div class="metrics"><div class="metric"><b id="totalMetric">177</b><span>物理灯数</span></div><div class="metric"><b id="litMetric">0</b><span>当前点亮</span></div><div class="metric"><b id="frameMetric">01 / 24</b><span>动画帧</span></div></div>
   </main>
-  <aside class="panel library"><h2>图案与场景</h2><div class="tabs"><button class="tab active" data-filter="all">全部</button><button class="tab" data-filter="system">系统</button><button class="tab" data-filter="life">生活</button><button class="tab" data-filter="emotion">情绪</button></div><div class="preset-grid" id="presets"></div><div class="footer-note">177灯 · R2 评审版 · 按15×15物理网格绘制。时间：上方小时、下方分钟；日期：上方月份、下方日期。其他灯数为映射预览。</div></aside>
+  <aside class="panel library"><h2>图案与场景</h2><div class="tabs"><button class="tab active" data-filter="all">全部</button><button class="tab" data-filter="system">系统</button><button class="tab" data-filter="life">生活</button><button class="tab" data-filter="emotion">情绪</button></div><div class="preset-grid" id="presets"></div><div class="footer-note">177灯 · R2 全眼神表情库 · 按15×15物理网格绘制。时间：上方小时、下方分钟；日期：上方月份、下方日期。其他灯数为映射预览。</div></aside>
  </div>
 </div>
 <script>
@@ -120,7 +120,49 @@ const patterns=[
  {name:'邮件到达 · MAIL',cat:'system',icon:'',frames:24,fn:()=>false},
  {name:'火箭出发 · ROCKET',cat:'emotion',icon:'',frames:24,fn:()=>false},
  {name:'月夜静谧 · MOON',cat:'life',icon:'',frames:24,fn:()=>false},
- {name:'蝴蝶振翅 · BUTTERFLY',cat:'life',icon:'',frames:24,fn:()=>false}
+ {name:'蝴蝶振翅 · BUTTERFLY',cat:'life',icon:'',frames:24,fn:()=>false},
+ {name:'空电池 · BATTERY_EMPTY',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'满电充盈 · BATTERY_FULL',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'能量环 · ENERGY_RING',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'旋转刻度 · DIAL',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'十字扫描 · AXIS',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'步进小人 · WALK',cat:'life',icon:'',frames:24,fn:()=>false},
+ {name:'放射光芒 · RAYS',cat:'emotion',icon:'',frames:24,fn:()=>false},
+ {name:'加载指示 · LOADER',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'专注凝视 · ATTENTIVE',cat:'emotion',icon:'',frames:24,fn:()=>false},
+ {name:'好奇探看 · CURIOUS',cat:'emotion',icon:'',frames:24,fn:()=>false},
+ {name:'难过低落 · SAD',cat:'emotion',icon:'',frames:24,fn:()=>false},
+ {name:'害怕颤动 · SCARED',cat:'emotion',icon:'',frames:24,fn:()=>false},
+ {name:'怀疑侧目 · SUSPICIOUS',cat:'emotion',icon:'',frames:24,fn:()=>false},
+ {name:'困惑问号 · CONFUSED',cat:'emotion',icon:'',frames:24,fn:()=>false},
+ {name:'得意闪光 · PROUD',cat:'emotion',icon:'',frames:24,fn:()=>false},
+ {name:'无语表情 · UNIMPRESSED',cat:'emotion',icon:'',frames:24,fn:()=>false},
+
+  {name:'平静扫视 · EYE_IDLE',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'交替眨眼 · EYE_WINK',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'星光眼神 · EYE_SPARKLE',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'旋涡眼神 · EYE_SWIRL',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'困倦眼神 · EYE_SLEEPY',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'警觉放大 · EYE_ALERT',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'侧目扫视 · EYE_GLANCE',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'灵动瞳孔 · EYE_DANCE',cat:'emotion',icon:'',frames:24,fn:()=>false},
+
+  {name:'平静 · E_CALM',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'专注 · E_FOCUS',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'惊讶 · E_SURPRISE',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'兴奋 · E_EXCITED',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'开心 · E_HAPPY',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'大笑 · E_LAUGH',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'生气 · E_ANGRY',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'难过 · E_SAD2',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'害怕 · E_FEAR',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'怀疑 · E_SKEPTIC',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'困惑 · E_CONFUSED2',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'好奇 · E_CURIOUS2',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'得意 · E_PROUD2',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'羞怯 · E_SHY',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'无趣 · E_BORED',cat:'emotion',icon:'',frames:24,fn:()=>false},
+  {name:'困倦 · E_SLEEPY2',cat:'emotion',icon:'',frames:24,fn:()=>false},
 ];
 function buildPoints(n){if(n===177){const rows=[5,9,11,13,13,15,15,15,15,15,13,13,11,9,5],a=[];rows.forEach((m,r)=>{for(let i=0;i<m;i++)a.push({x:(i-(m-1)/2)/7.5,y:(r-7)/7.5})});return a}if(n===188){const rows=[4,8,10,12,14,14,16,16,16,16,14,14,12,10,8,4],a=[];rows.forEach((m,r)=>{for(let i=0;i<m;i++)a.push({x:(i-(m-1)/2)/8,y:(r-7.5)/8})});return a}
  let side=Math.ceil(Math.sqrt(n*4/Math.PI));let candidates=[];while(candidates.length<n){side++;candidates=[];for(let r=0;r<side;r++)for(let c=0;c<side;c++){let x=(c-(side-1)/2)/(side/2),y=(r-(side-1)/2)/(side/2);if(x*x+y*y<=1)candidates.push({x,y,d:x*x+y*y})}}candidates.sort((a,b)=>a.d-b.d);let chosen=candidates.slice(0,n),mx=Math.max(...chosen.map(p=>Math.hypot(p.x,p.y)));return chosen.map(p=>({x:p.x/mx*.92,y:p.y/mx*.92}))}
@@ -143,7 +185,7 @@ function refinedFrame(kind, frame, opt = {}) {
     case 'CLOCK': case 'DATE': {
       const d=opt.now?new Date(opt.now):new Date();let a,b;
       if(kind==='DATE'){const parts=(opt.date||'2026-07-01').split('-');a=parts[1];b=parts[2]}else{a=String(d.getHours()).padStart(2,'0');b=String(d.getMinutes()).padStart(2,'0')}
-      text(a,1);text(b,9);line(6,7,8,7);break;
+      text(a,1);text(b,9);if(kind==='DATE'||d.getMilliseconds()<500)line(6,7,8,7);break;
     }
     case 'WEEKDAY': {
       const glyph={S:'111/100/111/001/111',U:'101/101/101/101/111',N:'101/111/111/111/101',M:'101/111/111/101/101',O:digits[0],T:'111/010/010/010/010',E:'111/100/111/100/111',W:'101/101/111/111/101',D:'110/101/101/101/110',H:'101/101/111/101/101',F:'111/100/111/100/100',R:'110/101/110/101/101',I:'111/010/010/010/111',A:'010/101/111/101/101'};
@@ -169,8 +211,18 @@ function refinedFrame(kind, frame, opt = {}) {
     }
     case 'CHARGE':box(4,3,7,10);put(6,2);put(8,2);{const h=Math.floor(t%20/19*7);if(h)box(5,12-h,5,h,true)}break;
     case 'WAVE':case 'SPECTRUM': {
-      if(kind==='WAVE'){line(0,7,14,7);for(let x=1;x<14;x+=2){const d=Math.abs(x-7),h=Math.round((1+3*Math.abs(Math.sin(d*1.4+t*Math.PI/12)))*(1-d/10));line(x,7-h,x,7+h)}}
-      else for(let x=2;x<=12;x+=2){let h=2+Math.round(6*Math.abs(Math.sin(Math.abs(x-7)*.6+t*Math.PI/12)));line(x,11-h,x,11)}break;
+      if(kind==='WAVE'){
+        // 9条对称采样柱：稳定中轴、左右严格镜像，形成“呼吸式”的声音波形。
+        const frames=[
+          [1,2,4,6,7,6,4,2,1],[1,3,5,4,6,4,5,3,1],
+          [1,4,6,3,5,3,6,4,1],[1,2,5,7,4,7,5,2,1],
+          [1,3,6,5,3,5,6,3,1],[1,4,4,6,2,6,4,4,1],
+          [1,2,3,6,5,6,3,2,1],[1,2,4,6,7,6,4,2,1]
+        ],shape=frames[Math.floor((t%24)/3)];
+        line(1,7,13,7);
+        [1,3,4,6,7,8,10,11,13].forEach((x,i)=>{const half=Math.floor(shape[i]/2);line(x,7-half,x,7+half)});
+        if(t%12<6){put(7,7,false);put(7,6);put(7,8)}
+      }else for(let x=2;x<=12;x+=2){let h=2+Math.round(6*Math.abs(Math.sin(Math.abs(x-7)*.6+t*Math.PI/12)));line(x,11-h,x,11)}break;
     }
     case 'SUNNY':circle(7,7,3);for(const [x,y] of [[0,-1],[0,1],[-1,0],[1,0]])line(7+x*5,7+y*5,7+x*6,7+y*6);if(phase%2===0)for(const x of [-1,1])for(const y of [-1,1])put(7+x*4,7+y*4);break;
     case 'CLOUDY':circle(5,4,2);put(5,1);put(2,2);put(8,2);put(1,4);cloud(6);break;
@@ -183,6 +235,7 @@ function refinedFrame(kind, frame, opt = {}) {
       const mood=Math.floor(t/8)%4;put(5,6);put(9,6);if(mood===0)mask('10001/01110',5,9);if(mood===1)mask('01110/10001',5,9);if(mood===2)box(6,8,3,3);if(mood===3){put(9,6,false);line(8,6,10,6);mask('10001/01110',5,9)}break;
     }
     case 'PERSON':head();line(7,5,7,8);{
+
       const open=[0,1,2,1][phase%4];line(7,5,3,7-open*2);line(7,5,11,7-open*2);line(7,8,5-open,12);line(7,8,9+open,12);break;
     }
     case 'RUNNER':head(8,2+bob);line(8,5+bob,6,8+bob);{
@@ -192,6 +245,7 @@ function refinedFrame(kind, frame, opt = {}) {
     case 'BOTTLE':{
       const angle=Math.floor((t+2)/4)*Math.PI/4,co=Math.cos(angle),si=Math.sin(angle);
       for(let y=1;y<=13;y++)for(let x=1;x<=13;x++){
+
         const X=(x-7)*co+(y-7)*si,Y=-(x-7)*si+(y-7)*co;
         const neck=Math.abs(X)<1&&Y>=-5.5&&Y< -2;
         const body=Math.abs(X)<2.6&&Y>=-1.5&&Y<5;
@@ -271,11 +325,154 @@ function refinedFrame(kind, frame, opt = {}) {
       mask(narrow?'0101010/0011100/0011100/0011100/0011100/0101010':'1000001/1110111/1111111/0111110/1111111/1101011',4,4);
       line(7,5,7,10);put(6,3);put(8,3);break;
     }
+    case 'BATTERY_EMPTY':{
+      box(2,5,10,5);line(12,6,12,8);
+      if(t%12<6){put(3,7);put(4,7)}else{put(10,7);put(11,7)}break;
+    }
+    case 'BATTERY_FULL':{
+      box(2,5,10,5);line(12,6,12,8);
+      const fill=Math.min(8,2+Math.floor((t%24)/4));for(let x=3;x<3+fill;x++)for(let y=6;y<=8;y++)put(x,y);
+      if(t%6<3)put(11,7);break;
+    }
+    case 'ENERGY_RING':{
+      circle(7,7,5);circle(7,7,2);
+      const a=Math.floor(t/3)*Math.PI/4;put(7+Math.round(5*Math.cos(a)),7+Math.round(5*Math.sin(a)));
+      put(7,7);break;
+    }
+    case 'DIAL':{
+      circle(7,7,5);for(const [x,y] of [[7,2],[12,7],[7,12],[2,7]])put(x,y);
+      const a=Math.floor(t/3)*Math.PI/4;line(7,7,7+Math.round(4*Math.sin(a)),7-Math.round(4*Math.cos(a)));put(7,7);break;
+    }
+    case 'AXIS':{
+      const reach=2+Math.floor((t%12)/3)*2;line(7-reach,7,7+reach,7);line(7,7-reach,7,7+reach);put(7,7);break;
+    }
+    case 'WALK':{
+      const pose=Math.floor(t/4)%4,bob=[0,-1,0,0][pose];head(7,2+bob);line(7,5+bob,7,8+bob);
+      const limbs=[[[4,7],[10,7],[5,12],[9,12]],[[3,6],[11,7],[4,11],[10,12]],[[4,7],[10,6],[6,12],[8,11]],[[3,7],[11,6],[5,12],[9,11]]][pose];
+      line(7,5+bob,...limbs[0]);line(7,5+bob,...limbs[1]);line(7,8+bob,...limbs[2]);line(7,8+bob,...limbs[3]);break;
+    }
+    case 'RAYS':{
+      const r=2+Math.floor((t%24)/4),a=Math.floor(t/3)%2;
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]])line(7+dx*(a?1:0),7+dy*(a?1:0),7+dx*r,7+dy*r);
+      put(7,7);break;
+    }
+    case 'LOADER':{
+      const nodes=[[7,2],[10,3],[12,7],[10,11],[7,12],[4,11],[2,7],[4,3]],at=Math.floor(t/3)%8;
+      nodes.forEach(([x,y],i)=>{if((i-at+8)%8<3){put(x,y);if((i-at+8)%8===0){put(x-1,y);put(x+1,y);put(x,y-1);put(x,y+1)}}});break;
+    }
+    // 原创“状态脸”系列：用眼神、眉形和嘴形表达状态，不复刻参考站的头像轮廓。
+    case 'ATTENTIVE':{
+      // 仅保留双眼与瞳孔：左右平移形成专注扫视，其他灯保持熄灭。
+      mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5);
+      const gaze=[-1,0,1,0][Math.floor(t/3)%4];put(4+gaze,6);put(9+gaze,6);break;
+    }
+    case 'CURIOUS':{
+      // 两眼不同步地上望与侧望，体现好奇，不添加眉毛或嘴形。
+      mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5);
+      const look=Math.floor(t/6)%2;put(look?4:5,6);put(look?10:9,5);break;
+    }
+    case 'SAD':{
+      // 下垂的眼睑与向内下方的瞳孔。
+      mask('0110/1001/0110',3,6);mask('0110/1001/0110',8,6);
+      const blink=t%18<3;if(blink){line(3,7,5,7);line(9,7,11,7)}else{put(5,7);put(9,7)}break;
+    }
+    case 'SCARED':{
+      // 放大的双眼与轻微左右抖动。
+      const shift=t%6<3?0:1;mask('0110/1001/1001/1001/0110',3+shift,4);mask('0110/1001/1001/1001/0110',8-shift,4);
+      put(4+shift,6);put(10-shift,6);break;
+    }
+    case 'SUSPICIOUS':{
+      // 半眯眼配合横向侧视。
+      line(3,6,5,6);line(9,6,11,6);const side=t%12<6?0:1;put(side?3:5,7);put(side?9:11,7);break;
+    }
+    case 'CONFUSED':{
+      // 一只睁圆、一只半眯，瞳孔交替偏移。
+      mask('0110/1001/1001/0110',3,5);line(9,6,11,6);const side=t%12<6?0:1;put(4+side,6);put(side?9:11,7);break;
+    }
+    case 'PROUD':{
+      // 双眼笑弧在睁眼与闭眼间切换。
+      if(t%12<4){line(3,7,5,7);line(9,7,11,7)}else{mask('1001/0110',3,6);mask('1001/0110',8,6)}break;
+    }
+    case 'UNIMPRESSED':{
+      // 平直半睑与缓慢上移的瞳孔。
+      line(3,6,5,6);line(9,6,11,6);const y=t%12<6?7:6;put(4,y);put(10,y);break;
+    }
+
+    case 'EYE_IDLE': {
+      const pos=[[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]][Math.floor(t/3)%8];
+      mask('0110/1001/1001/0110',3,5); mask('0110/1001/1001/0110',8,5);
+      put(4+pos[0],6+pos[1]); put(9+pos[0],6+pos[1]); break;
+    }
+    case 'EYE_WINK': {
+      const s=Math.floor(t/3)%8;
+      if(s===1){line(3,6,5,6);mask('0110/1001/1001/0110',8,5);put(9,6)}
+      else if(s===2){line(3,7,5,7);mask('0110/1001/1001/0110',8,5);put(9,6)}
+      else if(s===5){mask('0110/1001/1001/0110',3,5);put(4,6);line(9,6,11,6)}
+      else if(s===6){mask('0110/1001/1001/0110',3,5);put(4,6);line(9,7,11,7)}
+      else {mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5);put(4,6);put(9,6)} break;
+    }
+    case 'EYE_SPARKLE': {
+      const s=Math.floor(t/3)%4;
+      for(const x of [4,9]){
+        if(s===0){put(x,5);put(x-1,6);put(x+1,6);put(x,7)}
+        else if(s===1){put(x,4);put(x-1,5);put(x+1,5);put(x-1,6);put(x+1,6);put(x-1,7);put(x+1,7);put(x,8)}
+        else if(s===2){put(x,5);put(x,6);put(x,7);put(x,8)}
+        else {put(x,6)}
+      } break;
+    }
+    case 'EYE_SWIRL': {
+      const s=Math.floor(t/3)%4, seq=['011/101/110','010/111/001','110/101/011','100/111/010'][s];
+      mask(seq,3,5); mask(seq,8,5); break;
+    }
+    case 'EYE_SLEEPY': {
+      const s=Math.floor(t/3)%6;
+      if(s===0){mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5);put(4,7);put(9,7)}
+      else if(s===1){mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5);put(4,6);put(9,6)}
+      else if(s===2){line(3,6,5,6);line(8,6,10,6);put(4,7);put(9,7)}
+      else if(s===3){line(3,7,5,7);line(8,7,10,7);put(4,8);put(9,8)}
+      else if(s===4){line(3,7,5,7);line(8,7,10,7)}
+      else {line(3,8,5,8);line(8,8,10,8)} break;
+    }
+    case 'EYE_ALERT': {
+      const s=Math.floor(t/3)%4;
+      if(s===0){mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5)}
+      else if(s===1){mask('0110/1001/1001/1001/0110',3,4);mask('0110/1001/1001/1001/0110',8,4)}
+      else if(s===2){box(3,4,3,5,false);box(8,4,3,5,false)}
+      else {mask('0110/1001/1111/1001/0110',3,4);mask('0110/1001/1111/1001/0110',8,4)}
+      put(4,6);put(9,6);break;
+    }
+    case 'EYE_GLANCE': {
+      const pos=[[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]][Math.floor(t/3)%8];
+      mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5);
+      put(4+pos[0],6+pos[1]);put(9+pos[0],6+pos[1]);break;
+    }
+    case 'EYE_DANCE': {
+      const d=[[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1]][Math.floor(t/3)%8];
+      mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5);
+      put(4+d[0],6+d[1]);put(9-d[0],6+d[1]);break;
+    }
+
+    case 'E_CALM':case 'E_FOCUS':case 'E_SURPRISE':case 'E_EXCITED':case 'E_HAPPY':case 'E_LAUGH':case 'E_ANGRY':case 'E_SAD2':case 'E_FEAR':case 'E_SKEPTIC':case 'E_CONFUSED2':case 'E_CURIOUS2':case 'E_PROUD2':case 'E_SHY':case 'E_BORED':case 'E_SLEEPY2':{
+      const s=Math.floor(t/3)%4,oval=(x,y=5)=>mask('0110/1001/1001/0110',x,y),mini=(x,y=5)=>mask('010/101/010',x,y);
+      if(kind==='E_CALM'){const q=[[-1,1],[0,1],[1,1],[0,0]][s];mask('10/01',4,5);mask('10/01',9,5);put(4+q[0],6+q[1]);put(9+q[0],6+q[1]);}
+      else if(kind==='E_FOCUS'){mini(3);mini(8);put(4,[5,6,7,6][s]);put(9,[5,6,7,6][s]);}
+      else if(kind==='E_SURPRISE'||kind==='E_FEAR'){const a=['0110/1001/1001/0110','0110/1001/1001/1001/0110','111/101/101/111','010/111/111/010'][s];mask(a,3,4);mask(a,8,4);put(4,6);put(9,6);}
+      else if(kind==='E_EXCITED'){const a=['10/01','010/101/010','1001/0110/0110/1001','01/10'][s],x=s===3?4:3;mask(a,x,5);mask(a,x+5,5);}
+      else if(kind==='E_HAPPY'||kind==='E_PROUD2'){if(s===0){mask('1001/0110',3,6);mask('1001/0110',8,6)}else if(s===1){line(3,7,5,7);line(8,7,10,7)}else if(s===2){mini(3,6);mini(8,6)}else{line(3,5,5,6);line(8,6,10,5)}}
+      else if(kind==='E_LAUGH'){if(s===0){line(3,7,5,6);line(8,6,10,7)}else if(s===1){line(3,8,5,7);line(8,7,10,8)}else if(s===2){mask('100/010/001',3,6);mask('001/010/100',8,6)}else{line(3,7,5,7);line(8,7,10,7)}}
+      else if(kind==='E_ANGRY'||kind==='E_SAD2'){const a=kind==='E_ANGRY'?[5,4,5,4]:[6,7,5,6],y=a[s];line(3,y,5,7-y);line(8,7-y,10,y);put(4,7);put(9,7);}
+      else if(kind==='E_SKEPTIC'||kind==='E_CONFUSED2'){if(s<2){mini(3);line(8,6+s,10,6+s);put(4,6)}else{line(3,s===2?6:7,5,s===2?6:7);mini(8);put(9,6)}}
+      else if(kind==='E_CURIOUS2'){const q=[[-1,-1],[0,-1],[1,0],[1,1]][s];oval(3);oval(8);put(4+q[0],6+q[1]);put(9-q[0],6+q[1]);}
+      else if(kind==='E_SHY'){if(s===0){mini(3,6);mini(8,6);put(4,8);put(9,8)}else if(s===1){line(3,7,5,7);line(8,7,10,7);put(4,8);put(9,8)}else if(s===2){mini(3,6);mini(8,6);put(4,7);put(9,7)}else{line(3,8,5,8);line(8,8,10,8)}}
+      else if(kind==='E_BORED'){const y=[6,7,7,8][s];line(3,y,5,y);line(8,y,10,y);if(s===2){put(4,6);put(9,6)}}
+      else{if(s===0){line(3,7,5,7);line(8,7,10,7);put(4,8);put(9,8)}else if(s===1){line(3,8,5,8);line(8,8,10,8)}else if(s===2){mask('1001/0110',3,7);mask('1001/0110',8,7)}else{line(3,7,5,7);line(8,7,10,7)}}break;
+    }
     case 'ORBIT':circle(7,7,5);circle(7,7,2);box(6+Math.round(5*Math.cos(t*Math.PI/12)),6+Math.round(5*Math.sin(t*Math.PI/12)),2,2,true);break;
     case 'PULSE':circle(7,7,1+Math.floor(t%18/3));put(7,7);break;
     case 'COMPASS':case 'BEARING':{
       const a=kind==='BEARING'?(opt.bearing??45)*Math.PI/180:Math.floor(t/3)*Math.PI/4;
       const dx=Math.sin(a),dy=-Math.cos(a),tip=[7+Math.round(5*dx),7+Math.round(5*dy)];
+
       line(7-Math.round(4*dx),7-Math.round(4*dy),...tip);
       for(const s of [-1,1])line(...tip,tip[0]-Math.round(3*dx)+Math.round(2*s*dy),tip[1]-Math.round(3*dy)-Math.round(2*s*dx));
       break;
@@ -313,7 +510,8 @@ function animationCode(i){const p=patterns[i];return '// '+p.name+' · 177灯整
 async function copyAnimation(i,button){let code=animationCode(i);try{await navigator.clipboard.writeText(code)}catch(e){let ta=document.createElement('textarea');ta.value=code;ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();document.execCommand('copy');ta.remove()}let old=button.textContent;button.textContent='✓ 已复制';$('#status').textContent=`✓ 已复制「${patterns[i].name.split(' · ')[0]}」动画代码`;setTimeout(()=>{button.textContent=old;$('#status').textContent=`● ${state.count} 个物理像素已就绪`},1800)}
 function preview177(target,p){const c=document.createElement('canvas');c.width=150;c.height=150;c.style.cssText='width:96px;height:96px;display:block;margin:auto;box-shadow:none';target.replaceChildren(c);const cx=c.getContext('2d'),grid=refinedFrame(p.name.split(' · ')[1],(p.name.endsWith('EYES')?6:Math.min(16,p.frames-1)),refinedOptions());cx.fillStyle='#030608';cx.beginPath();cx.arc(75,75,74,0,Math.PI*2);cx.fill();buildPoints(177).forEach(v=>{const x=Math.round(v.x*7.5+7),y=Math.round(v.y*7.5+7);cx.fillStyle=grid.has(y*15+x)?'#fff3cf':'#1a252b';cx.fillRect(9+x*9,9+y*9,7,7)})}
 function renderPresets(filter='all'){let box=$('#presets');box.innerHTML='';patterns.forEach((p,i)=>{if(filter!=='all'&&p.cat!==filter)return;let b=document.createElement('div');b.className='preset'+(i===state.pattern?' active':'');b.innerHTML=`<div class="preset-preview">${p.icon}</div><b>${p.name.split(' · ')[0]}</b><div class="preset-foot"><small>${p.frames} 帧动画</small><button class="copy-code">复制代码</button></div>`;b.dataset.pattern=i;b.onclick=()=>selectPattern(i);b.querySelector('.copy-code').onclick=e=>{e.stopPropagation();copyAnimation(i,e.currentTarget)};box.append(b);preview177(b.querySelector('.preset-preview'),p)})}
-function tick(t){if(state.playing&&t-state.last>1000/state.fps){state.phase++;state.last=t;draw()}requestAnimationFrame(tick)}
+let lastClockHalfSecond=-1;
+function tick(t){let dirty=false;if(state.playing&&t-state.last>1000/state.fps){state.phase++;state.last=t;dirty=true}if(!state.custom&&patterns[state.pattern].name.endsWith(' · CLOCK')){const halfSecond=Math.floor(Date.now()/500);if(halfSecond!==lastClockHalfSecond){lastClockHalfSecond=halfSecond;dirty=true}}else lastClockHalfSecond=-1;if(dirty)draw();requestAnimationFrame(tick)}
 $('#play').onclick=()=>{state.playing=!state.playing;$('#play').textContent=state.playing?'❚❚ 暂停':'▶ 播放';$('#play').classList.toggle('primary',!state.playing)};
 $('#step').onclick=()=>{state.phase++;draw()};$('#count').onchange=e=>rebuild(+e.target.value);document.querySelectorAll('[data-count]').forEach(b=>b.onclick=()=>rebuild(+b.dataset.count));
 $('#speed').oninput=e=>{state.fps=+e.target.value;$('#speedOut').value=state.fps+' FPS'};$('#bright').oninput=e=>{state.brightness=+e.target.value/100;$('#brightOut').value=e.target.value+'%';draw()};$('#displayDate').oninput=e=>{selectedDate=e.target.value||'2026-07-01';let [,m,d]=selectedDate.split('-');$('#dateOut').value=m+'/'+d;state.phase=13;draw()};$('#battery').oninput=e=>{batteryLevel=+e.target.value;$('#batteryOut').value=batteryLevel+'%';state.phase=13;draw()};$('#volume').oninput=e=>{volumeLevel=+e.target.value;$('#volumeOut').value=volumeLevel+'%';state.phase=13;draw()};$('#temperature').oninput=e=>{temperatureLevel=+e.target.value;$('#temperatureOut').value=temperatureLevel+'°';state.phase=13;draw()};$('#bearing').oninput=e=>{compassBearing=+e.target.value;let dirs=['N','NE','E','SE','S','SW','W','NW'];$('#bearingOut').value=compassBearing+'° '+dirs[Math.round(compassBearing/45)%8];state.phase=0;draw()};
@@ -324,5 +522,12 @@ function pointer(e,drag=false){if(!state.custom)return;let r=canvas.getBoundingC
 canvas.onpointerdown=e=>{state.drag=true;pointer(e)};canvas.onpointermove=e=>{if(state.drag)pointer(e,true)};window.onpointerup=()=>state.drag=false;
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));renderPresets(t.dataset.filter)});
 let initialPattern=Math.max(0,patterns.findIndex(p=>location.hash&&p.name.toLowerCase().includes(location.hash.slice(1).toLowerCase())));rebuild(177);renderPresets();selectPattern(initialPattern);state.phase=Math.max(0,+new URLSearchParams(location.search).get('frame')||0);draw();requestAnimationFrame(tick);
+
+/* DOT LAB shared library */
+(()=>{if($('#patternSearch'))return;const K='dotLabR2LocalExpressionsV1',D={liked:{},drawings:[]};let C='all',F='all',Q='';try{Object.assign(D,JSON.parse(localStorage.getItem(K))||{})}catch(e){}const save=()=>localStorage.setItem(K,JSON.stringify(D)),like=k=>!!D.liked[k],ok=(k,n,c)=>(n+' '+c).toLowerCase().includes(Q.toLowerCase())&&(F==='all'||F==='liked'&&like(k)||F==='unliked'&&!like(k)),flip=k=>{D.liked[k]=!like(k);save();renderPresets(C)};let z=document.createElement('style');z.textContent='.library-tools{display:grid;gap:8px;margin:0 0 12px}.search-input{width:100%;background:#0b1115;color:#edf3f6;border:1px solid #33434e;border-radius:9px;padding:8px 10px;font-size:12px}.like-filters{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.like-filter,.like-btn{border:1px solid #3b4c57;background:#162129;color:#b9c7ce;border-radius:7px;padding:6px 5px;font-size:10px;cursor:pointer}.like-filter.active{background:#273945;border-color:#ffd66b;color:#fff3cf}.like-btn.active{border-color:#ff8ea0;color:#ff9caf;background:#2a1820}.saved-badge{color:#86f0c0;font-size:9px}';document.head.append(z);$('.tabs').insertAdjacentHTML('beforebegin','<div class="library-tools"><input id="patternSearch" class="search-input" type="search" placeholder="搜索表情、动画或已保存图案"><div class="like-filters"><button class="like-filter active" data-f="all">全部</button><button class="like-filter" data-f="liked">已点赞</button><button class="like-filter" data-f="unliked">未点赞</button></div></div>');$('#clear').insertAdjacentHTML('afterend','<button class="btn" id="saveDrawing" style="width:100%;margin-top:8px">保存当前表情</button>');
+const pick=s=>{rebuild(s.count||177);state.custom=true;state.customOn=new Set(s.pixels||[]);state.playing=false;$('#patternName').textContent=s.name+' · SAVED';$('#modeText').textContent='已保存的手绘表情';draw()},btn=(on)=>'<button class="like-btn '+(on?'active':'')+'">'+(on?'♥ 已点赞':'♡ 点赞')+'</button>';
+renderPresets=function(f=C){C=f;let box=$('#presets');box.innerHTML='';D.drawings.forEach(s=>{let k='saved:'+s.id;if((C!=='all'&&C!=='emotion')||!ok(k,s.name,'emotion'))return;let b=document.createElement('div');b.className='preset';b.innerHTML='<div class="preset-preview">✦</div><b>'+s.name+'</b><span class="saved-badge">已保存手绘表情</span><div class="preset-foot"><small>'+(s.count||177)+' 灯 · 静态图案</small>'+btn(like(k))+'</div>';b.onclick=()=>pick(s);b.querySelector('.like-btn').onclick=e=>{e.stopPropagation();flip(k)};box.append(b)});patterns.forEach((p,i)=>{let k='preset:'+p.name;if((C!=='all'&&p.cat!==C)||!ok(k,p.name,p.cat))return;let b=document.createElement('div');b.className='preset'+(!state.custom&&i===state.pattern?' active':'');b.innerHTML='<div class="preset-preview">'+p.icon+'</div><b>'+p.name.split(' · ')[0]+'</b><div class="preset-foot"><small>'+p.frames+' 帧动画</small><button class="copy-code">复制代码</button></div>'+btn(like(k));b.onclick=()=>selectPattern(i);b.querySelector('.copy-code').onclick=e=>{e.stopPropagation();copyAnimation(i,e.currentTarget)};b.querySelector('.like-btn').onclick=e=>{e.stopPropagation();flip(k)};box.append(b);preview177(b.querySelector('.preset-preview'),p)});if(!box.children.length)box.innerHTML='<div class="footer-note">没有匹配的表情或动画。</div>'};
+$('#patternSearch').oninput=e=>{Q=e.target.value.trim();renderPresets(C)};document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{F=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.classList.toggle('active',x===b));renderPresets(C)});$('#saveDrawing').onclick=()=>{if(!state.custom||!state.customOn.size){$('#status').textContent='请先进入绘制并点亮至少一颗灯珠';return}let n=(prompt('为这个手绘表情命名','我的表情')||'').trim();if(!n)return;D.drawings.unshift({id:Date.now().toString(36),name:n.slice(0,24),pixels:[...state.customOn],count:state.count});save();renderPresets(C);$('#status').textContent='✓ 已保存「'+n.slice(0,24)+'」'};renderPresets()})();
+
 </script>
 </body></html>
