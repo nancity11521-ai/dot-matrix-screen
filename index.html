@@ -29,7 +29,7 @@ button,input,select{font:inherit}.shell{max-width:1440px;margin:auto;padding:24p
    <div class="screen-wrap"><div class="halo"></div><canvas id="matrix" width="760" height="760"></canvas></div>
    <div class="metrics"><div class="metric"><b id="totalMetric">393</b><span>物理灯数</span></div><div class="metric"><b id="litMetric">0</b><span>当前点亮</span></div><div class="metric"><b id="frameMetric">01 / 24</b><span>动画帧</span></div></div>
   </main>
-  <aside class="panel library"><h2>图案与场景</h2><div class="tabs"><button class="tab active" data-filter="all">全部</button><button class="tab" data-filter="system">系统</button><button class="tab" data-filter="life">生活</button><button class="tab" data-filter="emotion">情绪</button></div><div class="preset-grid" id="presets"></div><div class="footer-note">393灯 · 0707CSP (间距0.16mm / Φ20.00mm) · 23×23高密圆形点阵 · 时间：上方小时、下方分钟；日期：上方月份、下方日期。</div></aside>
+  <aside class="panel library"><h2>图案与场景</h2><div class="tabs"><button class="tab active" data-filter="all">全部</button><button class="tab" data-filter="system">系统</button><button class="tab" data-filter="activity">活动</button><button class="tab" data-filter="life">生活</button><button class="tab" data-filter="emotion">情绪</button></div><div class="preset-grid" id="presets"></div><div class="footer-note">393灯 · 0707CSP (间距0.16mm / Φ20.00mm) · 23×23高密圆形点阵 · 时间：上方小时、下方分钟；日期：上方月份、下方日期。</div><details class="footer-note" style="margin-top:10px;cursor:pointer"><summary style="font-weight:600;color:var(--accent);margin-bottom:8px">📋 对比 Nothing 手机 Glyph 体系与分类说明</summary><div style="font-size:10px;line-height:1.7;color:#94a3b8"><div style="margin-bottom:8px"><b>Nothing Phone (Glyph 体系)</b>：采用 5~11 组异形分段导光条（12~33 个控制区），本质为线性段码灯，主要承担粗粒度进度、铃声节拍与闪烁通知。</div><div style="margin-bottom:8px"><b>DOT LAB (393颗 CSP 点阵屏)</b>：采用 23×23 二维紧密微矩阵（Φ20.00mm），拥有真实 2D 图形与字符显示能力。</div><div style="margin-bottom:6px"><b>五大核心分类规划：</b></div><ul style="padding-left:16px;margin:4px 0 8px"><li><b>系统状态 (System)</b>：高精度数字电量(如 20%)、时间双排显示、日期与星期、温度指示、指南针航向罗盘、音量格阵、WiFi/蓝牙/安全锁等。</li><li><b>实时活动 (Activity)</b>：对标 Glyph Progress & Timer，提供时砂沙漏、三排进度条、要事震颤通知、旋转刻度盘、空间门加载等。</li><li><b>生活环境 (Life)</b>：动态五类气象(晴/云/雨/雪/雷暴)、步进与跑步运动小人、健身杠铃、8款灵动萌宠伴侣、酒瓶聚会互动等。</li><li><b>灵动情绪 (Emotion)</b>：全眼神眼动库(扫视/眨眼/星光/困倦/警觉/灵动瞳孔)、16态经典情绪面孔、心跳回响与点赞/OK手势。</li><li><b>个性创作 (Custom)</b>：393点物理网格自由手绘，支持本地表情库存储、点赞与一键导出驱动代码。</li></ul></div></details></aside>
  </div>
 </div>
 <script>
@@ -70,10 +70,10 @@ const patterns=[
  {name:'星罗盘 · COMPASS',cat:'system',icon:'✦',frames:24,fn:(x,y,p)=>{let q=rot(x,y,p*.1);return near(q.x,.065)&&Math.abs(q.y)<.76||near(q.y,.065)&&Math.abs(q.x)<.76||ring(x,y,.8,.045)&&q.y<-.28}},
  {name:'声波 · WAVE',cat:'life',icon:'≋',frames:24,fn:(x,y,p)=>voiceWavePixel(x,y,p)},
  {name:'绽放 · BLOOM',cat:'emotion',icon:'✣',frames:20,fn:(x,y,p)=>{let a=Math.atan2(y,x),r=Math.hypot(x,y),e=.25+(p%20)/20*.55;return Math.abs(Math.sin(4*a+p*.08))>.65&&r>.13&&r<e}},
- {name:'时砂 · FOCUS',cat:'system',icon:'⌛',frames:24,fn:(x,y,p)=>{let t=-.45+(p%24)/24*.9;return Math.abs(x)<(.09+Math.abs(y)*.58)&&Math.abs(y)<.7&&(y<t-.08||y>t+.28||Math.abs(x)<.07)}},
- {name:'沙漏倒计时 · SAND',cat:'system',icon:'⌛',frames:36,fn:(x,y,p)=>{let u=(p%36)/35,ax=Math.abs(x),ay=Math.abs(y),rail=(Math.abs(y-.72)<.065||Math.abs(y+.72)<.065)&&ax<.64,wall=ay>.08&&ay<.7&&Math.abs(ax-(.08+ay*.76))<.065,topH=.5*(1-u),top=y<-.08&&y>-.08-topH&&ax<.09+(-y-.08)*.78,bottomH=Math.max(.02,.5*u),bottom=y>.64-bottomH&&y<.65&&ax<.09+(y-(.64-bottomH))/bottomH*.48,row=Math.round((y+1)*8),stream=u<.98&&y>-.08&&y<.56-bottomH&&ax<.055&&((row+p)%3+3)%3<2,t=(p%6)/6,sx=.11+.42*t,sy=.5-.2*Math.sin(t*Math.PI)+.08*t,scatter=u>.08&&u<.98&&((Math.hypot(x-sx,y-sy)<.09)||(Math.hypot(x+sx,y-sy)<.09));return rail||wall||top||bottom||stream||scatter}},
- {name:'三排进度条 · PROGRESS',cat:'system',icon:'▰▰▱',frames:20,fn:(x,y,p)=>{let row=Math.round(y*8+7.5),col=Math.round(x*8+7.5),filled=Math.min(16,p%20);return row>=7&&row<=9&&col>=0&&col<filled}},
- {name:'空间门 · PORTAL',cat:'system',icon:'▣',frames:18,fn:(x,y,p)=>{let m=Math.max(Math.abs(x),Math.abs(y)),t=(p%18)/18*.14;return [.2+t,.43+t/2,.69-t/2].some(v=>Math.abs(m-v)<.065)}},
+ {name:'时砂 · FOCUS',cat:'activity',icon:'⌛',frames:24,fn:(x,y,p)=>{let t=-.45+(p%24)/24*.9;return Math.abs(x)<(.09+Math.abs(y)*.58)&&Math.abs(y)<.7&&(y<t-.08||y>t+.28||Math.abs(x)<.07)}},
+ {name:'沙漏倒计时 · SAND',cat:'activity',icon:'⌛',frames:36,fn:(x,y,p)=>{let u=(p%36)/35,ax=Math.abs(x),ay=Math.abs(y),rail=(Math.abs(y-.72)<.065||Math.abs(y+.72)<.065)&&ax<.64,wall=ay>.08&&ay<.7&&Math.abs(ax-(.08+ay*.76))<.065,topH=.5*(1-u),top=y<-.08&&y>-.08-topH&&ax<.09+(-y-.08)*.78,bottomH=Math.max(.02,.5*u),bottom=y>.64-bottomH&&y<.65&&ax<.09+(y-(.64-bottomH))/bottomH*.48,row=Math.round((y+1)*8),stream=u<.98&&y>-.08&&y<.56-bottomH&&ax<.055&&((row+p)%3+3)%3<2,t=(p%6)/6,sx=.11+.42*t,sy=.5-.2*Math.sin(t*Math.PI)+.08*t,scatter=u>.08&&u<.98&&((Math.hypot(x-sx,y-sy)<.09)||(Math.hypot(x+sx,y-sy)<.09));return rail||wall||top||bottom||stream||scatter}},
+ {name:'三排进度条 · PROGRESS',cat:'activity',icon:'▰▰▱',frames:20,fn:(x,y,p)=>{let row=Math.round(y*8+7.5),col=Math.round(x*8+7.5),filled=Math.min(16,p%20);return row>=7&&row<=9&&col>=0&&col<filled}},
+ {name:'空间门 · PORTAL',cat:'activity',icon:'▣',frames:18,fn:(x,y,p)=>{let m=Math.max(Math.abs(x),Math.abs(y)),t=(p%18)/18*.14;return [.2+t,.43+t/2,.69-t/2].some(v=>Math.abs(m-v)<.065)}},
  {name:'萤火 · FIREFLY',cat:'emotion',icon:'⁙',frames:20,fn:(x,y,p,i)=>((i*7+Math.round(y*11)+p)%19<2)||Math.hypot(x+.35-p%10*.02,y-.22)<.14},
  {name:'地平线 · DAWN',cat:'life',icon:'☀',frames:20,fn:(x,y,p)=>{let h=.35-(p%20)/20*.65;return near(y-h,.065)&&Math.abs(x)<.85||(y<h&&Math.abs(Math.hypot(x,y-h)-.42)<.09)}},
  {name:'情绪眼睛 · EYES',cat:'emotion',icon:'◉◉',frames:16,fn:(x,y,p)=>{let blink=p%16>11;return blink?near(y,.07)&&((x>.12&&x<.72)||(x<-.12&&x>-.72)):(((Math.hypot(x-.38,y)-.25<.075)||(Math.hypot(x+.38,y)-.25<.075))&&Math.abs(y)<.3)}},
@@ -87,7 +87,7 @@ const patterns=[
  {name:'暴风雨 · STORM',cat:'life',icon:'ϟ',frames:24,fn:(x,y,p)=>stormWeatherPixel(x,y,p)},
  {name:'闹钟 · ALARM',cat:'life',icon:'◷',frames:16,fn:(x,y,p)=>ring(x,y,.58,.07)||near(x,.065)&&y<0||near(y,.065)&&x>0||(p%4<2&&ring(x,y,.82,.045)&&y<-.25)},
  {name:'相机 · CAMERA',cat:'life',icon:'▣',frames:18,fn:(x,y,p)=>p%18<12?(Math.abs(x)<.52&&Math.abs(y)<.4&&(Math.abs(x)>.4||Math.abs(y)>.29)||ring(x,y,.22,.08)):ring(x,y,.65,.07)||Math.hypot(x,y)<.15},
- {name:'通知 · NOTIFY',cat:'system',icon:'!',frames:14,fn:(x,y,p)=>Math.hypot(x,y)<(.18+.06*Math.sin(p*.6))||near(x,.07)&&y<-.25&&y>-.72||Math.hypot(x,y-.58)<.1},
+ {name:'通知 · NOTIFY',cat:'activity',icon:'!',frames:14,fn:(x,y,p)=>Math.hypot(x,y)<(.18+.06*Math.sin(p*.6))||near(x,.07)&&y<-.25&&y>-.72||Math.hypot(x,y-.58)<.1},
  {name:'心跳回响 · HEARTBEAT',cat:'emotion',icon:'♥',frames:32,fn:(x,y,p)=>{let t=p%32;if(t<2)return false;let u=Math.min(1,(t-2)/13),e=1-Math.pow(1-u,3),s=t<16?.12+.88*e:1+(t>23?.055*Math.sin((t-23)/8*Math.PI*2):0);return heartPixel(x,y,s)}},
  {name:'心情变换 · MOOD',cat:'emotion',icon:'☺',frames:32,fn:(x,y,p)=>moodFacePixel(x,y,p)},
  {name:'活力小人 · PERSON',cat:'life',icon:'人',frames:32,fn:(x,y,frame)=>{let sg=(a,b,t=.1)=>{let vx=b[0]-a[0],vy=b[1]-a[1],u=Math.max(0,Math.min(1,((x-a[0])*vx+(y-a[1])*vy)/(vx*vx+vy*vy)));return Math.hypot(x-a[0]-u*vx,y-a[1]-u*vy)<t},poses=[[[0,.12],[-.3,.18],[.3,.18],[-.26,.68],[.26,.68]],[[0,.12],[-.65,-.4],[.65,-.4],[-.48,.66],[.48,.66]],[[0,.12],[-.5,-.4],[.44,.08],[-.52,.56],[.42,.67]],[[0,.12],[-.4,-.78],[.4,-.78],[-.28,.65],[.28,.65]]],f=frame%32,s=Math.floor(f/8),n=(s+1)%4,u=Math.max(0,(f%8-5)/3),e=u*u*(3-2*u),p=poses[s].map((v,i)=>[v[0]+(poses[n][i][0]-v[0])*e,v[1]+(poses[n][i][1]-v[1])*e]),bounce=s===1||s===3?-.06*Math.sin((f%8)/7*Math.PI):0;y-=bounce;let [hip,lh,rh,lf,rf]=p,shoulder=[0,-.25];return Math.hypot(x,y+.57)<.13||sg(shoulder,hip,.09)||sg(shoulder,lh,.09)||sg(shoulder,rh,.09)||sg(hip,lf,.1)||sg(hip,rf,.1)}},
@@ -115,20 +115,20 @@ const patterns=[
 ,
  {name:'无线连接 · WIFI',cat:'system',icon:'',frames:24,fn:()=>false},
  {name:'蓝牙配对 · BLUETOOTH',cat:'system',icon:'',frames:24,fn:()=>false},
- {name:'完成确认 · SUCCESS',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'完成确认 · SUCCESS',cat:'activity',icon:'',frames:24,fn:()=>false},
  {name:'安全锁定 · LOCK',cat:'system',icon:'',frames:24,fn:()=>false},
- {name:'邮件到达 · MAIL',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'邮件到达 · MAIL',cat:'activity',icon:'',frames:24,fn:()=>false},
  {name:'火箭出发 · ROCKET',cat:'emotion',icon:'',frames:24,fn:()=>false},
  {name:'月夜静谧 · MOON',cat:'life',icon:'',frames:24,fn:()=>false},
  {name:'蝴蝶振翅 · BUTTERFLY',cat:'life',icon:'',frames:24,fn:()=>false},
  {name:'空电池 · BATTERY_EMPTY',cat:'system',icon:'',frames:24,fn:()=>false},
  {name:'满电充盈 · BATTERY_FULL',cat:'system',icon:'',frames:24,fn:()=>false},
- {name:'能量环 · ENERGY_RING',cat:'system',icon:'',frames:24,fn:()=>false},
- {name:'旋转刻度 · DIAL',cat:'system',icon:'',frames:24,fn:()=>false},
- {name:'十字扫描 · AXIS',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'能量环 · ENERGY_RING',cat:'activity',icon:'',frames:24,fn:()=>false},
+ {name:'旋转刻度 · DIAL',cat:'activity',icon:'',frames:24,fn:()=>false},
+ {name:'十字扫描 · AXIS',cat:'activity',icon:'',frames:24,fn:()=>false},
  {name:'步进小人 · WALK',cat:'life',icon:'',frames:24,fn:()=>false},
  {name:'放射光芒 · RAYS',cat:'emotion',icon:'',frames:24,fn:()=>false},
- {name:'加载指示 · LOADER',cat:'system',icon:'',frames:24,fn:()=>false},
+ {name:'加载指示 · LOADER',cat:'activity',icon:'',frames:24,fn:()=>false},
  {name:'专注凝视 · ATTENTIVE',cat:'emotion',icon:'',frames:24,fn:()=>false},
  {name:'好奇探看 · CURIOUS',cat:'emotion',icon:'',frames:24,fn:()=>false},
  {name:'难过低落 · SAD',cat:'emotion',icon:'',frames:24,fn:()=>false},
