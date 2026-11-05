@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>点阵屏项目 · 需求规格说明文档</title>
+  <style>
+    :root {
+      --bg: #070b0f;
+      --panel: #0d141a;
+      --panel-border: #1e2a35;
+      --card-bg: #121c24;
+      --accent: #ffd45e;
+      --accent-glow: rgba(255, 212, 94, 0.4);
+      --text: #e6edf3;
+      --muted: #8b9baa;
+      --dim: #485764;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at 50% -10%, #15222c 0%, var(--bg) 65%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 顶部导航 */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--panel-border);
+      background: rgba(13, 20, 26, 0.92);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #141f28;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 11px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .back-btn:hover { background: #1e2c38; border-color: var(--accent); }
+
+    .brand-title h1 {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255, 212, 94, 0.12);
+      border: 1px solid rgba(255, 212, 94, 0.3);
+      color: var(--accent);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 6px #4ade80;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      background: #15202a;
+      color: var(--text);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn:hover { background: #1e2c38; border-color: #3b5062; }
+    .btn.active {
+      background: rgba(255, 212, 94, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0b1116;
+      font-weight: 700;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    /* 主内容区 */
+    main {
+      flex: 1;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .editor-container {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 150px);
+    }
+
+    .editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 18px;
+      background: #0d141a;
+      border-bottom: 1px solid var(--panel-border);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* 文本编辑框 */
+    #docEditor {
+      width: 100%;
+      flex: 1;
+      min-height: 650px;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 24px;
+      color: var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "PingFang SC", sans-serif;
+      font-size: 13.5px;
+      line-height: 1.7;
+      resize: vertical;
+      white-space: pre-wrap;
+    }
+
+    /* 预览容器 */
+    #docPreview {
+      display: none;
+      padding: 30px 36px;
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 14px;
+    }
+
+    /* 预览 Markdown 样式 */
+    #docPreview h1 {
+      font-size: 24px;
+      color: var(--accent);
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    #docPreview h2 {
+      font-size: 18px;
+      color: #7dd3fc;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 6px;
+    }
+    #docPreview h3 {
+      font-size: 15px;
+      color: #cbd5e1;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    #docPreview p { margin-bottom: 12px; color: #cbd5e1; }
+    #docPreview ul, #docPreview ol { margin-left: 24px; margin-bottom: 14px; color: #cbd5e1; }
+    #docPreview li { margin-bottom: 6px; }
+    #docPreview code {
+      background: #1a2530;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #f6ad55;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    #docPreview pre {
+      background: #090e13;
+      border: 1px solid var(--panel-border);
+      padding: 14px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+    #docPreview pre code { background: none; padding: 0; color: #93c5fd; }
+    #docPreview blockquote {
+      border-left: 3px solid var(--accent);
+      padding: 8px 16px;
+      background: rgba(255, 212, 94, 0.06);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 16px;
+      color: #e2e8f0;
+    }
+    #docPreview table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    #docPreview th, #docPreview td {
+      border: 1px solid var(--panel-border);
+      padding: 8px 12px;
+      text-align: left;
+    }
+    #docPreview th {
+      background: #111a22;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    #docPreview tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+    /* 浮动提示 */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #192733;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 8px 20px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 1000;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <header>
+    <div class="brand">
+      <a href="index.html" class="back-btn">← 返回点阵屏模拟器</a>
+      <div class="brand-title">
+        <h1>点阵屏项目 · 需求规格说明文档</h1>
+      </div>
+      <div class="status-badge" id="saveStatus">
+        <span class="status-dot"></span>
+        <span id="saveStatusText">已实时自动保存</span>
+      </div>
+    </div>
+
+    <div class="toolbar-actions">
+      <div style="display:flex;background:#090e13;border-radius:8px;padding:3px;border:1px solid var(--panel-border);margin-right:6px">
+        <button class="btn active" id="btnEditMode" style="border:none" onclick="setMode('edit')">✏️ 编辑模式</button>
+        <button class="btn" id="btnPreviewMode" style="border:none" onclick="setMode('preview')">👁️ 预览模式</button>
+      </div>
+      <button class="btn primary" onclick="manualSave()">💾 保存文档</button>
+      <button class="btn" onclick="copyDocument()">📋 一键复制全文</button>
+      <button class="btn" onclick="exportMarkdown()">📥 导出 .md 文件</button>
+      <button class="btn" onclick="resetToDefaultTemplate()">🔄 恢复默认模板</button>
+    </div>
+  </header>
+
+  <!-- 主编辑区 -->
+  <main>
+    <div class="editor-container">
+      <div class="editor-header">
+        <span>💡 提示：您可以在编辑模式下直接打字修改、补充您的新需求，系统会自动保存至本地，刷新不丢失。</span>
+        <span id="wordCount">字数: 0</span>
+      </div>
+
+      <!-- 编辑框 -->
+      <textarea id="docEditor" spellcheck="false" placeholder="在此直接编辑您的需求文档内容..."></textarea>
+
+      <!-- 预览框 -->
+      <div id="docPreview"></div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast">操作已完成！</div>
+
+  <script>
+    const DEFAULT_TEMPLATE = `# 点阵屏项目 · 软硬件需求规格说明文档 (PRD)
+
+> **文档版本**：v1.2.0  
+> **项目名称**：点阵屏项目（AI表情与全场景动画）  
+> **负责人**：南城  
+> **最后修订**：2026-11-05  
+
+---
+
+## 1. 项目概述与核心目标
+
+本项目基于 **393 颗物理圆形微密点阵屏**（23×23 对称圆阵，0707CSP Φ20.00mm），构建集**「AI 表情动态仿真」**与**「全场景生活/系统/活动动画」**于一体的软硬件交互平台。
+
+- **高拟真度**：突破传统低分辨率点阵限制，在 23×23 高密圆阵上实现 3D 头部姿态与双眼视线追踪。
+- **全场景体系**：涵盖 表情、系统、活动、生活、游戏、氛围 6 大核心品类。
+- **硬件直驱**：实时输出可直接编译烧录至 ESP32 / Arduino / STM32 的 C 语言位图数组与行掩码。
+
+---
+
+## 2. 硬件规格与显示阵列定义
+
+### 2.1 物理结构参数
+- **灯珠类型**：0707CSP 超微高亮发光二极管
+- **物理灯板**：Φ20.00mm 圆形铝基板
+- **灯珠中心间距 (Pitch)**：0.16 mm
+- **物理像素总数**：**393 颗 (PCS)**
+- **物理网格基准**：以 (11, 11) 为圆心原点对称分布
+
+### 2.2 23 行对称分布明细表
+\`\`\`
+Row 00: 5 颗    Row 08: 21 颗   Row 16: 19 颗
+Row 01: 9 颗    Row 09: 23 颗   Row 17: 19 颗
+Row 02: 13 颗   Row 10: 23 颗   Row 18: 17 颗
+Row 03: 15 颗   Row 11: 23 颗   Row 19: 15 颗
+Row 04: 17 颗   Row 12: 23 颗   Row 20: 13 颗
+Row 05: 19 颗   Row 13: 23 颗   Row 21: 9 颗
+Row 06: 19 颗   Row 14: 21 颗   Row 22: 5 颗
+Row 07: 21 颗   Row 15: 21 颗   总计: 393 颗
+\`\`\`
+
+---
+
+## 3. 全分类动画体系与功能需求清单
+
+### 3.1 🤖 【表情分类】（Avatar & Expressions）
+- **情绪表情 (16 种)**：
+  - 平静（Neutral）、专注（Focus）、惊讶（Surprise）、兴奋（Excited）
+  - 开心（Happy）、大笑（Laugh）、生气（Angry）、难过（Sad）
+  - 害怕（Fear）、怀疑（Skeptic）、困惑（Confused）、好奇（Curious）
+  - 得意（Proud）、羞怯（Shy）、无趣（Bored）、困倦（Sleepy）
+- **动作状态 (14 种)**：
+  - 待机呼吸、思考沉思、俏皮眨眼、睁大双眼、警觉凝视、消息提示、感叹唤醒
+  - 深度睡眠、椭圆律动、六边晶格、弹跳趣味、行星环绕（Orbit 环带）、粒子爆发（Burst 爆裂）、彗星飞掠（Comet 流光）
+- **灵动眼眸与符号**：触电电眼、弯月笑眼、情绪双眸、心情变换、心跳回响。
+
+### 3.2 ⚙️ 【系统分类】（System & Hardware）
+- **时间与日历**：上下垂直数字时钟、双层月份日期、星期流动条。
+- **硬件仪表**：精准电量百分比、充电流光能量环、立体音量柱、环境温度计显示。
+- **传感与网络**：360° 动态电子罗盘、全向雷达扫描、蓝牙配对波纹。
+
+### 3.3 🏃 【活动分类】（Activity & Fitness）
+- **运动健康**：动态逐帧奔跑者、每日万步达成勋章、健身律动、跃动小人。
+- **专注效率**：时砂专注、沙漏倒计时流沙、三排矩阵进度条、任务完成确认打勾、邮件到达。
+
+### 3.4 ☕ 【生活分类】（Daily Life & Nature）
+- **气象万千**：阳光晴天、浮云飘拂、细密像素雨、冬日落雪、雷暴闪电。
+- **影音律动**：跳动音频声波、多段音频均衡器频谱、晨起闹钟、地平线朝阳。
+- **萌宠生灵**：像素小猫眨眼、灵动小狗摇尾、金鱼游动、飞翔小鸟。
+- **日常习惯**：咖啡小憩提醒、多喝水打卡。
+
+### 3.5 🎮 【游戏分类】（Pixel Art & Retro Games）
+- **复古街机**：吃豆人吞豆、太空侵略者章鱼、经典贪吃蛇、俄罗斯方块消行。
+- **像素符号**：8-bit 像素跳动心、幸运骰子点数、璀璨钻石。
+
+### 3.6 ✨ 【氛围分类】（Ambience & Magic）
+- **节日庆典**：夜空粒子烟花、温暖摇曳烛火、节日礼盒。
+- **空间视效**：星际双重轨道、深空脉冲呼吸、空间传送门、微光萤火。
+
+---
+
+## 4. 交互与控制逻辑需求
+
+1. **实时 3D 鼠标 / 触控视线追踪**：鼠标在屏幕移动时，AI 球双眼在 3D 空间球面上实时跟踪注视。
+2. **自然生命力动力学**：缓慢自主呼吸微动（周期约 3.4s）、随机自主眨眼（间隔 1.9~4.6s）。
+3. **呈现模式切换**：支持大眼特写面部（Face）、完整球体（Blob）、高亮反相（Invert）、边缘轮廓（Contour）。
+4. **像素发光算法**：支持 PWM 拟真灰度 与 纯二值 0/1 物理点阵切换。
+
+---
+
+## 5. 嵌入式单片机数据接口规范
+
+- **位图压缩格式**：393 位压缩为 50 字节，高位在前。
+  \`const uint8_t PROGMEM BLOUB_FRAME_393[50] = { 0x... };\`
+- **行扫描格式**：23 行独立 uint32_t 掩码。
+  \`const uint32_t PROGMEM BLOUB_ROWS[23] = { 0x... };\`
+- **序列导出**：支持标准 JSON 帧数组导出与 PNG 截图保存。
+
+---
+
+## 6. 后续新增需求待办池 (TODO 记录区)
+
+> *（南城：您可以在下方直接打字记录新的灵感、具体想要调整的图案或新功能）*
+
+- [ ] 新增待办 1：
+- [ ] 新增待办 2：
+- [ ] 新增待办 3：
+`;
+
+    const STORAGE_KEY = 'DOT_MATRIX_PROJECT_DOCS_CONTENT';
+    const editor = document.getElementById('docEditor');
+    const preview = document.getElementById('docPreview');
+    const wordCount = document.getElementById('wordCount');
+
+    // 初始化内容
+    function init() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      editor.value = saved || DEFAULT_TEMPLATE;
+      updateWordCount();
+      renderMarkdown();
+
+      // 实时自动保存监听
+      editor.addEventListener('input', () => {
+        localStorage.setItem(STORAGE_KEY, editor.value);
+        updateWordCount();
+        renderMarkdown();
+        showAutoSaveStatus();
+      });
+    }
+
+    function updateWordCount() {
+      wordCount.textContent = `字数: ${editor.value.length}`;
+    }
+
+    function showAutoSaveStatus() {
+      const el = document.getElementById('saveStatusText');
+      el.textContent = '已自动保存';
+      setTimeout(() => { el.textContent = '已实时自动保存'; }, 1500);
+    }
+
+    // 模式切换
+    function setMode(mode) {
+      document.getElementById('btnEditMode').classList.toggle('active', mode === 'edit');
+      document.getElementById('btnPreviewMode').classList.toggle('active', mode === 'preview');
+
+      if (mode === 'edit') {
+        editor.style.display = 'block';
+        preview.style.display = 'none';
+      } else {
+        renderMarkdown();
+        editor.style.display = 'none';
+        preview.style.display = 'block';
+      }
+    }
+
+    // 轻量级原生 Markdown 解析器
+    function renderMarkdown() {
+      const text = editor.value;
+      let html = text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+        .replace(/\\*\\*(.*)\\*\\*/gim, '<b>$1</b>')
+        .replace(/\\*(.*)\\*/gim, '<i>$1</i>')
+        .replace(/`([^`]+)`/gim, '<code>$1</code>')
+        .replace(/```([\\s\\S]*?)```/gim, '<pre><code>$1</code></pre>')
+        .replace(/^- (.*$)/gim, '<li>$1</li>')
+        .replace(/<li>.*<\\/li>/gim, (m) => `<ul>${m}</ul>`)
+        .replace(/\\n/gim, '<br>');
+
+      preview.innerHTML = html;
+    }
+
+    // 手动保存
+    function manualSave() {
+      localStorage.setItem(STORAGE_KEY, editor.value);
+      showToast('文档已成功保存到本地存储！');
+    }
+
+    // 复制全文
+    function copyDocument() {
+      navigator.clipboard.writeText(editor.value).then(() => {
+        showToast('已成功复制需求文档全文到剪贴板！');
+      });
+    }
+
+    // 导出 .md 文件
+    function exportMarkdown() {
+      const blob = new Blob([editor.value], { type: 'text/markdown;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `点阵屏项目_需求规格说明书_${Date.now()}.md`;
+      link.click();
+      showToast('已成功导出 Markdown 文件！');
+    }
+
+    // 恢复默认模板
+    function resetToDefaultTemplate() {
+      if (confirm('确定要恢复为初始默认的需求模板吗？当前修改将会被覆盖。')) {
+        editor.value = DEFAULT_TEMPLATE;
+        localStorage.setItem(STORAGE_KEY, DEFAULT_TEMPLATE);
+        updateWordCount();
+        renderMarkdown();
+        showToast('已恢复初始默认模板！');
+      }
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    init();
+  </script>
+</body>
+</html>
