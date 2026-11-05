@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>点阵屏项目 · 393 物理点阵定制开发平台</title>
+  <title>点阵屏项目 · 393 物理点阵全场景动画定制平台</title>
   <style>
     :root {
-      --bg: #080d11;
-      --panel: #0f161c;
-      --panel-border: #1f2c37;
-      --card-bg: #141e26;
+      --bg: #070b0f;
+      --panel: #0d141a;
+      --panel-border: #1e2a35;
+      --card-bg: #121c24;
+      --card-hover: #192733;
       --accent: #ffd45e;
       --accent-glow: rgba(255, 212, 94, 0.4);
       --text: #e6edf3;
@@ -23,7 +24,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: radial-gradient(circle at 50% -10%, #17242f 0%, var(--bg) 60%);
+      background: radial-gradient(circle at 50% -10%, #15222c 0%, var(--bg) 65%);
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
@@ -36,17 +37,17 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 28px;
+      padding: 12px 24px;
       border-bottom: 1px solid var(--panel-border);
-      background: rgba(15, 22, 28, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(13, 20, 26, 0.9);
+      backdrop-filter: blur(14px);
       z-index: 10;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
     .logo-badge {
@@ -59,7 +60,7 @@
       place-items: center;
       box-shadow: 0 0 16px var(--accent-glow);
     }
-    .logo-badge svg { width: 22px; height: 22px; fill: var(--accent); }
+    .logo-badge svg { width: 20px; height: 20px; fill: var(--accent); }
 
     .brand-title h1 {
       font-size: 16px;
@@ -78,7 +79,7 @@
 
     .badge-pill {
       font-size: 11px;
-      padding: 3px 8px;
+      padding: 2px 8px;
       border-radius: 999px;
       background: rgba(255, 212, 94, 0.12);
       border: 1px solid rgba(255, 212, 94, 0.3);
@@ -89,48 +90,41 @@
     .top-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .repo-link {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
-      background: #17222c;
+      padding: 5px 12px;
+      background: #141f28;
       border: 1px solid var(--panel-border);
       border-radius: 8px;
       color: var(--text);
-      font-size: 12px;
+      font-size: 11px;
       text-decoration: none;
       transition: all 0.2s;
     }
     .repo-link:hover {
-      background: #202e3b;
+      background: #1e2c38;
       border-color: var(--accent);
     }
 
-    /* 主布局 */
+    /* 主工作区 */
     .workspace {
       display: grid;
-      grid-template-columns: 310px 1fr 350px;
+      grid-template-columns: 290px 1fr 390px;
       flex: 1;
-      height: calc(100vh - 65px);
+      height: calc(100vh - 61px);
       overflow: hidden;
     }
 
     @media (max-width: 1280px) {
-      .workspace {
-        grid-template-columns: 280px 1fr 310px;
-      }
+      .workspace { grid-template-columns: 270px 1fr 350px; }
     }
-
     @media (max-width: 1024px) {
-      .workspace {
-        grid-template-columns: 1fr;
-        height: auto;
-        overflow-y: auto;
-      }
+      .workspace { grid-template-columns: 1fr; height: auto; overflow-y: auto; }
     }
 
     /* 侧边栏通用 */
@@ -138,21 +132,22 @@
       background: var(--panel);
       border-right: 1px solid var(--panel-border);
       overflow-y: auto;
-      padding: 18px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 14px;
     }
     .sidebar.right {
       border-right: none;
       border-left: 1px solid var(--panel-border);
+      padding: 14px 16px;
     }
 
     .panel-section {
       background: var(--card-bg);
       border: 1px solid var(--panel-border);
       border-radius: 12px;
-      padding: 14px;
+      padding: 12px;
     }
 
     .section-title {
@@ -161,23 +156,21 @@
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .control-row {
-      margin-bottom: 12px;
-    }
+    .control-row { margin-bottom: 10px; }
     .control-row:last-child { margin-bottom: 0; }
 
     .control-label {
       display: flex;
       justify-content: space-between;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
     .control-label span { color: var(--accent); font-weight: 600; }
 
@@ -190,32 +183,24 @@
     .btn-group {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .btn-group-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
       gap: 6px;
     }
 
     .btn {
-      padding: 8px 12px;
+      padding: 7px 10px;
       border-radius: 8px;
       border: 1px solid var(--panel-border);
-      background: #17222c;
+      background: #15202a;
       color: var(--text);
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
       transition: all 0.15s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 5px;
     }
-    .btn:hover {
-      background: #21303e;
-      border-color: #3b5062;
-    }
+    .btn:hover { background: #1e2c38; border-color: #3b5062; }
     .btn.active {
       background: rgba(255, 212, 94, 0.15);
       border-color: var(--accent);
@@ -229,27 +214,24 @@
       font-weight: 700;
       box-shadow: 0 0 14px var(--accent-glow);
     }
-    .btn.primary:hover {
-      filter: brightness(1.1);
-    }
 
-    /* 色块拾取 */
+    /* 调色板 */
     .color-swatches {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin-top: 4px;
       flex-wrap: wrap;
     }
     .swatch {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       cursor: pointer;
       border: 2px solid transparent;
-      transition: transform 0.15s, border-color 0.15s;
+      transition: transform 0.15s;
     }
     .swatch:hover { transform: scale(1.15); }
-    .swatch.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.4); }
+    .swatch.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.4); }
 
     /* 中央舞台 */
     .stage-container {
@@ -260,14 +242,14 @@
       overflow: hidden;
       align-items: center;
       justify-content: center;
-      padding: 16px;
+      padding: 14px;
     }
 
     .stage-top-info {
       position: absolute;
-      top: 16px;
-      left: 20px;
-      right: 20px;
+      top: 14px;
+      left: 18px;
+      right: 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -280,27 +262,27 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(15, 22, 28, 0.85);
+      background: rgba(13, 20, 26, 0.88);
       border: 1px solid var(--panel-border);
-      padding: 6px 14px;
+      padding: 5px 12px;
       border-radius: 999px;
-      font-size: 12px;
-      backdrop-filter: blur(8px);
+      font-size: 11px;
+      backdrop-filter: blur(10px);
     }
     .info-tag b { color: var(--accent); }
 
     .view-modes {
       pointer-events: auto;
       display: flex;
-      gap: 6px;
-      background: rgba(15, 22, 28, 0.85);
+      gap: 4px;
+      background: rgba(13, 20, 26, 0.88);
       border: 1px solid var(--panel-border);
-      padding: 4px;
-      border-radius: 10px;
-      backdrop-filter: blur(8px);
+      padding: 3px;
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
     }
     .view-btn {
-      padding: 5px 10px;
+      padding: 4px 8px;
       border-radius: 6px;
       border: none;
       background: transparent;
@@ -309,20 +291,16 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .view-btn.active {
-      background: #202e3b;
-      color: var(--accent);
-      font-weight: 600;
-    }
+    .view-btn.active { background: #1e2c38; color: var(--accent); font-weight: 600; }
 
-    /* 画布区域 */
+    /* 画布与展示框 */
     .displays-wrapper {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 28px;
+      gap: 24px;
       width: 100%;
-      height: calc(100% - 90px);
+      height: calc(100% - 85px);
       transition: all 0.3s ease;
     }
 
@@ -336,7 +314,7 @@
     .display-label {
       font-size: 11px;
       color: var(--muted);
-      margin-top: 10px;
+      margin-top: 8px;
       letter-spacing: 0.05em;
       display: flex;
       align-items: center;
@@ -351,10 +329,9 @@
       box-shadow: 0 0 6px var(--accent);
     }
 
-    /* 物理点阵外框 */
     .matrix-frame {
       position: relative;
-      width: min(520px, 42vw);
+      width: min(500px, 40vw);
       aspect-ratio: 1;
       border-radius: 50%;
       background: #020304;
@@ -376,16 +353,10 @@
       transition: opacity 0.3s;
     }
 
-    #matrixCanvas {
-      width: 94%;
-      height: 94%;
-      border-radius: 50%;
-      display: block;
-    }
+    #matrixCanvas { width: 94%; height: 94%; border-radius: 50%; display: block; }
 
-    /* 矢量球体预览框 */
     .vector-frame {
-      width: min(320px, 28vw);
+      width: min(290px, 25vw);
       aspect-ratio: 1;
       border-radius: 50%;
       background: #0a0f14;
@@ -397,64 +368,56 @@
       position: relative;
       overflow: hidden;
     }
+    #vectorContainer svg { width: 85%; height: 85%; display: block; overflow: visible; }
 
-    #vectorContainer svg {
-      width: 82%;
-      height: 82%;
-      display: block;
-      overflow: visible;
-    }
-
-    /* 底部控制台 */
+    /* 底部播放条 */
     .stage-bottom-bar {
       position: absolute;
-      bottom: 16px;
-      left: 20px;
-      right: 20px;
+      bottom: 14px;
+      left: 18px;
+      right: 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      background: rgba(15, 22, 28, 0.88);
+      gap: 14px;
+      background: rgba(13, 20, 26, 0.9);
       border: 1px solid var(--panel-border);
-      padding: 10px 18px;
-      border-radius: 14px;
-      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
       z-index: 5;
     }
 
-    .playback-ctrls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .playback-ctrls { display: flex; align-items: center; gap: 6px; }
 
     .scrubber-wrap {
       flex: 1;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .time-badge {
       font-size: 11px;
       font-variant-numeric: tabular-nums;
       color: var(--muted);
-      min-width: 65px;
+      min-width: 60px;
     }
 
-    /* 选项卡面板 */
-    .tabs-header {
+    /* 右侧：主分类选项卡 */
+    .main-tabs-nav {
       display: flex;
-      background: #090e13;
+      background: #080d12;
       border-radius: 10px;
-      padding: 4px;
+      padding: 3px;
       border: 1px solid var(--panel-border);
-      margin-bottom: 14px;
+      gap: 2px;
+      overflow-x: auto;
     }
-    .tab-btn {
+    .main-tab-btn {
       flex: 1;
+      min-width: 48px;
       text-align: center;
-      padding: 7px 4px;
+      padding: 6px 4px;
       font-size: 11px;
       border-radius: 7px;
       border: none;
@@ -462,61 +425,125 @@
       color: var(--muted);
       cursor: pointer;
       transition: all 0.15s;
+      white-space: nowrap;
     }
-    .tab-btn.active {
+    .main-tab-btn.active {
       background: var(--card-bg);
       color: var(--accent);
       font-weight: 600;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
-    /* 预设网格 */
-    .preset-grid {
+    /* 二级子分类筛选胶囊条 */
+    .subcat-pills-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 4px 0 8px;
+      scrollbar-width: none;
+    }
+    .subcat-pills-bar::-webkit-scrollbar { display: none; }
+
+    .subcat-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #111a22;
+      border: 1px solid var(--panel-border);
+      color: var(--muted);
+      font-size: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .subcat-pill:hover { border-color: #3d5264; color: var(--text); }
+    .subcat-pill.active {
+      background: rgba(255, 212, 94, 0.14);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* 搜索框 */
+    .search-input-wrap {
+      position: relative;
+      margin-bottom: 8px;
+    }
+    .search-input {
+      width: 100%;
+      background: #090e13;
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 6px 10px 6px 28px;
+      color: var(--text);
+      font-size: 11px;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-icon {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* 动画卡片网格 */
+    .animations-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
+      max-height: calc(100vh - 235px);
+      overflow-y: auto;
+      padding-right: 2px;
     }
 
-    .preset-card {
-      background: #111a22;
+    .anim-card {
+      background: var(--card-bg);
       border: 1px solid var(--panel-border);
       border-radius: 10px;
-      padding: 10px 8px;
+      padding: 9px 8px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      transition: all 0.18s;
+      gap: 4px;
+      transition: all 0.15s;
       text-align: center;
       position: relative;
     }
-    .preset-card:hover {
-      background: #17232e;
+    .anim-card:hover {
+      background: var(--card-hover);
       border-color: #3b5062;
       transform: translateY(-1px);
     }
-    .preset-card.active {
+    .anim-card.active {
       background: rgba(255, 212, 94, 0.12);
       border-color: var(--accent);
     }
-    .preset-icon {
+    .anim-card-icon {
       font-size: 20px;
-      height: 28px;
+      height: 26px;
       display: grid;
       place-items: center;
     }
-    .preset-name {
-      font-size: 12px;
+    .anim-card-name {
+      font-size: 11px;
       font-weight: 600;
       color: var(--text);
+      line-height: 1.3;
     }
-    .preset-card.active .preset-name {
-      color: var(--accent);
-    }
-    .preset-sub {
-      font-size: 10px;
+    .anim-card.active .anim-card-name { color: var(--accent); }
+    .anim-card-sub {
+      font-size: 9px;
       color: var(--muted);
+    }
+    .anim-tag {
+      font-size: 8px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #192530;
+      color: #9cb0bf;
     }
 
     /* 代码输出框 */
@@ -524,31 +551,31 @@
       background: #080c10;
       border: 1px solid var(--panel-border);
       border-radius: 8px;
-      padding: 10px;
+      padding: 8px 10px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 10px;
       color: #9cdcfe;
-      line-height: 1.5;
-      max-height: 180px;
+      line-height: 1.45;
+      max-height: 160px;
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-all;
-      margin-top: 8px;
+      margin-top: 6px;
       user-select: all;
     }
 
     /* 悬浮提示框 (Toast) */
     .toast {
       position: fixed;
-      bottom: 80px;
+      bottom: 75px;
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       background: #192733;
       border: 1px solid var(--accent);
       color: var(--accent);
-      padding: 8px 18px;
+      padding: 7px 16px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 500;
       box-shadow: 0 10px 25px rgba(0,0,0,0.6);
       opacity: 0;
@@ -561,7 +588,7 @@
       opacity: 1;
     }
 
-    /* 滚轮修饰 */
+    /* 滚动条 */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #23323e; border-radius: 3px; }
@@ -570,7 +597,7 @@
 </head>
 <body>
 
-  <!-- 顶部栏 -->
+  <!-- 顶部导航 -->
   <header>
     <div class="brand">
       <div class="logo-badge">
@@ -581,18 +608,18 @@
         </svg>
       </div>
       <div class="brand-title">
-        <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs</span></h1>
-        <p>基于 x.ai Grok 灵动球开源内核，全量移植至 23×23 圆形物理微密点阵屏</p>
+        <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs · 23×23</span></h1>
+        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 游戏 / 氛围</p>
       </div>
     </div>
     <div class="top-actions">
       <span class="badge-pill" id="litCountBadge">0 / 393 亮起 (0%)</span>
-      <a class="repo-link" href="https://github.com/jeremy-prt/bloub" target="_blank" rel="noopener">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        原版 Bloub 仓库
+      <a class="repo-link" href="https://github.com/nancity11521-ai/bloub-393-matrix/tree/dot-matrix-project" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub 分支源码
       </a>
-      <a class="repo-link" href="https://bloub.vercel.app/" target="_blank" rel="noopener">
-        🌐 在线原版
+      <a class="repo-link" href="https://nancity11521-ai.github.io/bloub-393-matrix/" target="_blank" rel="noopener">
+        🌐 在线版
       </a>
     </div>
   </header>
@@ -602,42 +629,38 @@
 
     <!-- 左侧：参数与渲染控制 -->
     <aside class="sidebar">
-      <!-- 硬件规格 -->
+      <!-- 硬件参数 -->
       <div class="panel-section">
         <div class="section-title">
-          <span>硬件规格参数</span>
+          <span>硬件规格</span>
           <span style="color:var(--accent)">0707CSP</span>
         </div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.6">
-          • 物理规格：Φ20.00mm 圆形铝基板<br>
-          • 阵列结构：23行微密对称圆阵 (共 393 点)<br>
-          • 行灯分布：5,9,13,15,17,19,19,21,21,23,23,23,23,23,21,21,19,19,17,15,13,9,5<br>
-          • 中心基准：(11, 11) 物理灯珠
+        <div style="font-size:11px;color:var(--muted);line-height:1.55">
+          • 物理灯板：Φ20.00mm 圆形铝基板<br>
+          • 阵列结构：23行对称圆阵 (共 393 点)<br>
+          • 中心对齐：(11, 11) 基准点坐标
         </div>
       </div>
 
-      <!-- 点阵呈现模式 -->
+      <!-- 呈现模式 -->
       <div class="panel-section">
-        <div class="section-title">点阵呈现模式</div>
-        <div class="btn-group" style="margin-bottom:8px">
-          <button class="btn active" id="modeFaceBtn" onclick="setRenderMode('face')">👀 大眼特写面部</button>
-          <button class="btn" id="modeBlobBtn" onclick="setRenderMode('blob')">🔮 完整球体剪影</button>
+        <div class="section-title">呈现风格模式</div>
+        <div class="btn-group" style="margin-bottom:6px">
+          <button class="btn active" id="modeFaceBtn" onclick="setRenderMode('face')">👀 面部特写</button>
+          <button class="btn" id="modeBlobBtn" onclick="setRenderMode('blob')">🔮 完整球体</button>
         </div>
         <div class="btn-group">
-          <button class="btn" id="modeInvertBtn" onclick="setRenderMode('invert')">🌓 高亮反相模式</button>
-          <button class="btn" id="modeContourBtn" onclick="setRenderMode('contour')">💫 线框轮廓模式</button>
+          <button class="btn" id="modeInvertBtn" onclick="setRenderMode('invert')">🌓 高亮反相</button>
+          <button class="btn" id="modeContourBtn" onclick="setRenderMode('contour')">💫 边缘轮廓</button>
         </div>
-        <p style="font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5" id="modeDesc">
-          【大眼特写面部】：屏幕即为球体面部，眼睛比例饱满清晰，眼睑转动、角度倾斜极具表情冲击力。
-        </p>
       </div>
 
-      <!-- 渲染与阈值 -->
+      <!-- 点阵算法 -->
       <div class="panel-section">
-        <div class="section-title">点阵像素算法</div>
-        <div class="btn-group" style="margin-bottom:12px">
+        <div class="section-title">像素发光算法</div>
+        <div class="btn-group" style="margin-bottom:10px">
           <button class="btn active" id="algoPwmBtn" onclick="setAlgo('pwm')">✨ PWM 拟真灰度</button>
-          <button class="btn" id="algoBinaryBtn" onclick="setAlgo('binary')">⬛ 纯二值物理 0/1</button>
+          <button class="btn" id="algoBinaryBtn" onclick="setAlgo('binary')">⬛ 纯二值 0/1</button>
         </div>
         <div class="control-row">
           <div class="control-label">
@@ -646,55 +669,69 @@
           </div>
           <input type="range" class="range-input" id="thresholdSlider" min="5" max="95" value="35" oninput="onThresholdChange(this.value)">
         </div>
-        <div class="control-row">
-          <div class="control-label">
-            <span>眼睛采样缩放 (Scale)</span>
-            <span id="scaleVal">1.00x</span>
-          </div>
-          <input type="range" class="range-input" id="scaleSlider" min="0.6" max="1.5" step="0.05" value="1.0" oninput="onScaleChange(this.value)">
-        </div>
       </div>
 
-      <!-- 灯光色彩与质感 -->
+      <!-- 发光与色彩 -->
       <div class="panel-section">
-        <div class="section-title">LED 物理发光</div>
+        <div class="section-title">LED 物理光效</div>
         <div class="control-row">
-          <label class="control-label">发光色系</label>
+          <label class="control-label">经典色系</label>
           <div class="color-swatches" id="swatchesContainer">
-            <div class="swatch active" style="background:#ffd45e" data-color="#ffd45e" title="暖阳麦金 (Nothing风格)" onclick="setColor('#ffd45e', this)"></div>
-            <div class="swatch" style="background:#38bdf8" data-color="#38bdf8" title="赛博冰蓝" onclick="setColor('#38bdf8', this)"></div>
-            <div class="swatch" style="background:#4ade80" data-color="#4ade80" title="极客荧光绿" onclick="setColor('#4ade80', this)"></div>
-            <div class="swatch" style="background:#f8fafc" data-color="#f8fafc" title="极简冷白 6500K" onclick="setColor('#f8fafc', this)"></div>
-            <div class="swatch" style="background:#f43f5e" data-color="#f43f5e" title="暗夜炽红" onclick="setColor('#f43f5e', this)"></div>
-            <div class="swatch" style="background:#c084fc" data-color="#c084fc" title="幻彩紫罗兰" onclick="setColor('#c084fc', this)"></div>
-            <input type="color" id="customColorPicker" value="#ffd45e" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:none" oninput="setColor(this.value, null)">
+            <div class="swatch active" style="background:#ffd45e" title="暖阳麦金 (Nothing)" onclick="setColor('#ffd45e', this)"></div>
+            <div class="swatch" style="background:#38bdf8" title="赛博冰蓝" onclick="setColor('#38bdf8', this)"></div>
+            <div class="swatch" style="background:#4ade80" title="极客荧光绿" onclick="setColor('#4ade80', this)"></div>
+            <div class="swatch" style="background:#f8fafc" title="极简冷白 6500K" onclick="setColor('#f8fafc', this)"></div>
+            <div class="swatch" style="background:#f43f5e" title="暗夜炽红" onclick="setColor('#f43f5e', this)"></div>
+            <div class="swatch" style="background:#c084fc" title="幻彩紫罗兰" onclick="setColor('#c084fc', this)"></div>
+            <input type="color" id="customColorPicker" value="#ffd45e" style="width:24px;height:24px;border-radius:50%;border:none;cursor:pointer;background:none" oninput="setColor(this.value, null)">
           </div>
         </div>
         <div class="control-row">
           <div class="control-label">
-            <span>发光强度 / 亮度</span>
+            <span>发光亮度</span>
             <span id="brightVal">90%</span>
           </div>
-          <input type="range" class="range-input" id="brightSlider" min="20" max="100" value="90" oninput="onBrightChange(this.value)">
+          <input type="range" class="range-input" min="20" max="100" value="90" oninput="onBrightChange(this.value)">
         </div>
         <div class="control-row">
           <div class="control-label">
-            <span>荧光光晕扩散 (Bloom)</span>
+            <span>荧光光晕 (Bloom)</span>
             <span id="glowVal">12px</span>
           </div>
-          <input type="range" class="range-input" id="glowSlider" min="0" max="30" value="12" oninput="onGlowChange(this.value)">
+          <input type="range" class="range-input" min="0" max="30" value="12" oninput="onGlowChange(this.value)">
         </div>
       </div>
 
-      <!-- 交互控制 -->
+      <!-- 硬件模拟参数 -->
       <div class="panel-section">
-        <div class="section-title">视线追踪与动力学</div>
-        <div class="btn-group" style="margin-bottom:8px">
+        <div class="section-title">硬件动态输入模拟</div>
+        <div class="control-row">
+          <div class="control-label"><span>模拟电量</span><span id="simBatteryVal">20%</span></div>
+          <input type="range" class="range-input" min="0" max="100" value="20" oninput="onSimBattery(this.value)">
+        </div>
+        <div class="control-row">
+          <div class="control-label"><span>模拟音量</span><span id="simVolumeVal">50%</span></div>
+          <input type="range" class="range-input" min="0" max="100" value="50" oninput="onSimVolume(this.value)">
+        </div>
+        <div class="control-row">
+          <div class="control-label"><span>模拟温度</span><span id="simTempVal">37°</span></div>
+          <input type="range" class="range-input" min="0" max="60" value="37" oninput="onSimTemp(this.value)">
+        </div>
+        <div class="control-row">
+          <div class="control-label"><span>罗盘角度</span><span id="simCompassVal">45° NE</span></div>
+          <input type="range" class="range-input" min="0" max="359" value="45" oninput="onSimCompass(this.value)">
+        </div>
+      </div>
+
+      <!-- 视线与生命力 -->
+      <div class="panel-section">
+        <div class="section-title">视线动力学</div>
+        <div class="btn-group" style="margin-bottom:6px">
           <button class="btn active" id="gazeToggleBtn" onclick="toggleGaze()">👁️ 视线跟随鼠标</button>
-          <button class="btn" onclick="resetGaze()">🎯 重置居中视线</button>
+          <button class="btn" onclick="resetGaze()">🎯 重置视线</button>
         </div>
         <div class="btn-group">
-          <button class="btn active" id="lifeToggleBtn" onclick="toggleLife()">🫁 自主生命力 (呼吸/眨眼)</button>
+          <button class="btn active" id="lifeToggleBtn" onclick="toggleLife()">🫁 自主生命力</button>
           <button class="btn" onclick="triggerBlink()">😉 立即眨眼</button>
         </div>
       </div>
@@ -702,39 +739,38 @@
 
     <!-- 中央：393点阵与矢量视窗 -->
     <main class="stage-container" id="stageContainer">
-      <!-- 顶部信息 -->
-      <div class="stage-top_info stage-top-info">
+      <div class="stage-top-info">
         <div class="info-tag">
-          <span>当前表情/状态:</span>
+          <span id="categoryBadge" class="anim-tag" style="background:var(--accent);color:#0b1116;font-weight:700">表情</span>
+          <span style="color:var(--muted)">当前动画:</span>
           <b id="statusCurrentName">平静 · NEUTRAL</b>
         </div>
         <div class="view-modes">
           <button class="view-btn active" id="viewDualBtn" onclick="setViewMode('dual')">双模并列对比</button>
           <button class="view-btn" id="viewMatrixBtn" onclick="setViewMode('matrix')">仅 393 点阵屏</button>
-          <button class="view-btn" id="viewVectorBtn" onclick="setViewMode('vector')">仅原版矢量球</button>
+          <button class="view-btn" id="viewVectorBtn" onclick="setViewMode('vector')">仅矢量连续</button>
         </div>
       </div>
 
-      <!-- 核心画布区域 -->
       <div class="displays-wrapper" id="displaysWrapper">
-        <!-- 393点阵屏卡片 -->
+        <!-- 393物理点阵屏 -->
         <div class="display-card" id="matrixCard">
           <div class="matrix-frame" id="matrixFrame">
             <div class="matrix-halo" id="matrixHalo"></div>
             <canvas id="matrixCanvas" width="760" height="760"></canvas>
           </div>
           <div class="display-label">
-            <span></span> 393 物理点阵显示 (23×23 Circular Matrix)
+            <span></span> 393 物理点阵显示 (23×23 Circular Board)
           </div>
         </div>
 
-        <!-- 矢量原版卡片 -->
+        <!-- 矢量原版对比 -->
         <div class="display-card" id="vectorCard">
           <div class="vector-frame" id="vectorFrame">
             <div id="vectorContainer"></div>
           </div>
           <div class="display-label">
-            <span></span> 原版 Bloub 矢量连续模拟 (Vector Ground Truth)
+            <span></span> 原版 Bloub 矢量连续模拟 (Vector Comparison)
           </div>
         </div>
       </div>
@@ -742,83 +778,89 @@
       <!-- 底部播放条 -->
       <div class="stage-bottom-bar">
         <div class="playback-ctrls">
-          <button class="btn primary" id="playBtn" onclick="togglePlay()" style="width:78px">⏸ 暂停</button>
+          <button class="btn primary" id="playBtn" onclick="togglePlay()" style="width:75px">⏸ 暂停</button>
           <button class="btn" onclick="stepFrame(-1)">⏮</button>
           <button class="btn" onclick="stepFrame(1)">⏭</button>
-          <button class="btn" id="loopSeqBtn" onclick="togglePlaySequence()">🔁 自动连播所有状态</button>
+          <button class="btn" id="loopSeqBtn" onclick="togglePlaySequence()">🔁 顺序连播</button>
         </div>
 
         <div class="scrubber-wrap">
           <span class="time-badge" id="timeBadge">0.00s</span>
-          <input type="range" class="range-input" id="timeScrubber" min="0" max="4" step="0.02" value="0" oninput="onScrub(this.value)">
+          <input type="range" class="range-input" id="timeScrubber" min="0" max="24" step="0.05" value="0" oninput="onScrub(this.value)">
           <span class="time-badge" style="text-align:right" id="fpsBadge">60 FPS</span>
         </div>
 
-        <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:6px">
           <label style="font-size:11px;color:var(--muted)">速度</label>
-          <select id="speedSelect" style="background:#17222c;color:var(--text);border:1px solid var(--panel-border);padding:4px 8px;border-radius:6px;font-size:11px" onchange="onSpeedChange(this.value)">
-            <option value="0.25">0.25x (慢放)</option>
+          <select id="speedSelect" style="background:#15202a;color:var(--text);border:1px solid var(--panel-border);padding:4px 8px;border-radius:6px;font-size:11px" onchange="onSpeedChange(this.value)">
+            <option value="0.25">0.25x</option>
             <option value="0.5">0.5x</option>
-            <option value="1" selected>1.0x (正常)</option>
+            <option value="1" selected>1.0x</option>
             <option value="1.5">1.5x</option>
-            <option value="2">2.0x (加速)</option>
+            <option value="2">2.0x</option>
           </select>
         </div>
       </div>
     </main>
 
-    <!-- 右侧：动作与表情库、代码导出 -->
+    <!-- 右侧：全分类动画选择器与代码导出 -->
     <aside class="sidebar right">
-      <!-- 选项卡切换 -->
-      <div class="tabs-header">
-        <button class="tab-btn active" id="tabExprBtn" onclick="switchRightTab('expr')">16种情绪表情</button>
-        <button class="tab-btn" id="tabStateBtn" onclick="switchRightTab('state')">14种动作状态</button>
-        <button class="tab-btn" id="tabExportBtn" onclick="switchRightTab('export')">嵌入式代码导出</button>
+      <!-- 一级分类导航 -->
+      <div class="main-tabs-nav">
+        <button class="main-tab-btn active" data-cat="emotion" onclick="selectMainCategory('emotion')">🤖 表情</button>
+        <button class="main-tab-btn" data-cat="system" onclick="selectMainCategory('system')">⚙️ 系统</button>
+        <button class="main-tab-btn" data-cat="activity" onclick="selectMainCategory('activity')">🏃 活动</button>
+        <button class="main-tab-btn" data-cat="life" onclick="selectMainCategory('life')">☕ 生活</button>
+        <button class="main-tab-btn" data-cat="game" onclick="selectMainCategory('game')">🎮 游戏</button>
+        <button class="main-tab-btn" data-cat="ambience" onclick="selectMainCategory('ambience')">✨ 氛围</button>
+        <button class="main-tab-btn" data-cat="export" onclick="selectMainCategory('export')">💾 导出</button>
       </div>
 
-      <!-- 表情库选项卡 -->
-      <div id="tabExprPanel">
-        <div class="preset-grid" id="expressionsGrid">
-          <!-- 动态生成 16 种表情 -->
-        </div>
+      <!-- 二级子分类筛选胶囊条 -->
+      <div class="subcat-pills-bar" id="subcatPillsBar">
+        <!-- 动态生成二级子分类 -->
       </div>
 
-      <!-- 动作状态选项卡 -->
-      <div id="tabStatePanel" style="display:none">
-        <div class="preset-grid" id="statesGrid">
-          <!-- 动态生成 14 种状态 -->
-        </div>
+      <!-- 搜索框 -->
+      <div class="search-input-wrap" id="searchWrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="搜索动画名称或拼音..." oninput="onSearchInput(this.value)">
       </div>
 
-      <!-- 导出选项卡 -->
-      <div id="tabExportPanel" style="display:none">
+      <!-- 动画卡片网格 -->
+      <div class="animations-grid" id="animationsGrid">
+        <!-- 动态渲染卡片 -->
+      </div>
+
+      <!-- 代码导出专区面板 (当点击“导出”时显示) -->
+      <div id="exportSectionPanel" style="display:none">
         <div class="panel-section" style="margin-bottom:12px">
           <div class="section-title">
-            <span>当前帧 393 点阵 C 语言位图数组</span>
-            <button class="btn" style="padding:3px 8px;font-size:10px" onclick="copyBitmaskCode()">📋 复制位图</button>
+            <span>50 字节 C 语言位图数组</span>
+            <button class="btn" style="padding:2px 7px;font-size:10px" onclick="copyBitmaskCode()">📋 复制</button>
           </div>
-          <p style="font-size:11px;color:var(--muted)">
-            将 393 颗灯压缩为 50 字节（8 点/字节），节省 ESP32/STM32 内部 Flash 空间。
+          <p style="font-size:10px;color:var(--muted)">
+            将 393 颗灯压缩为 50 字节 (8点/字节)，适合 ESP32/STM32 内部 Flash 极小开销存储。
           </p>
           <div class="code-preview" id="codeBitmaskBox">正在计算...</div>
         </div>
 
         <div class="panel-section" style="margin-bottom:12px">
           <div class="section-title">
-            <span>23行独立 uint32_t 行掩码</span>
-            <button class="btn" style="padding:3px 8px;font-size:10px" onclick="copyRowsCode()">📋 复制代码</button>
+            <span>23 行独立 uint32_t 行掩码</span>
+            <button class="btn" style="padding:2px 7px;font-size:10px" onclick="copyRowsCode()">📋 复制</button>
           </div>
-          <p style="font-size:11px;color:var(--muted)">
-            适合逐行动态扫描屏或 Shift-Register / WS2812 驱动架构。
+          <p style="font-size:10px;color:var(--muted)">
+            适合逐行动态刷新电路或 Shift-Register / WS2812 驱动架构。
           </p>
           <div class="code-preview" id="codeRowsBox">正在计算...</div>
         </div>
 
         <div class="panel-section">
-          <div class="section-title">批量序列导出 (JSON)</div>
+          <div class="section-title">批量序列导出</div>
           <div class="btn-group">
-            <button class="btn" onclick="exportAnimJson()">💾 导出当前动画序列 JSON</button>
-            <button class="btn" onclick="captureFramePng()">📸 保存当前点阵高清 PNG</button>
+            <button class="btn" onclick="exportAnimJson()">💾 导出动画 JSON</button>
+            <button class="btn" onclick="captureFramePng()">📸 保存高清 PNG</button>
           </div>
         </div>
       </div>
@@ -830,19 +872,38 @@
 
   <script>
     /* ==========================================================================
-       BLOUB AI 393-DOT CORE ENGINE (JavaScript Port)
+       393 点阵几何定义
        ========================================================================== */
+    const MATRIX_ROWS = [5, 9, 13, 15, 17, 19, 19, 21, 21, 23, 23, 23, 23, 23, 21, 21, 19, 19, 17, 15, 13, 9, 5];
+    const TOTAL_LEDS = 393;
 
+    function build393Points() {
+      const pts = [];
+      MATRIX_ROWS.forEach((m, r) => {
+        const startC = (23 - m) / 2;
+        for (let i = 0; i < m; i++) {
+          const c = startC + i;
+          pts.push({
+            x: (c - 11) / 11.5,
+            y: (r - 11) / 11.5,
+            r,
+            c,
+            gridId: r * 23 + c,
+            idx: pts.length
+          });
+        }
+      });
+      return pts;
+    }
+    const PHYSICAL_POINTS = build393Points();
+
+    /* ==========================================================================
+       数学与基础工具
+       ========================================================================== */
     const TAU = Math.PI * 2;
     const clamp = (v, lo = 0, hi = 1) => (v < lo ? lo : v > hi ? hi : v);
     const lerp = (a, b, t) => a + (b - a) * t;
     const r2 = (v) => Math.round(v * 100) / 100;
-
-    const easings = {
-      easeOutCubic: (t) => 1 - Math.pow(1 - t, 3),
-      easeInOutCubic: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
-      easeOutQuint: (t) => 1 - Math.pow(1 - t, 5)
-    };
 
     function loopNoise(t, period, seed = 0) {
       const p = (t / period) * TAU;
@@ -863,40 +924,946 @@
       };
     }
 
-    /* 393 点阵几何定义 */
-    const MATRIX_ROWS = [5, 9, 13, 15, 17, 19, 19, 21, 21, 23, 23, 23, 23, 23, 21, 21, 19, 19, 17, 15, 13, 9, 5];
-    const TOTAL_LEDS = 393;
+    /* 辅助矢量旋转与环 */
+    const ring = (x, y, r, t = 0.08) => Math.abs(Math.hypot(x, y) - r) < t;
+    const rot = (x, y, a) => ({ x: x * Math.cos(a) - y * Math.sin(a), y: x * Math.sin(a) + y * Math.cos(a) });
+    const heart = (x, y, s = 0.75) => {
+      x /= s; y /= s;
+      return Math.pow(x * x + y * y - 0.43, 3) - x * x * y * y * y <= 0;
+    };
 
-    function build393Points() {
-      const pts = [];
-      MATRIX_ROWS.forEach((m, r) => {
-        const startC = (23 - m) / 2;
-        for (let i = 0; i < m; i++) {
-          const c = startC + i;
-          pts.push({
-            x: (c - 11) / 11.5,
-            y: (r - 11) / 11.5,
-            r,
-            c,
-            idx: pts.length
-          });
+    /* 硬件模拟动态参数 */
+    let batteryLevel = 20, volumeLevel = 50, temperatureLevel = 37, compassBearing = 45, selectedDate = '2026-07-01';
+
+    function refinedOptions() {
+      return {
+        date: selectedDate,
+        battery: batteryLevel,
+        temperature: temperatureLevel,
+        volume: volumeLevel,
+        bearing: compassBearing,
+        hour: new Date().getHours(),
+        minute: new Date().getMinutes()
+      };
+    }
+
+    /* 引入 106 种点阵图形栅格生成函数 */
+    function refinedFrame(kind, frame, opt = {}) {
+  const out = new Set(), rows = [5,9,13,15,17,19,19,21,21,23,23,23,23,23,21,21,19,19,17,15,13,9,5];
+  const put = (x,y,on=true) => {
+    x = Math.round(x); y = Math.round(y);
+    if(y<0||y>22||Math.abs(x-11)>(rows[y]-1)/2)return;
+    on ? out.add(y*23+x) : out.delete(y*23+x);
+  };
+  const line = (x,y,X,Y,on=true) => {
+    const n = Math.max(Math.abs(X-x), Math.abs(Y-y));
+    for(let i=0;i<=n;i++) put(x+(X-x)*(i/(n||1)), y+(Y-y)*(i/(n||1)), on);
+  };
+  const box = (x,y,w,h,fill=false) => {
+    for(let j=0;j<h;j++) for(let i=0;i<w;i++) if(fill||!i||!j||i===w-1||j===h-1) put(x+i, y+j);
+  };
+  const mask = (s,x,y) => s.split('/').forEach((r,j)=>[...r].forEach((v,i)=>{
+    if(v==='1') put(x+i, y+j);
+    if(v==='x') put(x+i, y+j, false);
+  }));
+  const circle = (cx,cy,r,fill=false) => {
+    for(let y=0;y<23;y++) for(let x=0;x<23;x++){
+      const d = Math.hypot(x-cx, y-cy);
+      if(fill ? d<=r+0.45 : Math.abs(d-r)<0.58) put(x, y);
+    }
+  };
+  const digits = [
+    '1111/1001/1001/1001/1001/1111',
+    '0110/0010/0010/0010/0010/1111',
+    '1111/0001/1111/1000/1000/1111',
+    '1111/0001/0111/0001/0001/1111',
+    '1001/1001/1111/0001/0001/0001',
+    '1111/1000/1111/0001/0001/1111',
+    '1111/1000/1111/1001/1001/1111',
+    '1111/0001/0010/0100/0100/0100',
+    '1111/1001/1111/1001/1001/1111',
+    '1111/1001/1111/0001/0001/1111'
+  ];
+  const text = (s, y) => {
+    let total = s.length * 5 - 1, x = Math.floor((23 - total) / 2);
+    [...s].forEach(c => {
+      if(digits[+c]) mask(digits[+c], x, y);
+      x += 5;
+    });
+  };
+  const t = frame, phase = Math.floor(t / 3), bob = [0, -1, 0, 0][phase % 4];
+  const cloud = (y = 5) => {
+    circle(7, y+4, 4, true); circle(11, y+2, 5, true); circle(15, y+4, 4, true);
+    box(5, y+5, 13, 3, true);
+  };
+  const heart = '0011100011100/0111110111110/1111111111111/1111111111111/1111111111111/0111111111110/0011111111100/0001111111000/0000111110000/0000011100000/0000001000000';
+  const head = (x = 11, y = 4) => circle(x, y, 2.2, true);
+
+  switch(kind) {
+    case 'CLOCK': case 'DATE': {
+      const d = opt.now ? new Date(opt.now) : new Date();
+      let a, b;
+      if(kind === 'DATE') {
+        const parts = (opt.date || '2026-07-01').split('-');
+        a = parts[1]; b = parts[2];
+      } else {
+        a = String(d.getHours()).padStart(2, '0');
+        b = String(d.getMinutes()).padStart(2, '0');
+      }
+      text(a, 3);
+      text(b, 14);
+      if(kind === 'DATE' || d.getMilliseconds() < 500) {
+        put(11, 10); put(11, 12);
+        if(kind === 'DATE') { line(8, 11, 14, 11); }
+      }
+      break;
+    }
+    case 'WEEKDAY': {
+      const glyph = {
+        S:'111/100/111/001/111', U:'101/101/101/101/111', N:'101/111/111/111/101',
+        M:'101/111/111/101/101', O:'111/101/101/101/111', T:'111/010/010/010/010',
+        E:'111/100/111/100/111', W:'101/101/111/111/101', D:'110/101/101/101/110',
+        H:'101/101/111/101/101', F:'111/100/111/100/100', R:'110/101/110/101/101',
+        I:'111/010/010/010/111', A:'010/101/111/101/101'
+      };
+      const day = ['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date((opt.date||'2026-07-01')+'T12:00:00').getDay()];
+      [...day].forEach((c, i) => mask(glyph[c], 6 + i * 4, 9));
+      line(5, 6, 17, 6); line(5, 16, 17, 16);
+      put(5, 5); put(17, 5); put(5, 17); put(17, 17);
+      break;
+    }
+    case 'BATTERY': case 'TEMP': {
+      const valNum = Math.round(kind === 'TEMP' ? (opt.temperature ?? 37) : (opt.battery ?? 20));
+      const value = String(valNum);
+      const isBatt = kind === 'BATTERY';
+      if(isBatt && value.length === 3) {
+        text('100', 6);
+        mask('1101/0100/0010/1011', 10, 14);
+        break;
+      }
+      const totalW = value.length * 5 + (isBatt ? 5 : 4);
+      let sx = Math.floor((23 - totalW) / 2);
+      [...value].forEach(c => {
+        mask(digits[+c], sx, 8);
+        sx += 5;
+      });
+      if(isBatt) {
+        mask('1101/0100/0010/1011', sx + 1, 9);
+      } else {
+        circle(sx + 1, 9, 1.2);
+      }
+      // Top/bottom delicate brackets
+      line(7, 5, 15, 5); line(7, 17, 15, 17);
+      break;
+    }
+    case 'SOUNDLEVEL': {
+      const vol = opt.volume ?? 50;
+      const rMax = Math.round(9 * vol / 100);
+      circle(11, 11, 2, true);
+      for(let r = 4; r <= rMax; r += 2) {
+        circle(11, 11, r);
+      }
+      // Radial acoustic spokes
+      const spokeAngles = [0, Math.PI/4, Math.PI/2, 3*Math.PI/4, Math.PI, 5*Math.PI/4, 3*Math.PI/2, 7*Math.PI/4];
+      spokeAngles.forEach(a => {
+        const co = Math.cos(a), si = Math.sin(a);
+        const l = Math.min(rMax + 1, 9);
+        line(11 + Math.round(2*co), 11 + Math.round(2*si), 11 + Math.round(l*co), 11 + Math.round(l*si));
+      });
+      break;
+    }
+    case 'HEART': case 'HEARTBEAT': {
+      if(t % (kind==='HEART' ? 24 : 32) < 2) break;
+      mask(heart, 5, 6);
+      const reveal = Math.min(11, Math.floor((t - 2) / 1.1) + 1);
+      for(const id of [...out]) {
+        if(Math.floor(id / 23) < 17 - reveal) out.delete(id);
+      }
+      if(kind === 'HEARTBEAT' && t >= 18 && (t % 8 < 3)) {
+        // Echo shockwave ring
+        circle(11, 11, 9);
+      }
+      break;
+    }
+    case 'CHARGE': {
+      box(6, 6, 11, 11);
+      box(9, 4, 5, 2, true); // cap
+      const h = Math.floor((t % 20) / 19 * 9);
+      if(h) box(7, 16 - h, 9, h, true);
+      // Lightning bolt on top
+      const s = Math.floor(t / 2) % 2;
+      line(11, 8, 9, 12); line(9, 12, 13, 12); line(13, 12, 11, 15);
+      break;
+    }
+    case 'WAVE': case 'SPECTRUM': {
+      if(kind === 'WAVE') {
+        const frames = [
+          [2,4,7,10,13,10,7,4,2], [2,5,9,8,11,8,9,5,2],
+          [2,7,11,6,9,6,11,7,2], [2,4,8,12,7,12,8,4,2],
+          [2,5,10,9,5,9,10,5,2], [2,7,7,11,4,11,7,7,2],
+          [2,4,6,10,9,10,6,4,2], [2,4,7,10,13,10,7,4,2]
+        ];
+        const shape = frames[Math.floor((t % 24) / 3)];
+        line(3, 11, 19, 11);
+        [3, 5, 7, 9, 11, 13, 15, 17, 19].forEach((x, i) => {
+          const half = Math.floor(shape[i] / 2);
+          line(x, 11 - half, x, 11 + half);
+        });
+      } else {
+        for(let x = 3; x <= 19; x += 2) {
+          const h = 2 + Math.round(8 * Math.abs(Math.sin(Math.abs(x - 11) * 0.5 + t * Math.PI / 12)));
+          line(x, 18 - h, x, 18);
+          put(x, 17 - h); // Peak dot
+        }
+      }
+      break;
+    }
+    case 'SUNNY': {
+      circle(11, 11, 4, true);
+      const a = (t % 24) * Math.PI / 12;
+      for(let i = 0; i < 8; i++) {
+        const ang = a + i * Math.PI / 4;
+        line(11 + Math.round(6 * Math.cos(ang)), 11 + Math.round(6 * Math.sin(ang)),
+             11 + Math.round(9 * Math.cos(ang)), 11 + Math.round(9 * Math.sin(ang)));
+      }
+      break;
+    }
+    case 'CLOUDY': {
+      circle(6, 6, 3, true); // Sun peek
+      for(let i = 0; i < 4; i++) {
+        const ang = i * Math.PI / 2;
+        put(6 + Math.round(5 * Math.cos(ang)), 6 + Math.round(5 * Math.sin(ang)));
+      }
+      cloud(7);
+      break;
+    }
+    case 'RAINY': case 'SNOW': case 'STORM': {
+      cloud(3);
+      if(kind === 'STORM') {
+        if(t % 12 < 7) {
+          line(12, 10, 10, 14); line(10, 14, 13, 15); line(13, 15, 9, 19);
+        }
+        for(const x of [5, 17]) put(x, 12 + (phase % 3) * 2);
+      } else for(const x of [5, 8, 11, 14, 17]) {
+        const y = 12 + (phase + Math.abs(x - 11) / 2) % 4 * 2;
+        if(kind === 'RAINY') {
+          line(x, y, x - 1, y + 1);
+        } else {
+          put(x, y); put(x - 1, y); put(x + 1, y); put(x, y - 1); put(x, y + 1);
+        }
+      }
+      break;
+    }
+    case 'EYES': {
+      // High-res eye sockets
+      for(const x of [3, 13]) {
+        if(t % 16 >= 13) {
+          line(x, 11, x + 6, 11);
+        } else {
+          mask('011110/100001/100001/100001/011110', x, 9);
+          // 2x2 pupil
+          const px = x + 2 + (phase % 3 === 1 ? 1 : 0);
+          box(px, 10, 2, 2, true);
+        }
+      }
+      break;
+    }
+    case 'MOOD': {
+      // Symmetrical expressive head contour
+      circle(11, 11, 8);
+      const mood = Math.floor(t / 8) % 4;
+      put(8, 9); put(14, 9);
+      if(mood === 0) { // Happy
+        mask('1000001/0111110', 8, 14);
+      } else if(mood === 1) { // Grin
+        box(8, 13, 7, 3, true);
+      } else if(mood === 2) { // Surprised O
+        circle(11, 14, 2);
+      } else { // Winking
+        line(13, 9, 15, 9);
+        mask('1000001/0111110', 8, 14);
+      }
+      break;
+    }
+    case 'PERSON': {
+      head(11, 4 + bob);
+      line(11, 7 + bob, 11, 12 + bob); // Spine
+      const open = [0, 1, 2, 1][phase % 4];
+      line(11, 8 + bob, 6, 10 - open * 2);
+      line(11, 8 + bob, 16, 10 - open * 2);
+      line(11, 12 + bob, 8 - open, 18);
+      line(11, 12 + bob, 14 + open, 18);
+      break;
+    }
+    case 'RUNNER': {
+      const pY = 4 + bob;
+      head(12, pY);
+      line(12, 7 + bob, 10, 12 + bob); // Spine
+      const poses = [
+        [[8,7],[5,10],[15,10],[17,8],[14,14],[16,19],[7,15],[4,14]],
+        [[9,6],[6,7],[14,11],[16,10],[13,15],[11,19],[8,15],[5,16]],
+        [[15,8],[17,6],[7,9],[5,12],[6,14],[4,18],[13,15],[16,14]],
+        [[14,7],[17,8],[8,10],[5,9],[9,15],[12,19],[13,15],[16,16]]
+      ];
+      const p = poses[phase % 4];
+      line(12, 7 + bob, p[0][0], p[0][1] + bob);
+      line(p[0][0], p[0][1] + bob, p[1][0], p[1][1] + bob);
+      line(12, 7 + bob, p[2][0], p[2][1] + bob);
+      line(p[2][0], p[2][1] + bob, p[3][0], p[3][1] + bob);
+      line(10, 12 + bob, p[4][0], p[4][1] + bob);
+      line(p[4][0], p[4][1] + bob, p[5][0], p[5][1] + bob);
+      line(10, 12 + bob, p[6][0], p[6][1] + bob);
+      line(p[6][0], p[6][1] + bob, p[7][0], p[7][1] + bob);
+      break;
+    }
+    case 'BOTTLE': {
+      const angle = Math.floor((t + 2) / 4) * Math.PI / 4, co = Math.cos(angle), si = Math.sin(angle);
+      for(let y = 2; y <= 20; y++) for(let x = 2; x <= 20; x++) {
+        const X = (x - 11) * co + (y - 11) * si, Y = -(x - 11) * si + (y - 11) * co;
+        const neck = Math.abs(X) < 1.4 && Y >= -8.5 && Y < -3.5;
+        const body = Math.abs(X) < 4.2 && Y >= -2.5 && Y < 8;
+        const shoulder = Y >= -4.5 && Y < -2.5 && Math.abs(X) < 1.4 + (Y + 4.5) * 1.4;
+        const label = Math.abs(X) < 2 && Y > 0 && Y < 3.5;
+        if((neck || body || shoulder) && !label) put(x, y);
+      }
+      break;
+    }
+    case 'OK': {
+      mask('00010100/00010101/00010101/00010101/01110001/10001001/10001001/01110001/00100010/00111100', 7, 5 + bob);
+      circle(11, 11, 8);
+      break;
+    }
+    case 'CROSS': {
+      mask('001000000/001100000/000110000/000111000/001101100/011001110/110011011/100110001/011100010/000111100', 7, 5 + bob);
+      if(t % 14 > 10) { put(17, 5); put(18, 6); }
+      break;
+    }
+    case 'LIKE': {
+      mask('000011000/000011000/000011000/000110000/001111110/111000001/101000001/101000001/101000001/111111110', 7, 5 + bob);
+      circle(11, 11, 9);
+      break;
+    }
+    case 'ELEPHANT': {
+      mask('00111100000000/01111110000000/11x10011111000/11110111111100/01110111111110/01110111111100/01000111111100/01000100100100/01000100100100/01100000000000', 4, 6);
+      const gait = [0, 1, 0, -1][phase % 4];
+      put(9, 16); put(13 + gait, 16); put(17 - gait, 16);
+      break;
+    }
+    case 'DOG': {
+      mask('01000000000000/01110000000000/11x11000000000/11111111111000/00111111111000/00111111111000/00100100100000', 4, 7);
+      line(6, 14, 6 + (phase % 2), 16);
+      line(14, 14, 14 - (phase % 2), 16);
+      line(15, 9, 17, 8);
+      put(18, (phase % 2) ? 7 : 8);
+      break;
+    }
+    case 'DUCK': {
+      mask('00111000000000/011x1100000000/11111100000000/00011000000000/00011111111010/00111111111100/00011111111000/00001111110000', 4, 7);
+      put(10, 15); put(13, 15);
+      put((phase % 2) ? 9 : 11, 16); put((phase % 2) ? 14 : 12, 16);
+      break;
+    }
+    case 'DEER': {
+      mask('00101000000000/01111000000000/00111000000000/001x1100000000/00110000000000/00111111111000/00111111111100', 4, 6 + bob);
+      line(8, 13 + bob, 8 - (phase % 2), 17 + bob);
+      line(14, 13 + bob, 14 + (phase % 2), 17 + bob);
+      break;
+    }
+    case 'COW': {
+      mask('01001000000000/01111000000000/11x11111111000/1111100x111100/011111xx111100/00111111111000', 4, 7);
+      line(8, 13, 8, 16); line(14, 13, 14, 16);
+      put(9, 16); put(15, 16);
+      line(16, 9, 18, 10 + (phase % 2));
+      break;
+    }
+    case 'RABBIT': {
+      mask('010010000/010010000/010010000/011110000/11x111000/011110000/001111100/011111110/111111110/011111110/001111111', 7, 5 + bob);
+      break;
+    }
+    case 'FISH': {
+      mask('00001100000000/00111110000010/01111111000110/11x11111111111/11111111111111/01111111000110/00111110000010/00001100000000', 4, 7);
+      if(phase % 2) { put(18, 8, false); put(18, 14, false); put(17, 8); put(17, 14); }
+      put(3, 4 + (phase % 2) * 2);
+      break;
+    }
+    case 'JELLYFISH': {
+      mask('001111100/011111110/111111111/111111111/111111111/010101010', 7, 6 + bob);
+      for(const x of [8, 11, 14]) {
+        line(x, 12 + bob, x, 14 + bob);
+        line(x, 14 + bob, x + ((phase % 2) ? 1 : -1), 18 + bob);
+      }
+      break;
+    }
+    case 'WIFI': {
+      put(11, 16);
+      if(phase % 4 >= 1) mask('0111110/1000001', 8, 13);
+      if(phase % 4 >= 2) mask('00111111100/01000000010/10000000001', 6, 9);
+      if(phase % 4 >= 3) mask('000111111111000/011000000000110/100000000000001', 4, 5);
+      break;
+    }
+    case 'BLUETOOTH': {
+      line(11, 4, 11, 18);
+      line(11, 4, 15, 8); line(15, 8, 7, 14);
+      line(7, 8, 15, 14); line(15, 14, 11, 18);
+      if(phase % 4 >= 2) { put(4, 11); put(18, 11); }
+      break;
+    }
+    case 'SUCCESS': {
+      circle(11, 11, 8);
+      const n = Math.min(10, t);
+      if(n > 0) line(7, 11, Math.min(10, 7 + n), Math.min(15, 11 + n));
+      if(n > 3) line(10, 15, Math.min(16, 10 + n - 3), Math.max(7, 15 - (n - 3)));
+      break;
+    }
+    case 'LOCK': {
+      box(6, 10, 11, 8);
+      mask('011110/100001/100001/100001', 8, 5);
+      if(phase % 4 < 2) { put(13, 8, false); put(13, 9, false); }
+      put(11, 13); put(11, 14);
+      break;
+    }
+    case 'MAIL': {
+      box(4, 7, 15, 10);
+      line(4, 7, 11, 12); line(11, 12, 18, 7);
+      if(phase % 4 > 1) { put(16, 4); put(17, 3); put(18, 4); }
+      break;
+    }
+    case 'ROCKET': {
+      mask('0001000/0011100/0010100/0011100/0011100/0111110/1101011/1000001', 8, 4);
+      mask((phase % 2) ? '00100/01110/00100' : '01110/00100/00000', 9, 12);
+      break;
+    }
+    case 'MOON': {
+      mask('000111100/001110000/011100000/111000000/111000000/111000001/111100011/011111110/001111100', 7, 6);
+      put(16, 6);
+      if(phase % 4 < 2) { put(15, 6); put(17, 6); put(16, 5); put(16, 7); }
+      break;
+    }
+    case 'BUTTERFLY': {
+      const narrow = phase % 4 === 1 || phase % 4 === 3;
+      mask(narrow ? '0101010/0011100/0011100/0011100/0011100/0101010' : '1000001/1110111/1111111/0111110/1111111/1101011', 8, 7);
+      line(11, 7, 11, 14); put(10, 5); put(12, 5);
+      break;
+    }
+    case 'BATTERY_EMPTY': {
+      box(5, 8, 12, 7); line(17, 10, 17, 13);
+      if(t % 12 < 6) { put(7, 11); put(8, 11); }
+      else { put(13, 11); put(14, 11); }
+      break;
+    }
+    case 'BATTERY_FULL': {
+      box(5, 8, 12, 7); line(17, 10, 17, 13);
+      const fill = Math.min(10, 2 + Math.floor((t % 24) / 3));
+      for(let x = 6; x < 6 + fill; x++) for(let y = 9; y <= 13; y++) put(x, y);
+      break;
+    }
+    case 'ENERGY_RING': {
+      circle(11, 11, 8); circle(11, 11, 4);
+      const a = Math.floor(t / 3) * Math.PI / 4;
+      put(11 + Math.round(8 * Math.cos(a)), 11 + Math.round(8 * Math.sin(a)));
+      put(11, 11);
+      break;
+    }
+    case 'DIAL': {
+      circle(11, 11, 8);
+      for(const [x,y] of [[11, 3],[19, 11],[11, 19],[3, 11]]) put(x, y);
+      const a = Math.floor(t / 3) * Math.PI / 4;
+      line(11, 11, 11 + Math.round(6 * Math.sin(a)), 11 - Math.round(6 * Math.cos(a)));
+      put(11, 11);
+      break;
+    }
+    case 'AXIS': {
+      const reach = 3 + Math.floor((t % 12) / 3) * 2;
+      line(11 - reach, 11, 11 + reach, 11);
+      line(11, 11 - reach, 11, 11 + reach);
+      put(11, 11);
+      break;
+    }
+    case 'WALK': {
+      const pose = Math.floor(t / 4) % 4, pBob = [0, -1, 0, 0][pose];
+      head(11, 4 + pBob); line(11, 7 + pBob, 11, 12 + pBob);
+      const limbs = [
+        [[7,10],[15,10],[8,17],[14,17]],
+        [[6,9],[16,11],[7,16],[15,17]],
+        [[7,10],[15,9],[9,17],[13,16]],
+        [[6,10],[16,9],[8,17],[14,16]]
+      ][pose];
+      line(11, 7 + pBob, ...limbs[0]); line(11, 7 + pBob, ...limbs[1]);
+      line(11, 12 + pBob, ...limbs[2]); line(11, 12 + pBob, ...limbs[3]);
+      break;
+    }
+    case 'RAYS': {
+      const r = 3 + Math.floor((t % 24) / 3), a = Math.floor(t / 3) % 2;
+      for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]) {
+        line(11 + dx * (a ? 2 : 1), 11 + dy * (a ? 2 : 1), 11 + dx * r, 11 + dy * r);
+      }
+      put(11, 11);
+      break;
+    }
+    case 'LOADER': {
+      const nodes = [
+        [11,3],[16,5],[19,11],[16,17],[11,19],[6,17],[3,11],[6,5]
+      ], at = Math.floor(t / 3) % 8;
+      nodes.forEach(([x, y], i) => {
+        if((i - at + 8) % 8 < 3) {
+          put(x, y);
+          if((i - at + 8) % 8 === 0) { put(x-1, y); put(x+1, y); put(x, y-1); put(x, y+1); }
         }
       });
-      return pts;
+      break;
     }
-    const PHYSICAL_POINTS = build393Points();
+    case 'ATTENTIVE': {
+      mask('011110/100001/100001/011110', 4, 9);
+      mask('011110/100001/100001/011110', 13, 9);
+      const gaze = [-1, 0, 1, 0][Math.floor(t / 3) % 4];
+      box(6 + gaze, 10, 2, 2, true); box(15 + gaze, 10, 2, 2, true);
+      break;
+    }
+    case 'CURIOUS': {
+      mask('011110/100001/100001/011110', 4, 9);
+      mask('011110/100001/100001/011110', 13, 9);
+      const look = Math.floor(t / 6) % 2;
+      box(look ? 5 : 7, 10, 2, 2, true); box(look ? 16 : 14, 9, 2, 2, true);
+      break;
+    }
+    case 'SAD': {
+      mask('011110/100001/011110', 4, 10);
+      mask('011110/100001/011110', 13, 10);
+      if(t % 18 < 3) {
+        line(4, 11, 9, 11); line(13, 11, 18, 11);
+      } else {
+        box(6, 11, 2, 2, true); box(14, 11, 2, 2, true);
+      }
+      break;
+    }
+    case 'SCARED': {
+      const shift = (t % 6 < 3) ? 0 : 1;
+      circle(6 + shift, 11, 3); circle(16 - shift, 11, 3);
+      put(6 + shift, 11); put(16 - shift, 11);
+      break;
+    }
+    case 'SUSPICIOUS': {
+      line(4, 10, 9, 10); line(13, 10, 18, 10);
+      const side = (t % 12 < 6) ? 0 : 1;
+      put(side ? 4 : 8, 11); put(side ? 13 : 17, 11);
+      break;
+    }
+    case 'CONFUSED': {
+      circle(6, 11, 3); line(13, 10, 18, 10);
+      const side = (t % 12 < 6) ? 0 : 1;
+      put(6 + side, 11); put(side ? 14 : 17, 11);
+      break;
+    }
+    case 'PROUD': {
+      if(t % 12 < 4) {
+        line(4, 11, 9, 11); line(13, 11, 18, 11);
+      } else {
+        mask('10001/01110', 4, 10); mask('10001/01110', 14, 10);
+      }
+      break;
+    }
+    case 'UNIMPRESSED': {
+      line(4, 10, 9, 10); line(13, 10, 18, 10);
+      const y = (t % 12 < 6) ? 12 : 11;
+      put(6, y); put(15, y);
+      break;
+    }
+    case 'EYE_IDLE': {
+      const pos = [[-1,0],[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1]][Math.floor(t / 3) % 8];
+      mask('011110/100001/100001/011110', 4, 9);
+      mask('011110/100001/100001/011110', 13, 9);
+      box(6 + pos[0], 10 + pos[1], 2, 2, true);
+      box(15 + pos[0], 10 + pos[1], 2, 2, true);
+      break;
+    }
+    case 'EYE_WINK': {
+      const s = Math.floor(t / 3) % 8;
+      if(s === 1 || s === 2) {
+        line(4, 11, 9, 11);
+        mask('011110/100001/100001/011110', 13, 9); box(15, 10, 2, 2, true);
+      } else if(s === 5 || s === 6) {
+        mask('011110/100001/100001/011110', 4, 9); box(6, 10, 2, 2, true);
+        line(13, 11, 18, 11);
+      } else {
+        mask('011110/100001/100001/011110', 4, 9); mask('011110/100001/100001/011110', 13, 9);
+        box(6, 10, 2, 2, true); box(15, 10, 2, 2, true);
+      }
+      break;
+    }
+    case 'EYE_SPARKLE': {
+      const s = Math.floor(t / 3) % 4;
+      for(const x of [6, 16]) {
+        if(s === 0) {
+          put(x, 9); put(x-2, 11); put(x+2, 11); put(x, 13);
+          box(x-1, 10, 3, 3, true);
+        } else if(s === 1) {
+          circle(x, 11, 4); put(x, 11);
+        } else if(s === 2) {
+          line(x-3, 11, x+3, 11); line(x, 8, x, 14);
+        } else {
+          box(x-1, 10, 3, 3, true);
+        }
+      }
+      break;
+    }
+    case 'EYE_SWIRL': {
+      const s = Math.floor(t / 3) % 4;
+      const seq = ['0110/1001/1011/0100', '0010/1101/1001/0110', '0100/1011/1001/0110', '0110/1001/1101/0010'][s];
+      mask(seq, 5, 9); mask(seq, 14, 9);
+      break;
+    }
+    case 'EYE_SLEEPY': {
+      const s = Math.floor(t / 3) % 6;
+      if(s === 0 || s === 1) {
+        mask('011110/100001/100001/011110', 4, 9); mask('011110/100001/100001/011110', 13, 9);
+        box(6, 11, 2, 2, true); box(15, 11, 2, 2, true);
+      } else if(s === 2 || s === 3) {
+        line(4, 10, 9, 10); line(13, 10, 18, 10);
+        put(6, 12); put(15, 12);
+      } else {
+        line(4, 12, 9, 12); line(13, 12, 18, 12);
+      }
+      break;
+    }
+    case 'EYE_ALERT': {
+      const s = Math.floor(t / 3) % 4;
+      if(s === 0) {
+        circle(6, 11, 3); circle(16, 11, 3);
+      } else if(s === 1) {
+        circle(6, 11, 4); circle(16, 11, 4);
+      } else if(s === 2) {
+        box(3, 8, 7, 7); box(13, 8, 7, 7);
+      } else {
+        circle(6, 11, 4, true); circle(16, 11, 4, true);
+      }
+      box(5, 10, 3, 3, true); box(15, 10, 3, 3, true);
+      break;
+    }
+    case 'EYE_GLANCE': {
+      const pos = [[-2,0],[-1,1],[0,1],[1,1],[2,0],[1,-1],[0,-1],[-1,-1]][Math.floor(t / 3) % 8];
+      mask('011110/100001/100001/011110', 4, 9);
+      mask('011110/100001/100001/011110', 13, 9);
+      box(6 + pos[0], 10 + pos[1], 2, 2, true);
+      box(15 + pos[0], 10 + pos[1], 2, 2, true);
+      break;
+    }
+    case 'EYE_DANCE': {
+      const d = [[0,-2],[1,-1],[2,0],[1,1],[0,2],[-1,1],[-2,0],[-1,-1]][Math.floor(t / 3) % 8];
+      mask('011110/100001/100001/011110', 4, 9);
+      mask('011110/100001/100001/011110', 13, 9);
+      box(6 + d[0], 10 + d[1], 2, 2, true);
+      box(15 - d[0], 10 + d[1], 2, 2, true);
+      break;
+    }
+    case 'EYE_SUNGLASSES': {
+      box(3, 8, 7, 5, true); box(13, 8, 7, 5, true);
+      line(9, 8, 13, 8); // Bridge
+      const s = Math.floor(t / 2) % 12;
+      // White glare sweep
+      if(s >= 2 && s <= 6) {
+        const gx = s - 2;
+        line(4 + gx, 8, 3 + gx, 12, false);
+        line(14 + gx, 8, 13 + gx, 12, false);
+      }
+      if(s >= 8 && s <= 10) {
+        put(2, 8); put(20, 8); // cool nod glint
+      }
+      break;
+    }
+    case 'EYE_NERD': {
+      circle(6, 11, 4); circle(16, 11, 4);
+      line(10, 11, 12, 11); // bridge
+      const gaze = [-1, 0, 1, 0][Math.floor(t / 4) % 4];
+      box(6 + gaze, 10, 2, 2, true); box(16 + gaze, 10, 2, 2, true);
+      const flash = Math.floor(t / 3) % 8;
+      if(flash === 1) { put(4, 9); put(14, 9); }
+      else if(flash === 2) { line(3, 9, 6, 12); line(13, 9, 16, 12); }
+      else if(flash === 3) { put(6, 12); put(16, 12); }
+      break;
+    }
+    case 'EYE_LOVE': {
+      const s = Math.floor(t / 3) % 4;
+      const bigHeart = '011000110/111101111/111111111/111111111/011111110/001111100/000111000/000010000';
+      const smallHeart = '01010/11111/11111/01110/00100';
+      if(s === 0 || s === 2) {
+        mask(bigHeart, 2, 7); mask(bigHeart, 12, 7);
+      } else {
+        mask(smallHeart, 4, 8); mask(smallHeart, 14, 8);
+      }
+      break;
+    }
+    case 'EYE_TEARS': {
+      circle(6, 10, 3); circle(16, 10, 3);
+      box(5, 9, 2, 2, true); box(15, 9, 2, 2, true);
+      const drop = t % 12;
+      if(drop >= 2 && drop <= 10) {
+        const dy = 13 + Math.floor(drop / 2);
+        if(dy <= 20) { put(4, dy); put(18, dy); }
+      }
+      break;
+    }
+    case 'EYE_MONEY': {
+      const spin = Math.floor(t / 3) % 4;
+      if(spin === 0 || spin === 3) {
+        mask('010/111/110/011/111/010', 5, 8);
+        mask('010/111/110/011/111/010', 15, 8);
+        if(spin === 3) { put(6, 7); put(16, 7); }
+      } else if(spin === 1) {
+        mask('11/11/11/11/11/11', 6, 8); mask('11/11/11/11/11/11', 15, 8);
+      } else {
+        line(4, 11, 8, 11); line(14, 11, 18, 11);
+        put(2, 7); put(20, 7); // Sparkle
+      }
+      break;
+    }
+    case 'EYE_FIRE': {
+      const f = Math.floor(t / 2) % 4;
+      const pats = [
+        '00100/01110/11111/11111/01110',
+        '01000/01110/11101/11111/01110',
+        '00010/01110/10111/11111/01110',
+        '00100/11110/11111/01111/01110'
+      ];
+      mask(pats[f], 4, 8); mask(pats[f], 14, 8);
+      put(6, (f % 2) ? 10 : 11); put(16, (f % 2) ? 10 : 11);
+      break;
+    }
+    case 'EYE_DIZZY': {
+      const s = Math.floor(t / 3) % 4;
+      if(s === 0) {
+        mask('10001/01010/00100/01010/10001', 4, 8);
+        mask('10001/01010/00100/01010/10001', 14, 8);
+      } else if(s === 1) {
+        mask('00100/00100/11111/00100/00100', 4, 8);
+        mask('00100/00100/11111/00100/00100', 14, 8);
+      } else if(s === 2) {
+        circle(6, 10, 3); circle(16, 10, 3);
+        put(6, 10); put(16, 10);
+      } else {
+        mask('101/010/101', 5, 9); mask('101/010/101', 15, 9);
+      }
+      break;
+    }
+    case 'EYE_ROLL': {
+      circle(6, 11, 4); circle(16, 11, 4);
+      const s = Math.floor(t / 3) % 6;
+      const pY = [11, 11, 9, 8, 8, 9][s], pX = [0, 0, 0, 1, -1, 0][s];
+      box(5 + pX, pY, 2, 2, true); box(15 + pX, pY, 2, 2, true);
+      break;
+    }
+    case 'EYE_SHOCK': {
+      const s = Math.floor(t / 2) % 4;
+      if(s === 0 || s === 2) {
+        mask('0010/0110/1111/0011/0110/0100', 5, 8);
+        mask('0010/0110/1111/0011/0110/0100', 14, 8);
+      } else {
+        circle(6, 11, 3); circle(16, 11, 3);
+        put(6, 11); put(16, 11);
+        put(2, 7); put(20, 15);
+      }
+      break;
+    }
+    case 'EYE_GRIN': {
+      const s = Math.floor(t / 3) % 4, gBob = (s === 1 || s === 3) ? -1 : 0;
+      mask('011110/100001', 4, 10 + gBob);
+      mask('011110/100001', 13, 10 + gBob);
+      if(s >= 2) { put(2, 13 + gBob); put(20, 13 + gBob); }
+      break;
+    }
+    case 'E_CALM': case 'E_FOCUS': case 'E_SURPRISE': case 'E_EXCITED': case 'E_HAPPY':
+    case 'E_LAUGH': case 'E_ANGRY': case 'E_SAD2': case 'E_FEAR': case 'E_SKEPTIC':
+    case 'E_CONFUSED2': case 'E_CURIOUS2': case 'E_PROUD2': case 'E_SHY': case 'E_BORED': case 'E_SLEEPY2': {
+      const s = Math.floor(t / 3) % 4;
+      const oval = (x, y = 9) => mask('01110/10001/10001/01110', x, y);
+      const mini = (x, y = 9) => mask('010/101/010', x, y);
+      if(kind === 'E_CALM') {
+        const q = [[-1,1],[0,1],[1,1],[0,0]][s];
+        oval(5); oval(13);
+        put(7 + q[0], 10 + q[1]); put(15 + q[0], 10 + q[1]);
+      } else if(kind === 'E_FOCUS') {
+        mini(5); mini(15);
+        put(6, [9,10,11,10][s]); put(16, [9,10,11,10][s]);
+      } else if(kind === 'E_SURPRISE' || kind === 'E_FEAR') {
+        circle(6, 10, 3); circle(16, 10, 3);
+        put(6, 10); put(16, 10);
+        circle(11, 16, 2.5); // Open mouth O
+      } else if(kind === 'E_EXCITED') {
+        mask('1001/0110/0110/1001', 5, 9); mask('1001/0110/0110/1001', 14, 9);
+      } else if(kind === 'E_HAPPY' || kind === 'E_PROUD2') {
+        mask('10001/01110', 5, 10); mask('10001/01110', 13, 10);
+        mask('1000001/0111110', 8, 15);
+      } else if(kind === 'E_LAUGH') {
+        line(5, 11, 9, 10); line(13, 10, 17, 11);
+        box(8, 14, 7, 3, true);
+      } else if(kind === 'E_ANGRY' || kind === 'E_SAD2') {
+        const y = kind === 'E_ANGRY' ? [8, 7, 8, 7][s] : [10, 11, 9, 10][s];
+        line(4, y, 9, 12 - y + 7); line(13, 12 - y + 7, 18, y);
+        put(6, 11); put(15, 11);
+      } else if(kind === 'E_SKEPTIC' || kind === 'E_CONFUSED2') {
+        if(s < 2) {
+          mini(5); line(13, 10 + s, 18, 10 + s); put(6, 10);
+        } else {
+          line(4, s === 2 ? 10 : 11, 9, s === 2 ? 10 : 11); mini(15); put(16, 10);
+        }
+      } else if(kind === 'E_CURIOUS2') {
+        const q = [[-1,-1],[0,-1],[1,0],[1,1]][s];
+        oval(5); oval(13);
+        put(7 + q[0], 10 + q[1]); put(15 - q[0], 10 + q[1]);
+      } else if(kind === 'E_SHY') {
+        mask('10001/01110', 5, 10); mask('10001/01110', 13, 10);
+        put(2, 13); put(20, 13); // Blush
+      } else if(kind === 'E_BORED') {
+        line(4, 11, 9, 11); line(13, 11, 18, 11);
+        put(6, 12); put(15, 12);
+        line(8, 16, 14, 16);
+      } else {
+        line(4, 11, 9, 11); line(13, 11, 18, 11);
+        put(6, 12); put(15, 12);
+      }
+      break;
+    }
+    case 'ORBIT': {
+      circle(11, 11, 8); circle(11, 11, 4);
+      circle(11, 11, 1.5, true); // Central star
+      box(10 + Math.round(8 * Math.cos(t * Math.PI / 12)),
+          10 + Math.round(8 * Math.sin(t * Math.PI / 12)), 3, 3, true);
+      break;
+    }
+    case 'PULSE': {
+      circle(11, 11, 1 + Math.floor((t % 18) / 2));
+      circle(11, 11, 1.5, true);
+      break;
+    }
+    case 'COMPASS': case 'BEARING': {
+      const a = (kind === 'BEARING' ? (opt.bearing ?? 45) : (Math.floor(t / 3) * 45)) * Math.PI / 180;
+      circle(11, 11, 9);
+      for(const [x,y] of [[11, 2],[20, 11],[11, 20],[2, 11]]) put(x, y);
+      const dx = Math.sin(a), dy = -Math.cos(a);
+      const tip = [11 + Math.round(8 * dx), 11 + Math.round(8 * dy)];
+      line(11 - Math.round(6 * dx), 11 - Math.round(6 * dy), ...tip);
+      for(const s of [-1, 1]) {
+        line(...tip, tip[0] - Math.round(4 * dx) + Math.round(3 * s * dy),
+                    tip[1] - Math.round(4 * dy) - Math.round(3 * s * dx));
+      }
+      circle(11, 11, 1.5, true);
+      break;
+    }
+    case 'RAIN': {
+      for(let x = 3; x <= 19; x += 2) {
+        const y = (phase + Math.abs(x - 11) * 2) % 18;
+        line(x, y, x, y + 3);
+      }
+      break;
+    }
+    case 'BLOOM': {
+      circle(11, 11, 2, true);
+      const r = 3 + Math.floor((t % 20) / 4);
+      for(const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1],[1,1],[1,-1],[-1,1],[-1,-1]]) {
+        circle(11 + dx * r, 11 + dy * r, 2.5);
+      }
+      break;
+    }
+    case 'FOCUS': case 'SAND': {
+      // Precise symmetrical hourglass
+      line(4, 3, 18, 3); line(4, 19, 18, 19);
+      line(4, 4, 10, 11); line(18, 4, 12, 11);
+      line(10, 11, 4, 18); line(12, 11, 18, 18);
+      const total = (kind === 'SAND') ? 36 : 24;
+      const u = (t % total) / (total - 1);
+      const h = Math.floor(6 * u);
+      for(let y = 5; y <= 9; y++) {
+        if(y >= 5 + Math.floor(5 * u)) line(y + 1, y, 21 - y, y);
+      }
+      for(let i = 0; i < h; i++) {
+        line(6 + i, 18 - i, 16 - i, 18 - i);
+      }
+      if(u < 0.95) {
+        put(11, 11 + (phase % Math.max(1, 7 - h)));
+        if(phase % 2) { put(10, 18 - h); put(12, 18 - h); }
+      }
+      break;
+    }
+    case 'PROGRESS': {
+      box(3, 9, 17, 5);
+      const fillW = Math.min(15, Math.floor((t % 20) / 19 * 15));
+      if(fillW > 0) box(4, 10, fillW, 3, true);
+      break;
+    }
+    case 'PORTAL': {
+      for(const r of [3, 6, 9]) {
+        if(r <= 3 + (phase % 3) * 3) circle(11, 11, r);
+      }
+      put(11, 11);
+      break;
+    }
+    case 'FIREFLY': {
+      for(const [x,y] of [[5, 6],[17, 6],[6, 16],[16, 16],[11, 11],[8, 13],[14, 9]]) {
+        put(x, y);
+        if(phase % 3 === 0) { put(x-1, y); put(x+1, y); put(x, y-1); put(x, y+1); }
+      }
+      break;
+    }
+    case 'DAWN': {
+      line(3, 14, 19, 14); // Horizon
+      circle(11, 15 - Math.floor((t % 20) / 4), 4, true);
+      for(const id of [...out]) {
+        if(Math.floor(id / 23) > 14) out.delete(id);
+      }
+      line(3, 14, 19, 14);
+      line(6, 17, 16, 17); // Water ripples
+      line(8, 19, 14, 19);
+      break;
+    }
+    case 'WORKOUT': {
+      line(4, 11 + bob, 18, 11 + bob); // Barbell shaft
+      box(3, 8 + bob, 3, 7, true); // Left weight
+      box(17, 8 + bob, 3, 7, true); // Right weight
+      head(11, 14 + bob); // Athlete head
+      break;
+    }
+    case 'ALARM': {
+      circle(11, 12, 6);
+      line(11, 12, 11, 8); line(11, 12, 14, 12);
+      line(6, 18, 5, 20); line(16, 18, 17, 20); // Feet
+      line(5, 5, 8, 4); line(14, 4, 17, 5); // Bells
+      if(phase % 2) { put(3, 6); put(19, 6); }
+      break;
+    }
+    case 'CAMERA': {
+      box(3, 8, 17, 11);
+      box(8, 5, 7, 3); // Top prism
+      circle(11, 13, 3);
+      put(17, 10); // Red dot / flash
+      if(t % 18 > 12) circle(11, 13, 4, true); // Flash firing
+      break;
+    }
+    case 'NOTIFY': {
+      box(10, 4, 3, 9, true);
+      box(10, 15, 3, 3, true);
+      if(phase % 2) {
+        circle(11, 11, 9);
+      }
+      break;
+    }
+  }
+  if(kind === 'PERSON') {
+    for(const id of [...out]) if(id % 23 > 11) out.delete(id);
+    for(const id of [...out]) out.add(Math.floor(id / 23) * 23 + 22 - (id % 23));
+  }
+  return out;
+}
 
-    /* 3D 球体视线与眼睛映射 */
+    /* ==========================================================================
+       3D AI 球表情动力学 (Bloub Kernel)
+       ========================================================================== */
     const EYE_SPLIT = 15.46;
     const EYE_W = 0.186;
     const EYE_H = 0.412;
     const REST_GAZE = { yaw: 28.49, pitch: 28.62, roll: -13 };
 
     function deg(d) { return (d * Math.PI) / 180; }
-
     function spin(u, v, angle) {
-      const c = Math.cos(angle);
-      const s = Math.sin(angle);
+      const c = Math.cos(angle), s = Math.sin(angle);
       return [
         [u[0] * c + v[0] * s, u[1] * c + v[1] * s, u[2] * c + v[2] * s],
         [v[0] * c - u[0] * s, v[1] * c - u[1] * s, v[2] * c - u[2] * s]
@@ -904,10 +1871,7 @@
     }
 
     function eyePoses(gaze, scale, split = EYE_SPLIT) {
-      let f = [0, 0, 1];
-      let right = [1, 0, 0];
-      let down = [0, 1, 0];
-
+      let f = [0, 0, 1], right = [1, 0, 0], down = [0, 1, 0];
       [f, right] = spin(f, right, deg(gaze.yaw));
       [down, f] = spin(down, f, deg(gaze.pitch));
       [right, down] = spin(right, down, deg(gaze.roll));
@@ -915,19 +1879,14 @@
       const build = (side) => {
         const [ef, er] = spin(f, right, deg(split * side));
         return {
-          x: ef[0] * scale,
-          y: ef[1] * scale,
-          a: er[0],
-          b: er[1],
-          c: down[0],
-          d: down[1],
+          x: ef[0] * scale, y: ef[1] * scale,
+          a: er[0], b: er[1], c: down[0], d: down[1],
           depth: ef[2]
         };
       };
       return [build(-1), build(1)];
     }
 
-    /* 眨眼与自然生命力 */
     const BLINK_RNG = createRng(0x5eed);
     const BLINKS = (() => {
       const out = [];
@@ -935,10 +1894,7 @@
       while (t < 900) {
         out.push(t);
         t += 1.9 + BLINK_RNG() * 2.7;
-        if (BLINK_RNG() < 0.18) {
-          out.push(t);
-          t += 0.24;
-        }
+        if (BLINK_RNG() < 0.18) { out.push(t); t += 0.24; }
       }
       return out;
     })();
@@ -949,9 +1905,7 @@
         const start = BLINKS[i];
         if (t < start) break;
         const k = (t - start) / BLINK_DUR;
-        if (k >= 0 && k <= 1) {
-          return k < 0.45 ? 1 - k / 0.45 : (k - 0.45) / 0.55;
-        }
+        if (k >= 0 && k <= 1) return k < 0.45 ? 1 - k / 0.45 : (k - 0.45) / 0.55;
       }
       return 1;
     }
@@ -969,52 +1923,8 @@
       };
     }
 
-    function blinkScale(lid) {
-      return 0.06 + 0.94 * clamp(lid);
-    }
+    function blinkScale(lid) { return 0.06 + 0.94 * clamp(lid); }
 
-    /* 16 种情绪表情 */
-    const eyeCfg = (w, h, tilt = 0, open = 1) => ({ w, h, tilt, open });
-    const pair = (w, h, tilt = 0, open = 1) => [eyeCfg(w, h, tilt, open), eyeCfg(w, h, -tilt, open)];
-
-    const EXPRESSIONS = [
-      { id: 'neutre', name: '平静 · 平常', icon: '🙂', gaze: { ...REST_GAZE }, split: EYE_SPLIT, eyes: [eyeCfg(EYE_W, EYE_H), eyeCfg(EYE_W, EYE_H)] },
-      { id: 'attentif', name: '专注 · 凝视', icon: '🧐', gaze: { yaw: 4, pitch: 5, roll: -4 }, split: 16, eyes: pair(0.21, 0.44) },
-      { id: 'surpris', name: '惊讶 · 震惊', icon: '😲', gaze: { yaw: 3, pitch: -3, roll: 0 }, split: 19, eyes: pair(0.45, 0.47) },
-      { id: 'excite', name: '兴奋 · 雀跃', icon: '🤩', gaze: { yaw: 6, pitch: -14, roll: 0 }, split: 19.5, eyes: pair(0.4, 0.56, -10) },
-      { id: 'heureux', name: '开心 · 微笑', icon: '😊', gaze: { yaw: 5, pitch: 9, roll: 0 }, split: 17, eyes: pair(0.27, 0.17, 14) },
-      { id: 'hilare', name: '大笑 · 欢欣', icon: '😄', gaze: { yaw: 4, pitch: 14, roll: 0 }, split: 18, eyes: pair(0.34, 0.13, 20) },
-      { id: 'colere', name: '生气 · 严肃', icon: '😠', gaze: { yaw: 3, pitch: 7, roll: 0 }, split: 17, eyes: pair(0.34, 0.15, 30) },
-      { id: 'triste', name: '难过 · 委屈', icon: '🥺', gaze: { yaw: 3, pitch: -13, roll: 0 }, split: 16, eyes: pair(0.22, 0.4, -28) },
-      { id: 'effraye', name: '害怕 · 慌张', icon: '😨', gaze: { yaw: 2, pitch: -20, roll: 0 }, split: 20.5, eyes: pair(0.4, 0.6) },
-      { id: 'mefiant', name: '怀疑 · 挑眉', icon: '🤨', gaze: { yaw: 12, pitch: 6, roll: -6 }, split: 16, eyes: [eyeCfg(0.21, 0.4), eyeCfg(0.22, 0.15)] },
-      { id: 'confus', name: '困惑 · 迷糊', icon: '😵', gaze: { yaw: -14, pitch: 3, roll: 8 }, split: 16.5, eyes: [eyeCfg(0.2, 0.44, -18), eyeCfg(0.28, 0.17, 14)] },
-      { id: 'curieux', name: '好奇 · 探问', icon: '🔍', gaze: { yaw: 16, pitch: -9, roll: -15 }, split: 16.5, eyes: [eyeCfg(0.24, 0.46, -8), eyeCfg(0.2, 0.38, -8)] },
-      { id: 'fier', name: '得意 · 自信', icon: '😏', gaze: { yaw: 5, pitch: 17, roll: 0 }, split: 17, eyes: pair(0.3, 0.15, 18) },
-      { id: 'timide', name: '羞怯 · 腼腆', icon: '😳', gaze: { yaw: -19, pitch: -14, roll: -7 }, split: 14, eyes: pair(0.17, 0.3) },
-      { id: 'blase', name: '无趣 · 瞥视', icon: '🙄', gaze: { yaw: -22, pitch: 2, roll: 0 }, split: 16, eyes: pair(0.3, 0.12) },
-      { id: 'somnolent', name: '困倦 · 瞌睡', icon: '🥱', gaze: { yaw: 6, pitch: -9, roll: -3 }, split: 16, eyes: pair(0.2, 0.42, 0, 0.42) }
-    ];
-
-    /* 14 种动作状态 */
-    const STATES = [
-      { id: 'idle', name: '待机呼吸', icon: '🫧', duration: 3.0 },
-      { id: 'thinking', name: '思考沉思', icon: '💭', duration: 3.5 },
-      { id: 'wink', name: '俏皮眨眼', icon: '😉', duration: 2.0 },
-      { id: 'wide', name: '睁大双眼', icon: '👀', duration: 2.2 },
-      { id: 'alert', name: '警觉发现', icon: '🚨', duration: 2.0 },
-      { id: 'notify', name: '消息提示', icon: '🔔', duration: 2.5 },
-      { id: 'exclaim', name: '感叹唤醒', icon: '❗', duration: 2.4 },
-      { id: 'sleep', name: '深度睡眠', icon: '💤', duration: 3.0 },
-      { id: 'egg', name: '椭圆律动', icon: '🥚', duration: 2.2 },
-      { id: 'hexagon', name: '六边晶格', icon: '⬡', duration: 2.2 },
-      { id: 'play', name: '弹跳趣味', icon: '🎾', duration: 2.5 },
-      { id: 'orbit', name: '环绕行星', icon: '🪐', duration: 3.4 },
-      { id: 'burst', name: '粒子爆发', icon: '💥', duration: 2.6 },
-      { id: 'comet', name: '彗星飞掠', icon: '☄️', duration: 2.4 }
-    ];
-
-    /* 胶囊体距离场计算 (SDF) */
     function distToCapsule(px, py, w, h) {
       const hw = Math.max(w, 0.01) / 2;
       const hh = Math.max(h, 0.01) / 2;
@@ -1030,100 +1940,341 @@
       }
     }
 
-    /* 状态与全局参数 */
+    const eyeCfg = (w, h, tilt = 0, open = 1) => ({ w, h, tilt, open });
+    const pair = (w, h, tilt = 0, open = 1) => [eyeCfg(w, h, tilt, open), eyeCfg(w, h, -tilt, open)];
+
+    /* ==========================================================================
+       全分类体系数据定义 (Categories & Animations)
+       ========================================================================== */
+    const CATEGORIES = [
+      {
+        id: 'emotion',
+        name: '表情',
+        icon: '🤖',
+        subcats: [
+          { id: 'all', name: '全部' },
+          { id: 'emotions', name: '情绪表情 (16)' },
+          { id: 'states', name: '动作状态 (14)' },
+          { id: 'eyes', name: '灵动眼眸' },
+          { id: 'faces', name: '符号情绪' }
+        ]
+      },
+      {
+        id: 'system',
+        name: '系统',
+        icon: '⚙️',
+        subcats: [
+          { id: 'all', name: '全部' },
+          { id: 'time', name: '时间日历' },
+          { id: 'hardware', name: '硬件仪表' },
+          { id: 'sensor', name: '传感连接' }
+        ]
+      },
+      {
+        id: 'activity',
+        name: '活动',
+        icon: '🏃',
+        subcats: [
+          { id: 'all', name: '全部' },
+          { id: 'fitness', name: '运动健康' },
+          { id: 'efficiency', name: '专注效率' }
+        ]
+      },
+      {
+        id: 'life',
+        name: '生活',
+        icon: '☕',
+        subcats: [
+          { id: 'all', name: '全部' },
+          { id: 'weather', name: '气象万千' },
+          { id: 'audio', name: '影音律动' },
+          { id: 'companion', name: '萌宠生灵' },
+          { id: 'daily', name: '日常作息' }
+        ]
+      },
+      {
+        id: 'game',
+        name: '游戏',
+        icon: '🎮',
+        subcats: [
+          { id: 'all', name: '全部' },
+          { id: 'arcade', name: '复古街机' },
+          { id: 'pixel', name: '像素符号' }
+        ]
+      },
+      {
+        id: 'ambience',
+        name: '氛围',
+        icon: '✨',
+        subcats: [
+          { id: 'all', name: '全部' },
+          { id: 'festive', name: '节日庆典' },
+          { id: 'visual', name: '空间视效' }
+        ]
+      }
+    ];
+
+    /* 全量动画清单 */
+    const ALL_ANIMATIONS = [
+      /* --- 表情 / 情绪表情 (16种) --- */
+      { id: 'neutre', name: '平静 · 平常', cat: 'emotion', subcat: 'emotions', icon: '🙂', isAvatar: true, gaze: { ...REST_GAZE }, split: EYE_SPLIT, eyes: [eyeCfg(EYE_W, EYE_H), eyeCfg(EYE_W, EYE_H)], duration: 3.0 },
+      { id: 'attentif', name: '专注 · 凝视', cat: 'emotion', subcat: 'emotions', icon: '🧐', isAvatar: true, gaze: { yaw: 4, pitch: 5, roll: -4 }, split: 16, eyes: pair(0.21, 0.44), duration: 3.0 },
+      { id: 'surpris', name: '惊讶 · 震惊', cat: 'emotion', subcat: 'emotions', icon: '😲', isAvatar: true, gaze: { yaw: 3, pitch: -3, roll: 0 }, split: 19, eyes: pair(0.45, 0.47), duration: 2.5 },
+      { id: 'excite', name: '兴奋 · 雀跃', cat: 'emotion', subcat: 'emotions', icon: '🤩', isAvatar: true, gaze: { yaw: 6, pitch: -14, roll: 0 }, split: 19.5, eyes: pair(0.4, 0.56, -10), duration: 2.5 },
+      { id: 'heureux', name: '开心 · 微笑', cat: 'emotion', subcat: 'emotions', icon: '😊', isAvatar: true, gaze: { yaw: 5, pitch: 9, roll: 0 }, split: 17, eyes: pair(0.27, 0.17, 14), duration: 3.0 },
+      { id: 'hilare', name: '大笑 · 欢欣', cat: 'emotion', subcat: 'emotions', icon: '😄', isAvatar: true, gaze: { yaw: 4, pitch: 14, roll: 0 }, split: 18, eyes: pair(0.34, 0.13, 20), duration: 2.5 },
+      { id: 'colere', name: '生气 · 严肃', cat: 'emotion', subcat: 'emotions', icon: '😠', isAvatar: true, gaze: { yaw: 3, pitch: 7, roll: 0 }, split: 17, eyes: pair(0.34, 0.15, 30), duration: 2.5 },
+      { id: 'triste', name: '难过 · 委屈', cat: 'emotion', subcat: 'emotions', icon: '🥺', isAvatar: true, gaze: { yaw: 3, pitch: -13, roll: 0 }, split: 16, eyes: pair(0.22, 0.4, -28), duration: 3.0 },
+      { id: 'effraye', name: '害怕 · 慌张', cat: 'emotion', subcat: 'emotions', icon: '😨', isAvatar: true, gaze: { yaw: 2, pitch: -20, roll: 0 }, split: 20.5, eyes: pair(0.4, 0.6), duration: 2.5 },
+      { id: 'mefiant', name: '怀疑 · 挑眉', cat: 'emotion', subcat: 'emotions', icon: '🤨', isAvatar: true, gaze: { yaw: 12, pitch: 6, roll: -6 }, split: 16, eyes: [eyeCfg(0.21, 0.4), eyeCfg(0.22, 0.15)], duration: 3.0 },
+      { id: 'confus', name: '困惑 · 迷糊', cat: 'emotion', subcat: 'emotions', icon: '😵', isAvatar: true, gaze: { yaw: -14, pitch: 3, roll: 8 }, split: 16.5, eyes: [eyeCfg(0.2, 0.44, -18), eyeCfg(0.28, 0.17, 14)], duration: 3.0 },
+      { id: 'curieux', name: '好奇 · 探问', cat: 'emotion', subcat: 'emotions', icon: '🔍', isAvatar: true, gaze: { yaw: 16, pitch: -9, roll: -15 }, split: 16.5, eyes: [eyeCfg(0.24, 0.46, -8), eyeCfg(0.2, 0.38, -8)], duration: 3.0 },
+      { id: 'fier', name: '得意 · 自信', cat: 'emotion', subcat: 'emotions', icon: '😏', isAvatar: true, gaze: { yaw: 5, pitch: 17, roll: 0 }, split: 17, eyes: pair(0.3, 0.15, 18), duration: 2.5 },
+      { id: 'timide', name: '羞怯 · 腼腆', cat: 'emotion', subcat: 'emotions', icon: '😳', isAvatar: true, gaze: { yaw: -19, pitch: -14, roll: -7 }, split: 14, eyes: pair(0.17, 0.3), duration: 3.0 },
+      { id: 'blase', name: '无趣 · 瞥视', cat: 'emotion', subcat: 'emotions', icon: '🙄', isAvatar: true, gaze: { yaw: -22, pitch: 2, roll: 0 }, split: 16, eyes: pair(0.3, 0.12), duration: 3.0 },
+      { id: 'somnolent', name: '困倦 · 瞌睡', cat: 'emotion', subcat: 'emotions', icon: '🥱', isAvatar: true, gaze: { yaw: 6, pitch: -9, roll: -3 }, split: 16, eyes: pair(0.2, 0.42, 0, 0.42), duration: 3.5 },
+
+      /* --- 表情 / 动作状态 (14种) --- */
+      { id: 'idle', name: '待机呼吸', cat: 'emotion', subcat: 'states', icon: '🫧', isAvatar: true, duration: 3.0 },
+      { id: 'thinking', name: '思考沉思', cat: 'emotion', subcat: 'states', icon: '💭', isAvatar: true, duration: 3.5 },
+      { id: 'wink', name: '俏皮眨眼', cat: 'emotion', subcat: 'states', icon: '😉', isAvatar: true, duration: 2.0 },
+      { id: 'wide', name: '睁大双眼', cat: 'emotion', subcat: 'states', icon: '👀', isAvatar: true, duration: 2.2 },
+      { id: 'alert', name: '警觉发现', cat: 'emotion', subcat: 'states', icon: '🚨', isAvatar: true, duration: 2.0 },
+      { id: 'notify', name: '消息提示', cat: 'emotion', subcat: 'states', icon: '🔔', isAvatar: true, duration: 2.5 },
+      { id: 'exclaim', name: '感叹唤醒', cat: 'emotion', subcat: 'states', icon: '❗', isAvatar: true, duration: 2.4 },
+      { id: 'sleep', name: '深度睡眠', cat: 'emotion', subcat: 'states', icon: '💤', isAvatar: true, duration: 3.0 },
+      { id: 'egg', name: '椭圆律动', cat: 'emotion', subcat: 'states', icon: '🥚', isAvatar: true, duration: 2.2 },
+      { id: 'hexagon', name: '六边晶格', cat: 'emotion', subcat: 'states', icon: '⬡', isAvatar: true, duration: 2.2 },
+      { id: 'play', name: '弹跳趣味', cat: 'emotion', subcat: 'states', icon: '🎾', isAvatar: true, duration: 2.5 },
+      { id: 'orbit_state', name: '环绕行星', cat: 'emotion', subcat: 'states', icon: '🪐', isAvatar: true, duration: 3.4 },
+      { id: 'burst', name: '粒子爆发', cat: 'emotion', subcat: 'states', icon: '💥', isAvatar: true, duration: 2.6 },
+      { id: 'comet', name: '彗星飞掠', cat: 'emotion', subcat: 'states', icon: '☄️', isAvatar: true, duration: 2.4 },
+
+      /* --- 表情 / 灵动眼眸与符号 --- */
+      { id: 'EYE_SHOCK', name: '触电电眼', cat: 'emotion', subcat: 'eyes', icon: '⚡', frames: 24 },
+      { id: 'EYE_GRIN', name: '弯月笑眼', cat: 'emotion', subcat: 'eyes', icon: '◡̈', frames: 24 },
+      { id: 'EYES', name: '情绪双眸', cat: 'emotion', subcat: 'eyes', icon: '👀', frames: 24 },
+      { id: 'MOOD', name: '心情变换', cat: 'emotion', subcat: 'faces', icon: '🎭', frames: 24 },
+      { id: 'HEART', name: '心意爱心', cat: 'emotion', subcat: 'faces', icon: '❤️', frames: 16 },
+      { id: 'HEARTBEAT', name: '心跳回响', cat: 'emotion', subcat: 'faces', icon: '💓', frames: 16 },
+
+      /* --- 系统 / 时间日历 --- */
+      { id: 'CLOCK', name: '数字时间', cat: 'system', subcat: 'time', icon: '🕒', frames: 24 },
+      { id: 'DATE', name: '双层日期', cat: 'system', subcat: 'time', icon: '📅', frames: 24 },
+      { id: 'WEEKDAY', name: '星期显示', cat: 'system', subcat: 'time', icon: '🗓️', frames: 24 },
+
+      /* --- 系统 / 硬件仪表 --- */
+      { id: 'BATTERY', name: '电量百分比', cat: 'system', subcat: 'hardware', icon: '🔋', frames: 24 },
+      { id: 'CHARGE', name: '充电流光', cat: 'system', subcat: 'hardware', icon: '⚡', frames: 18 },
+      { id: 'VOLUME', name: '音量阶梯', cat: 'system', subcat: 'hardware', icon: '🔊', frames: 24 },
+      { id: 'TEMP', name: '环境温度', cat: 'system', subcat: 'hardware', icon: '🌡️', frames: 24 },
+
+      /* --- 系统 / 传感连接 --- */
+      { id: 'COMPASS', name: '星罗盘指南针', cat: 'system', subcat: 'sensor', icon: '🧭', frames: 24 },
+      { id: 'RADAR', name: '雷达扫描', cat: 'system', subcat: 'sensor', icon: '📡', frames: 24 },
+      { id: 'BLUETOOTH', name: '蓝牙连接', cat: 'system', subcat: 'sensor', icon: 'ᛒ', frames: 24 },
+      { id: 'ENERGY_RING', name: '能量环流', cat: 'system', subcat: 'sensor', icon: '⭕', frames: 24 },
+
+      /* --- 活动 / 运动健康 --- */
+      { id: 'RUNNER', name: '动感奔跑者', cat: 'activity', subcat: 'fitness', icon: '🏃', frames: 12 },
+      { id: 'STEPS', name: '万步达成', cat: 'activity', subcat: 'fitness', icon: '👟', frames: 24 },
+      { id: 'WORKOUT', name: '健身律动', cat: 'activity', subcat: 'fitness', icon: '💪', frames: 16 },
+      { id: 'PERSON', name: '跃动小人', cat: 'activity', subcat: 'fitness', icon: '🧍', frames: 24 },
+
+      /* --- 活动 / 专注效率 --- */
+      { id: 'FOCUS', name: '时砂专注', cat: 'activity', subcat: 'efficiency', icon: '⏳', frames: 20 },
+      { id: 'SAND', name: '沙漏倒计时', cat: 'activity', subcat: 'efficiency', icon: '⌛', frames: 24 },
+      { id: 'PROGRESS', name: '三排进度条', cat: 'activity', subcat: 'efficiency', icon: '📊', frames: 24 },
+      { id: 'SUCCESS', name: '完成确认', cat: 'activity', subcat: 'efficiency', icon: '✅', frames: 20 },
+      { id: 'MAIL', name: '邮件到达', cat: 'activity', subcat: 'efficiency', icon: '✉️', frames: 20 },
+
+      /* --- 生活 / 气象万千 --- */
+      { id: 'SUNNY', name: '阳光晴天', cat: 'life', subcat: 'weather', icon: '☀️', frames: 24 },
+      { id: 'CLOUDY', name: '浮云飘拂', cat: 'life', subcat: 'weather', icon: '☁️', frames: 24 },
+      { id: 'RAINY', name: '雨滴涟漪', cat: 'life', subcat: 'weather', icon: '🌧️', frames: 24 },
+      { id: 'RAIN', name: '像素落雨', cat: 'life', subcat: 'weather', icon: '☔', frames: 16 },
+      { id: 'SNOW', name: '冬日落雪', cat: 'life', subcat: 'weather', icon: '❄️', frames: 24 },
+      { id: 'STORM', name: '闪电雷暴', cat: 'life', subcat: 'weather', icon: '⛈️', frames: 24 },
+
+      /* --- 生活 / 影音与日常 --- */
+      { id: 'WAVE', name: '跳动声波', cat: 'life', subcat: 'audio', icon: '〰️', frames: 16 },
+      { id: 'SPECTRUM', name: '音频频谱', cat: 'life', subcat: 'audio', icon: '📶', frames: 24 },
+      { id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24 },
+      { id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 24 },
+      { id: 'COFFEE', name: '咖啡小憩', cat: 'life', subcat: 'daily', icon: '☕', frames: 24 },
+      { id: 'WATER', name: '喝水打卡', cat: 'life', subcat: 'daily', icon: '💧', frames: 24 },
+
+      /* --- 生活 / 萌宠生灵 --- */
+      { id: 'CAT', name: '像素小猫', cat: 'life', subcat: 'companion', icon: '🐱', frames: 24 },
+      { id: 'DOG', name: '灵动小狗', cat: 'life', subcat: 'companion', icon: '🐶', frames: 24 },
+      { id: 'FISH', name: '游动金鱼', cat: 'life', subcat: 'companion', icon: '🐟', frames: 24 },
+      { id: 'BIRD', name: '飞翔小鸟', cat: 'life', subcat: 'companion', icon: '🐦', frames: 24 },
+
+      /* --- 游戏 / 复古街机 --- */
+      { id: 'PACMAN', name: '吃豆人', cat: 'game', subcat: 'arcade', icon: 'ᗧ', frames: 24 },
+      { id: 'INVADER', name: '太空侵略者', cat: 'game', subcat: 'arcade', icon: '👾', frames: 24 },
+      { id: 'SNAKE', name: '经典贪吃蛇', cat: 'game', subcat: 'arcade', icon: '🐍', frames: 24 },
+      { id: 'TETRIS', name: '俄罗斯方块', cat: 'game', subcat: 'arcade', icon: '🧱', frames: 24 },
+
+      /* --- 游戏 / 像素符号 --- */
+      { id: 'PIXEL_HEART', name: '像素跳动心', cat: 'game', subcat: 'pixel', icon: '💖', frames: 24 },
+      { id: 'DICE', name: '幸运骰子', cat: 'game', subcat: 'pixel', icon: '🎲', frames: 24 },
+      { id: 'DIAMOND', name: '璀璨钻石', cat: 'game', subcat: 'pixel', icon: '💎', frames: 24 },
+
+      /* --- 氛围 / 节日庆典 --- */
+      { id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
+      { id: 'CANDLE', name: '摇曳烛火', cat: 'ambience', subcat: 'festive', icon: '🕯️', frames: 24 },
+      { id: 'GIFT', name: '节日礼盒', cat: 'ambience', subcat: 'festive', icon: '🎁', frames: 24 },
+
+      /* --- 氛围 / 空间视效 --- */
+      { id: 'ORBIT', name: '星际轨道', cat: 'ambience', subcat: 'visual', icon: '🪐', frames: 24 },
+      { id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
+      { id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
+      { id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24 },
+      { id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
+    ];
+
+    /* 全局运行状态 */
     const state = {
       mode: 'face',          // 'face', 'blob', 'invert', 'contour'
       algo: 'pwm',           // 'pwm', 'binary'
-      threshold: 0.35,       // 点亮阈值
-      scale: 1.0,            // 眼睛采样大小
-      color: '#ffd45e',      // 主题色
-      brightness: 0.9,       // 亮度
-      glow: 12,              // 光晕
-      gazeTracking: true,    // 鼠标视线跟随
+      threshold: 0.35,       // 阈值
+      scale: 1.0,
+      color: '#ffd45e',
+      brightness: 0.9,
+      glow: 12,
+      gazeTracking: true,
       mouseGaze: { x: 0, y: 0, active: false },
-      lifeEnabled: true,     // 自然生命力
-      forcedBlinkAt: -99,    // 手动立即眨眼时间戳
-      currentExpr: EXPRESSIONS[0],
-      currentState: STATES[0],
-      isStateMode: false,
-      playSequence: false,
+      lifeEnabled: true,
+      forcedBlinkAt: -99,
+      currentCat: 'emotion',
+      currentSubcat: 'all',
+      searchKeyword: '',
+      currentAnim: ALL_ANIMATIONS[0],
       playing: true,
+      playSequence: false,
       time: 0,
       speed: 1.0,
-      view: 'dual'           // 'dual', 'matrix', 'vector'
+      view: 'dual'
     };
 
-    /* 画布与上下文初始化 */
+    /* 画布与容器 */
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
     const vectorContainer = document.getElementById('vectorContainer');
 
-    /* 构建侧边栏表情与状态列表 */
+    /* UI 初始化与渲染 */
     function initUI() {
-      const exprGrid = document.getElementById('expressionsGrid');
-      exprGrid.innerHTML = '';
-      EXPRESSIONS.forEach((expr, idx) => {
-        const card = document.createElement('div');
-        card.className = 'preset-card' + (idx === 0 ? ' active' : '');
-        card.id = `expr-card-${expr.id}`;
-        card.onclick = () => selectExpression(expr);
-        card.innerHTML = `
-          <div class="preset-icon">${expr.icon}</div>
-          <div class="preset-name">${expr.name}</div>
-          <div class="preset-sub">${expr.id}</div>
-        `;
-        exprGrid.appendChild(card);
+      renderSubcatPills();
+      renderAnimationsList();
+    }
+
+    function selectMainCategory(catId) {
+      state.currentCat = catId;
+      state.currentSubcat = 'all';
+
+      document.querySelectorAll('.main-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cat === catId);
       });
 
-      const stateGrid = document.getElementById('statesGrid');
-      stateGrid.innerHTML = '';
-      STATES.forEach((st) => {
-        const card = document.createElement('div');
-        card.className = 'preset-card';
-        card.id = `state-card-${st.id}`;
-        card.onclick = () => selectState(st);
-        card.innerHTML = `
-          <div class="preset-icon">${st.icon}</div>
-          <div class="preset-name">${st.name}</div>
-          <div class="preset-sub">${st.duration}s · ${st.id}</div>
-        `;
-        stateGrid.appendChild(card);
+      const isExport = catId === 'export';
+      document.getElementById('searchWrap').style.display = isExport ? 'none' : 'block';
+      document.getElementById('subcatPillsBar').style.display = isExport ? 'none' : 'flex';
+      document.getElementById('animationsGrid').style.display = isExport ? 'none' : 'grid';
+      document.getElementById('exportSectionPanel').style.display = isExport ? 'block' : 'none';
+
+      if (!isExport) {
+        renderSubcatPills();
+        renderAnimationsList();
+      } else {
+        updateCodeExports();
+      }
+    }
+
+    function renderSubcatPills() {
+      const container = document.getElementById('subcatPillsBar');
+      container.innerHTML = '';
+      const catDef = CATEGORIES.find(c => c.id === state.currentCat);
+      if (!catDef) return;
+
+      catDef.subcats.forEach(sub => {
+        const pill = document.createElement('div');
+        pill.className = 'subcat-pill' + (sub.id === state.currentSubcat ? ' active' : '');
+        pill.textContent = sub.name;
+        pill.onclick = () => {
+          state.currentSubcat = sub.id;
+          document.querySelectorAll('.subcat-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          renderAnimationsList();
+        };
+        container.appendChild(pill);
       });
     }
 
-    /* 表情与状态切换 */
-    function selectExpression(expr) {
-      state.isStateMode = false;
-      state.currentExpr = expr;
-      state.playSequence = false;
-      document.getElementById('statusCurrentName').textContent = expr.name.toUpperCase();
-      document.querySelectorAll('#expressionsGrid .preset-card').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('#statesGrid .preset-card').forEach(c => c.classList.remove('active'));
-      document.getElementById(`expr-card-${expr.id}`)?.classList.add('active');
+    function onSearchInput(val) {
+      state.searchKeyword = val.trim().toLowerCase();
+      renderAnimationsList();
     }
 
-    function selectState(st) {
-      state.isStateMode = true;
-      state.currentState = st;
-      state.playSequence = false;
+    function renderAnimationsList() {
+      const grid = document.getElementById('animationsGrid');
+      grid.innerHTML = '';
+
+      let list = ALL_ANIMATIONS.filter(item => {
+        // 主分类
+        if (state.currentCat !== 'all' && item.cat !== state.currentCat) return false;
+        // 子分类
+        if (state.currentSubcat !== 'all' && item.subcat !== state.currentSubcat) return false;
+        // 搜索关键词
+        if (state.searchKeyword) {
+          const matchName = item.name.toLowerCase().includes(state.searchKeyword);
+          const matchId = item.id.toLowerCase().includes(state.searchKeyword);
+          if (!matchName && !matchId) return false;
+        }
+        return true;
+      });
+
+      if (list.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--muted);font-size:12px">暂无匹配的动画效果</div>';
+        return;
+      }
+
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'anim-card' + (item.id === state.currentAnim.id ? ' active' : '');
+        card.onclick = () => selectAnimation(item);
+
+        const subName = getSubcatName(item.cat, item.subcat);
+        card.innerHTML = `
+          <div class="anim-card-icon">${item.icon}</div>
+          <div class="anim-card-name">${item.name}</div>
+          <div class="anim-card-sub"><span class="anim-tag">${subName}</span> ${item.frames ? item.frames + '帧' : item.duration + 's'}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function getSubcatName(catId, subcatId) {
+      const c = CATEGORIES.find(x => x.id === catId);
+      if (!c) return subcatId;
+      const s = c.subcats.find(x => x.id === subcatId);
+      return s ? s.name.replace(/\s*\(\d+\)/, '') : subcatId;
+    }
+
+    function selectAnimation(anim) {
+      state.currentAnim = anim;
       state.time = 0;
-      document.getElementById('timeScrubber').max = st.duration;
-      document.getElementById('statusCurrentName').textContent = `${st.name.toUpperCase()} (动作状态)`;
-      document.querySelectorAll('#expressionsGrid .preset-card').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('#statesGrid .preset-card').forEach(c => c.classList.remove('active'));
-      document.getElementById(`state-card-${st.id}`)?.classList.add('active');
-    }
 
-    function switchRightTab(tab) {
-      document.getElementById('tabExprBtn').classList.toggle('active', tab === 'expr');
-      document.getElementById('tabStateBtn').classList.toggle('active', tab === 'state');
-      document.getElementById('tabExportBtn').classList.toggle('active', tab === 'export');
+      // 更新顶部与卡片状态
+      document.getElementById('statusCurrentName').textContent = anim.name.toUpperCase();
+      const catDef = CATEGORIES.find(c => c.id === anim.cat);
+      document.getElementById('categoryBadge').textContent = catDef ? catDef.name : anim.cat;
 
-      document.getElementById('tabExprPanel').style.display = tab === 'expr' ? 'block' : 'none';
-      document.getElementById('tabStatePanel').style.display = tab === 'state' ? 'block' : 'none';
-      document.getElementById('tabExportPanel').style.display = tab === 'export' ? 'block' : 'none';
+      document.querySelectorAll('.anim-card').forEach(c => c.classList.remove('active'));
+      event?.currentTarget?.classList.add('active');
 
-      if (tab === 'export') updateCodeExports();
+      const scrubber = document.getElementById('timeScrubber');
+      scrubber.max = anim.isAvatar ? (anim.duration || 3.0) : (anim.frames || 24);
     }
 
     /* 播放控制 */
@@ -1135,42 +2286,28 @@
     function stepFrame(dir) {
       state.playing = false;
       document.getElementById('playBtn').textContent = '▶ 播放';
-      state.time = Math.max(0, state.time + dir * 0.04);
+      const max = parseFloat(document.getElementById('timeScrubber').max) || 24;
+      const step = state.currentAnim.isAvatar ? 0.05 : 1;
+      state.time = (state.time + dir * step + max) % max;
     }
 
     function togglePlaySequence() {
       state.playSequence = !state.playSequence;
       const btn = document.getElementById('loopSeqBtn');
       btn.classList.toggle('active', state.playSequence);
-      if (state.playSequence) {
-        state.isStateMode = true;
-        showToast('已开启所有 14 种动作状态循环连播');
-      }
+      if (state.playSequence) showToast('已开启所有动画顺序循环连播');
     }
 
-    function onScrub(val) {
-      state.time = parseFloat(val);
-    }
+    function onScrub(val) { state.time = parseFloat(val); }
+    function onSpeedChange(val) { state.speed = parseFloat(val); }
 
-    function onSpeedChange(val) {
-      state.speed = parseFloat(val);
-    }
-
-    /* 模式切换 */
+    /* 呈现风格与参数 */
     function setRenderMode(m) {
       state.mode = m;
       document.getElementById('modeFaceBtn').classList.toggle('active', m === 'face');
       document.getElementById('modeBlobBtn').classList.toggle('active', m === 'blob');
       document.getElementById('modeInvertBtn').classList.toggle('active', m === 'invert');
       document.getElementById('modeContourBtn').classList.toggle('active', m === 'contour');
-
-      const descMap = {
-        face: '【大眼特写面部】：屏幕即为球体面部，眼睛比例饱满清晰，眼睑转动、角度倾斜极具表情冲击力。',
-        blob: '【完整球体剪影】：将整个 AI 球体完整呈现在点阵屏中，可清晰观摩椭圆、六边形变与粒子环绕。',
-        invert: '【高亮反相模式】：点亮整个球体内部背景，眼睛呈暗色镂空对比，极具未来科幻质感。',
-        contour: '【线框轮廓模式】：仅勾勒球体几何边缘与明亮双眼，极富极简几何发光美感。'
-      };
-      document.getElementById('modeDesc').textContent = descMap[m];
     }
 
     function setAlgo(a) {
@@ -1182,11 +2319,6 @@
     function onThresholdChange(v) {
       state.threshold = v / 100;
       document.getElementById('thresholdVal').textContent = `${v}%`;
-    }
-
-    function onScaleChange(v) {
-      state.scale = parseFloat(v);
-      document.getElementById('scaleVal').textContent = `${parseFloat(v).toFixed(2)}x`;
     }
 
     function setColor(hex, el) {
@@ -1210,26 +2342,40 @@
       document.getElementById('glowVal').textContent = `${v}px`;
     }
 
+    /* 硬件动态模拟滑块 */
+    function onSimBattery(v) {
+      batteryLevel = parseInt(v);
+      document.getElementById('simBatteryVal').textContent = `${v}%`;
+    }
+    function onSimVolume(v) {
+      volumeLevel = parseInt(v);
+      document.getElementById('simVolumeVal').textContent = `${v}%`;
+    }
+    function onSimTemp(v) {
+      temperatureLevel = parseInt(v);
+      document.getElementById('simTempVal').textContent = `${v}°`;
+    }
+    function onSimCompass(v) {
+      compassBearing = parseInt(v);
+      const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+      const dName = dirs[Math.round(compassBearing / 45) % 8];
+      document.getElementById('simCompassVal').textContent = `${v}° ${dName}`;
+    }
+
+    /* 视线与生命力 */
     function toggleGaze() {
       state.gazeTracking = !state.gazeTracking;
       document.getElementById('gazeToggleBtn').classList.toggle('active', state.gazeTracking);
       if (!state.gazeTracking) resetGaze();
     }
-
     function resetGaze() {
-      state.mouseGaze.x = 0;
-      state.mouseGaze.y = 0;
-      state.mouseGaze.active = false;
+      state.mouseGaze.x = 0; state.mouseGaze.y = 0; state.mouseGaze.active = false;
     }
-
     function toggleLife() {
       state.lifeEnabled = !state.lifeEnabled;
       document.getElementById('lifeToggleBtn').classList.toggle('active', state.lifeEnabled);
     }
-
-    function triggerBlink() {
-      state.forcedBlinkAt = state.time;
-    }
+    function triggerBlink() { state.forcedBlinkAt = state.time; }
 
     function setViewMode(v) {
       state.view = v;
@@ -1237,37 +2383,22 @@
       document.getElementById('viewMatrixBtn').classList.toggle('active', v === 'matrix');
       document.getElementById('viewVectorBtn').classList.toggle('active', v === 'vector');
 
-      const wrapper = document.getElementById('displaysWrapper');
-      const matrixCard = document.getElementById('matrixCard');
-      const vectorCard = document.getElementById('vectorCard');
-
-      if (v === 'dual') {
-        matrixCard.style.display = 'flex';
-        vectorCard.style.display = 'flex';
-      } else if (v === 'matrix') {
-        matrixCard.style.display = 'flex';
-        vectorCard.style.display = 'none';
-      } else {
-        matrixCard.style.display = 'none';
-        vectorCard.style.display = 'flex';
-      }
+      document.getElementById('matrixCard').style.display = v === 'vector' ? 'none' : 'flex';
+      document.getElementById('vectorCard').style.display = v === 'matrix' ? 'none' : 'flex';
     }
 
-    /* 鼠标与触控视线捕获 */
+    /* 鼠标交互监听 */
     function setupInteractions() {
       const stage = document.getElementById('stageContainer');
       const updateMouse = (e) => {
         if (!state.gazeTracking) return;
-        const matrixBox = document.getElementById('matrixFrame').getBoundingClientRect();
-        const cx = matrixBox.left + matrixBox.width / 2;
-        const cy = matrixBox.top + matrixBox.height / 2;
-        const dx = (e.clientX - cx) / (matrixBox.width / 2);
-        const dy = (e.clientY - cy) / (matrixBox.height / 2);
-        state.mouseGaze.x = clamp(dx, -1.8, 1.8);
-        state.mouseGaze.y = clamp(dy, -1.8, 1.8);
+        const box = document.getElementById('matrixFrame').getBoundingClientRect();
+        const cx = box.left + box.width / 2;
+        const cy = box.top + box.height / 2;
+        state.mouseGaze.x = clamp((e.clientX - cx) / (box.width / 2), -1.8, 1.8);
+        state.mouseGaze.y = clamp((e.clientY - cy) / (box.height / 2), -1.8, 1.8);
         state.mouseGaze.active = true;
       };
-
       stage.addEventListener('mousemove', updateMouse);
       stage.addEventListener('touchmove', (e) => {
         if (e.touches.length > 0) updateMouse(e.touches[0]);
@@ -1275,38 +2406,27 @@
     }
 
     /* ==========================================================================
-       核心计算帧：采样 3D 姿态与点阵像素
+       帧计算与绘制核心调度
        ========================================================================== */
 
-    function evaluateFrame(t) {
-      let gaze = { ...REST_GAZE };
-      let split = EYE_SPLIT;
-      let eyesCfg = [eyeCfg(EYE_W, EYE_H), eyeCfg(EYE_W, EYE_H)];
-      let eyeAlpha = 1.0;
-      let bodyAlpha = 1.0;
-      let bodyScale = 1.0;
-      let extraEffects = []; // 环、粒子等
+    let lastLitCount = 0;
+    let lastFrameBytes = new Uint8Array(50);
+    let lastRowBits = new Uint32Array(23);
 
-      // 判断模式：表情模式还是动作状态模式
-      if (!state.isStateMode) {
-        // 纯表情模式
-        const expr = state.currentExpr;
-        gaze = { ...expr.gaze };
-        split = expr.split;
-        eyesCfg = [
-          { ...expr.eyes[0], tilt: expr.eyes[0].tilt ?? 0, open: expr.eyes[0].open ?? 1 },
-          { ...expr.eyes[1], tilt: expr.eyes[1].tilt ?? 0, open: expr.eyes[1].open ?? 1 }
-        ];
-      } else {
-        // 动作状态模式
-        const st = state.currentState;
-        const dur = st.duration;
-        const localT = t % dur;
+    function evaluateAvatarFrame(t, anim) {
+      let gaze = anim.gaze ? { ...anim.gaze } : { ...REST_GAZE };
+      let split = anim.split || EYE_SPLIT;
+      let eyesCfg = anim.eyes ? [
+        { ...anim.eyes[0], tilt: anim.eyes[0].tilt ?? 0, open: anim.eyes[0].open ?? 1 },
+        { ...anim.eyes[1], tilt: anim.eyes[1].tilt ?? 0, open: anim.eyes[1].open ?? 1 }
+      ] : [eyeCfg(EYE_W, EYE_H), eyeCfg(EYE_W, EYE_H)];
+      let effects = [];
 
-        switch (st.id) {
-          case 'idle':
-            gaze = { ...REST_GAZE };
-            break;
+      // 动作状态专属时间逻辑
+      const dur = anim.duration || 3.0;
+      const localT = t % dur;
+      if (anim.subcat === 'states') {
+        switch (anim.id) {
           case 'thinking':
             gaze = { yaw: -18 + Math.sin(localT * 3) * 12, pitch: -16, roll: 8 };
             eyesCfg = pair(0.20, 0.44, -5);
@@ -1326,44 +2446,34 @@
             break;
           case 'notify':
             eyesCfg = pair(0.22, 0.44);
-            extraEffects.push({ type: 'notif', angle: -42, r: 0.14 });
+            effects.push({ type: 'notif' });
             break;
           case 'exclaim':
             const morph = clamp(localT / 0.8);
-            if (morph > 0.2 && morph < 0.8) {
-              eyesCfg = [eyeCfg(0.14, 0.65, 0), eyeCfg(0.14, 0.14, 0)];
-            }
+            if (morph > 0.2 && morph < 0.8) eyesCfg = [eyeCfg(0.14, 0.65, 0), eyeCfg(0.14, 0.14, 0)];
             break;
           case 'sleep':
             eyesCfg = pair(0.24, 0.08, 0, 0.05);
             gaze = { yaw: 6, pitch: 18, roll: -6 };
             break;
-          case 'egg':
-            bodyScale = 0.95;
-            break;
-          case 'hexagon':
-            bodyScale = 1.0;
-            break;
           case 'play':
             gaze = { yaw: Math.sin(localT * 6) * 20, pitch: Math.cos(localT * 6) * 12, roll: Math.sin(localT * 4) * 10 };
             break;
-          case 'orbit':
+          case 'orbit_state':
             gaze = { yaw: Math.sin(localT * 4) * 22, pitch: -5, roll: -12 };
-            extraEffects.push({ type: 'orbit', progress: localT });
+            effects.push({ type: 'orbit', progress: localT });
             break;
           case 'burst':
-            extraEffects.push({ type: 'burst', progress: localT });
+            effects.push({ type: 'burst', progress: localT });
             break;
           case 'comet':
-            extraEffects.push({ type: 'comet', progress: localT });
+            effects.push({ type: 'comet', progress: localT });
             break;
         }
       }
 
       // 生命力与鼠标注视混合
       const life = state.lifeEnabled ? liveliness(t, { wander: 1, blink: true }) : { dYaw: 0, dPitch: 0, dRoll: 0, lid: 1, breath: 1 };
-      
-      // 手动触发眨眼
       let forcedLid = 1;
       if (t - state.forcedBlinkAt >= 0 && t - state.forcedBlinkAt <= BLINK_DUR) {
         const k = (t - state.forcedBlinkAt) / BLINK_DUR;
@@ -1376,18 +2486,12 @@
       let finalRoll = gaze.roll + life.dRoll;
 
       if (state.gazeTracking && state.mouseGaze.active) {
-        const targetYaw = state.mouseGaze.x * 45;
-        const targetPitch = state.mouseGaze.y * 35;
-        finalYaw = lerp(finalYaw, targetYaw, 0.7);
-        finalPitch = lerp(finalPitch, targetPitch, 0.7);
+        finalYaw = lerp(finalYaw, state.mouseGaze.x * 45, 0.7);
+        finalPitch = lerp(finalPitch, state.mouseGaze.y * 35, 0.7);
       }
 
-      const finalGaze = { yaw: finalYaw, pitch: finalPitch, roll: finalRoll };
-
-      // 投影双眼 3D 姿态
-      const baseEyeScale = state.mode === 'face' ? 1.0 : 0.75;
-      const eyeScaleMult = baseEyeScale * state.scale;
-      const poses = eyePoses(finalGaze, 1.0, split);
+      const eyeScaleMult = (state.mode === 'face' ? 1.0 : 0.75) * state.scale;
+      const poses = eyePoses({ yaw: finalYaw, pitch: finalPitch, roll: finalRoll }, 1.0, split);
 
       const eyesData = [];
       for (let i = 0; i < 2; i++) {
@@ -1396,10 +2500,8 @@
         const cfg = eyesCfg[i];
         const phi = ((cfg.tilt ?? 0) * Math.PI) / 180;
         const cp = Math.cos(phi), sp = Math.sin(phi);
-        const ax = p.a * cp + p.c * sp;
-        const ay = p.b * cp + p.d * sp;
-        const cx2 = -p.a * sp + p.c * cp;
-        const cy2 = -p.b * sp + p.d * cp;
+        const ax = p.a * cp + p.c * sp, ay = p.b * cp + p.d * sp;
+        const cx2 = -p.a * sp + p.c * cp, cy2 = -p.b * sp + p.d * cp;
         const k = blinkScale(Math.min(lid, cfg.open));
 
         eyesData.push({
@@ -1412,185 +2514,156 @@
         });
       }
 
-      return {
-        gaze: finalGaze,
-        eyes: eyesData,
-        breath: life.breath,
-        effects: extraEffects
-      };
+      return { eyes: eyesData, effects };
     }
 
-    /* 点阵像素采样与渲染 */
-    let lastLitCount = 0;
-    let lastFrameBytes = new Uint8Array(50);
-    let lastRowBits = new Uint32Array(23);
-
-    function renderMatrix(frameData) {
-      const W = canvas.width;
-      const cx = W / 2;
-      const scale = W * 0.415;
-      const cell = 18.0;
-
+    function renderMatrix() {
+      const W = canvas.width, cx = W / 2, scale = W * 0.415, cell = 18.0;
       ctx.clearRect(0, 0, W, W);
 
-      // 背景与圆形暗黑底板
+      // 暗夜圆形底板
       ctx.fillStyle = '#030507';
       ctx.beginPath();
       ctx.arc(cx, cx, W * 0.485, 0, TAU);
       ctx.fill();
-
-      // 底板网格定位圆环
       ctx.strokeStyle = '#0d151c';
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
       const brightnessArray = new Float32Array(TOTAL_LEDS);
       let litCount = 0;
+      const anim = state.currentAnim;
 
-      // 遍历 393 颗灯珠进行几何光线采样
-      PHYSICAL_POINTS.forEach((pt, idx) => {
-        let maxVal = 0.0;
-        const px = pt.x;
-        const py = pt.y;
-        const distFromCenter = Math.hypot(px, py);
+      if (anim.isAvatar) {
+        // AI 表情 3D 模型光线追踪采样
+        const frameData = evaluateAvatarFrame(state.time, anim);
+        PHYSICAL_POINTS.forEach((pt, idx) => {
+          let maxVal = 0.0;
+          const px = pt.x, py = pt.y, dist = Math.hypot(px, py);
 
-        // 呈现模式逻辑
-        if (state.mode === 'face') {
-          // 面部特写：判断是否落在任意眼睛内
-          for (const eye of frameData.eyes) {
-            const dx = px - eye.center.x;
-            const dy = py - eye.center.y;
-            // 逆变换到胶囊局部坐标
-            const det = eye.ax * eye.cy - eye.ay * eye.cx;
-            if (Math.abs(det) > 1e-5) {
-              const lx = (dx * eye.cy - dy * eye.cx) / det;
-              const ly = (-dx * eye.ay + dy * eye.ax) / det;
-              const d = distToCapsule(lx, ly, eye.w, eye.h);
-              if (d < 0.06) {
-                const val = clamp((0.06 - d) / 0.06) * eye.alpha;
-                if (val > maxVal) maxVal = val;
-              }
-            }
-          }
-        } else if (state.mode === 'blob') {
-          // 整球剪影：球体内明亮，眼睛内为透明/镂空
-          if (distFromCenter <= 0.85) {
-            maxVal = 0.8;
+          if (state.mode === 'face') {
             for (const eye of frameData.eyes) {
-              const dx = px - eye.center.x;
-              const dy = py - eye.center.y;
+              const dx = px - eye.center.x, dy = py - eye.center.y;
               const det = eye.ax * eye.cy - eye.ay * eye.cx;
               if (Math.abs(det) > 1e-5) {
                 const lx = (dx * eye.cy - dy * eye.cx) / det;
                 const ly = (-dx * eye.ay + dy * eye.ax) / det;
                 const d = distToCapsule(lx, ly, eye.w, eye.h);
-                if (d < 0.02) maxVal = 0.0; // 眼睛处挖空
+                if (d < 0.06) maxVal = Math.max(maxVal, clamp((0.06 - d) / 0.06) * eye.alpha);
+              }
+            }
+          } else if (state.mode === 'blob') {
+            if (dist <= 0.85) {
+              maxVal = 0.8;
+              for (const eye of frameData.eyes) {
+                const dx = px - eye.center.x, dy = py - eye.center.y;
+                const det = eye.ax * eye.cy - eye.ay * eye.cx;
+                if (Math.abs(det) > 1e-5) {
+                  const lx = (dx * eye.cy - dy * eye.cx) / det;
+                  const ly = (-dx * eye.ay + dy * eye.ax) / det;
+                  if (distToCapsule(lx, ly, eye.w, eye.h) < 0.02) maxVal = 0.0;
+                }
+              }
+            }
+          } else if (state.mode === 'invert') {
+            for (const eye of frameData.eyes) {
+              const dx = px - eye.center.x, dy = py - eye.center.y;
+              const det = eye.ax * eye.cy - eye.ay * eye.cx;
+              if (Math.abs(det) > 1e-5) {
+                const lx = (dx * eye.cy - dy * eye.cx) / det;
+                const ly = (-dx * eye.ay + dy * eye.ax) / det;
+                const d = distToCapsule(lx, ly, eye.w, eye.h);
+                if (d < 0.06) maxVal = Math.max(maxVal, clamp((0.06 - d) / 0.06));
+              }
+            }
+            if (Math.abs(dist - 0.88) < 0.07) maxVal = Math.max(maxVal, 0.4);
+          } else if (state.mode === 'contour') {
+            if (Math.abs(dist - 0.86) < 0.06) maxVal = 0.85;
+            for (const eye of frameData.eyes) {
+              const dx = px - eye.center.x, dy = py - eye.center.y;
+              const det = eye.ax * eye.cy - eye.ay * eye.cx;
+              if (Math.abs(det) > 1e-5) {
+                const lx = (dx * eye.cy - dy * eye.cx) / det;
+                const ly = (-dx * eye.ay + dy * eye.ax) / det;
+                const d = distToCapsule(lx, ly, eye.w, eye.h);
+                if (d < 0.06) maxVal = Math.max(maxVal, clamp((0.06 - d) / 0.06));
               }
             }
           }
-        } else if (state.mode === 'invert') {
-          // 反相：眼睛亮，同时球体外框弱光
-          let eyeVal = 0.0;
-          for (const eye of frameData.eyes) {
-            const dx = px - eye.center.x;
-            const dy = py - eye.center.y;
-            const det = eye.ax * eye.cy - eye.ay * eye.cx;
-            if (Math.abs(det) > 1e-5) {
-              const lx = (dx * eye.cy - dy * eye.cx) / det;
-              const ly = (-dx * eye.ay + dy * eye.ax) / det;
-              const d = distToCapsule(lx, ly, eye.w, eye.h);
-              if (d < 0.06) eyeVal = Math.max(eyeVal, clamp((0.06 - d) / 0.06));
+
+          // 动效特效
+          for (const fx of frameData.effects) {
+            if (fx.type === 'notif') {
+              const rad = (-42 * Math.PI) / 180;
+              const nx = Math.cos(rad) * 0.95, ny = Math.sin(rad) * 0.95;
+              if (Math.hypot(px - nx, py - ny) < 0.16) maxVal = Math.max(maxVal, 1.0);
+            } else if (fx.type === 'orbit') {
+              if (Math.abs(dist - (0.8 + 0.1 * Math.sin(fx.progress * 3.0))) < 0.06) maxVal = Math.max(maxVal, 0.75);
+            } else if (fx.type === 'burst') {
+              const bP = (fx.progress % 2.6) / 2.6;
+              if (Math.abs(dist - bP * 1.1) < 0.08) maxVal = Math.max(maxVal, (1 - bP));
             }
           }
-          maxVal = eyeVal;
-          if (Math.abs(distFromCenter - 0.88) < 0.07) maxVal = Math.max(maxVal, 0.4);
-        } else if (state.mode === 'contour') {
-          // 线框轮廓
-          if (Math.abs(distFromCenter - 0.86) < 0.06) maxVal = 0.85;
-          for (const eye of frameData.eyes) {
-            const dx = px - eye.center.x;
-            const dy = py - eye.center.y;
-            const det = eye.ax * eye.cy - eye.ay * eye.cx;
-            if (Math.abs(det) > 1e-5) {
-              const lx = (dx * eye.cy - dy * eye.cx) / det;
-              const ly = (-dx * eye.ay + dy * eye.ax) / det;
-              const d = distToCapsule(lx, ly, eye.w, eye.h);
-              if (d < 0.06) maxVal = Math.max(maxVal, clamp((0.06 - d) / 0.06));
-            }
-          }
-        }
 
-        // 附加动效光斑 (如 notify, orbit)
-        for (const fx of frameData.effects) {
-          if (fx.type === 'notif') {
-            const rad = (-42 * Math.PI) / 180;
-            const nx = Math.cos(rad) * 0.95;
-            const ny = Math.sin(rad) * 0.95;
-            const d = Math.hypot(px - nx, py - ny);
-            if (d < 0.16) maxVal = Math.max(maxVal, clamp((0.16 - d) / 0.1));
-          } else if (fx.type === 'orbit') {
-            // 环绕椭圆
-            const pRot = fx.progress * 3.0;
-            const ringDist = Math.abs(distFromCenter - (0.8 + 0.1 * Math.sin(pRot)));
-            if (ringDist < 0.06) maxVal = Math.max(maxVal, 0.75);
-          } else if (fx.type === 'burst') {
-            const bP = (fx.progress % 2.6) / 2.6;
-            const burstDist = Math.abs(distFromCenter - bP * 1.1);
-            if (burstDist < 0.08) maxVal = Math.max(maxVal, (1 - bP));
-          }
-        }
+          brightnessArray[idx] = maxVal;
+        });
 
-        brightnessArray[idx] = maxVal;
-      });
+        // 矢量端同步渲染
+        renderVectorAvatar(frameData);
 
-      // 准备导出位图缓冲
+      } else {
+        // 栅格动画直接使用 23×23 精准绘制
+        const totalF = anim.frames || 24;
+        const curF = Math.floor(state.time) % totalF;
+        const gridSet = refinedFrame(anim.id, curF, refinedOptions());
+
+        PHYSICAL_POINTS.forEach((pt, idx) => {
+          brightnessArray[idx] = gridSet.has(pt.gridId) ? 1.0 : 0.0;
+        });
+
+        // 矢量端同步展示图标
+        vectorContainer.innerHTML = `
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="76" fill="#000000" stroke="#1f2c37" stroke-width="2" />
+            <text x="100" y="112" font-size="52" text-anchor="middle" fill="${state.color}">${anim.icon}</text>
+          </svg>
+        `;
+      }
+
+      // 导出数据准备
       lastFrameBytes.fill(0);
       lastRowBits.fill(0);
 
-      // 绘制每颗 CSP LED
+      // 绘制各灯珠发光体
       PHYSICAL_POINTS.forEach((pt, idx) => {
         const val = brightnessArray[idx];
-        let isLit = false;
-        let finalAlpha = 0;
-
-        if (state.algo === 'pwm') {
-          isLit = val >= (state.threshold * 0.5);
-          finalAlpha = val * state.brightness;
-        } else {
-          isLit = val >= state.threshold;
-          finalAlpha = isLit ? state.brightness : 0;
-        }
+        const isLit = state.algo === 'pwm' ? (val >= state.threshold * 0.5) : (val >= state.threshold);
+        const finalAlpha = isLit ? (state.algo === 'pwm' ? val * state.brightness : state.brightness) : 0;
 
         if (isLit) {
           litCount++;
-          // 位图压缩
-          const byteIdx = Math.floor(idx / 8);
-          const bitIdx = idx % 8;
-          lastFrameBytes[byteIdx] |= (1 << bitIdx);
-          lastRowBits[pt.r] |= (1 << (pt.c));
+          lastFrameBytes[Math.floor(idx / 8)] |= (1 << (idx % 8));
+          lastRowBits[pt.r] |= (1 << pt.c);
         }
 
-        const screenX = cx + pt.x * scale;
-        const screenY = cx + pt.y * scale;
+        const sx = cx + pt.x * scale, sy = cx + pt.y * scale;
 
-        // 熄灭灯珠基座
+        // 灯珠基座
         ctx.fillStyle = '#0f171e';
-        ctx.fillRect(screenX - cell / 2, screenY - cell / 2, cell, cell);
+        ctx.fillRect(sx - cell / 2, sy - cell / 2, cell, cell);
 
-        // 点亮发光体
         if (finalAlpha > 0.02) {
           ctx.shadowColor = state.color;
           ctx.shadowBlur = state.glow * finalAlpha;
           ctx.fillStyle = state.color;
           ctx.globalAlpha = finalAlpha;
-          ctx.fillRect(screenX - cell / 2 + 1, screenY - cell / 2 + 1, cell - 2, cell - 2);
+          ctx.fillRect(sx - cell / 2 + 1, sy - cell / 2 + 1, cell - 2, cell - 2);
           ctx.globalAlpha = 1.0;
           ctx.shadowBlur = 0;
         } else {
-          // 微弱引线槽
           ctx.strokeStyle = '#18242e';
           ctx.lineWidth = 1;
-          ctx.strokeRect(screenX - cell / 2, screenY - cell / 2, cell, cell);
+          ctx.strokeRect(sx - cell / 2, sy - cell / 2, cell, cell);
         }
       });
 
@@ -1599,15 +2672,11 @@
       document.getElementById('litCountBadge').textContent = `${litCount} / 393 亮起 (${pct}%)`;
     }
 
-    /* 渲染原生矢量 SVG 对比 */
-    function renderVector(frameData) {
+    function renderVectorAvatar(frameData) {
       if (state.view === 'matrix') return;
-
       const eyeSvg = frameData.eyes.map(e => {
-        const hw = e.w * 80;
-        const hh = e.h * 80;
-        const cx = 100 + e.center.x * 80;
-        const cy = 100 + e.center.y * 80;
+        const hw = e.w * 80, hh = e.h * 80;
+        const cx = 100 + e.center.x * 80, cy = 100 + e.center.y * 80;
         return `
           <g transform="matrix(${r2(e.ax)} ${r2(e.ay)} ${r2(e.cx)} ${r2(e.cy)} ${r2(cx)} ${r2(cy)})" opacity="${r2(e.alpha)}">
             <rect x="${-hw/2}" y="${-hh/2}" width="${hw}" height="${hh}" rx="${Math.min(hw,hh)/2}" fill="#ffffff" />
@@ -1625,13 +2694,11 @@
 
     /* 代码导出功能 */
     function updateCodeExports() {
-      // 50-byte 压缩数组
       const hexList = [];
-      for (let i = 0; i < 50; i++) {
-        hexList.push('0x' + lastFrameBytes[i].toString(16).padStart(2, '0').toUpperCase());
-      }
+      for (let i = 0; i < 50; i++) hexList.push('0x' + lastFrameBytes[i].toString(16).padStart(2, '0').toUpperCase());
+
       let bitmaskStr = '// 393点阵单帧位图 (共50字节, 393位)\n';
-      bitmaskStr += '// 亮灯数: ' + lastLitCount + ' / 393\n';
+      bitmaskStr += '// 当前动画: ' + state.currentAnim.name + ' | 亮灯数: ' + lastLitCount + ' / 393\n';
       bitmaskStr += 'const uint8_t PROGMEM BLOUB_FRAME_393[50] = {\n  ';
       for (let i = 0; i < 50; i++) {
         bitmaskStr += hexList[i] + (i < 49 ? ', ' : '');
@@ -1640,12 +2707,10 @@
       bitmaskStr += '\n};';
       document.getElementById('codeBitmaskBox').textContent = bitmaskStr;
 
-      // 23 行独立 uint32_t
-      let rowStr = '// 23行扫描掩码 (uint32_t)\n';
+      let rowStr = '// 23行独立扫描掩码 (uint32_t)\n';
       rowStr += 'const uint32_t PROGMEM BLOUB_ROWS[23] = {\n';
       for (let r = 0; r < 23; r++) {
-        const val = '0x' + lastRowBits[r].toString(16).padStart(6, '0').toUpperCase();
-        rowStr += '  ' + val + ', // 行 ' + r.toString().padStart(2, '0') + ': ' + MATRIX_ROWS[r] + ' 点\n';
+        rowStr += '  0x' + lastRowBits[r].toString(16).padStart(6, '0').toUpperCase() + ', // 行 ' + r.toString().padStart(2, '0') + ': ' + MATRIX_ROWS[r] + ' 点\n';
       }
       rowStr += '};';
       document.getElementById('codeRowsBox').textContent = rowStr;
@@ -1659,18 +2724,16 @@
     }
 
     function copyBitmaskCode() {
-      const code = document.getElementById('codeBitmaskBox').textContent;
-      navigator.clipboard.writeText(code).then(() => showToast('已成功复制 50 字节 C 语言位图数组！'));
+      navigator.clipboard.writeText(document.getElementById('codeBitmaskBox').textContent).then(() => showToast('已成功复制 50 字节 C 语言位图数组！'));
     }
 
     function copyRowsCode() {
-      const code = document.getElementById('codeRowsBox').textContent;
-      navigator.clipboard.writeText(code).then(() => showToast('已成功复制 23 行扫描掩码！'));
+      navigator.clipboard.writeText(document.getElementById('codeRowsBox').textContent).then(() => showToast('已成功复制 23 行独立扫描掩码！'));
     }
 
     function captureFramePng() {
       const link = document.createElement('a');
-      link.download = `bloub_393_matrix_${Date.now()}.png`;
+      link.download = `matrix_393_${state.currentAnim.id}_${Date.now()}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
       showToast('已保存当前点阵高清 PNG 图片');
@@ -1678,25 +2741,17 @@
 
     function exportAnimJson() {
       const frames = [];
-      const totalFrames = 24;
+      const totalF = state.currentAnim.isAvatar ? 24 : (state.currentAnim.frames || 24);
       const originalTime = state.time;
-      for (let f = 0; f < totalFrames; f++) {
-        const t = (f / totalFrames) * 2.0;
-        const fd = evaluateFrame(t);
+
+      for (let f = 0; f < totalF; f++) {
+        state.time = state.currentAnim.isAvatar ? ((f / totalF) * (state.currentAnim.duration || 3.0)) : f;
+        renderMatrix();
         const bits = [];
-        PHYSICAL_POINTS.forEach((pt) => {
-          let val = 0;
-          for (const eye of fd.eyes) {
-            const dx = pt.x - eye.center.x;
-            const dy = pt.y - eye.center.y;
-            const det = eye.ax * eye.cy - eye.ay * eye.cx;
-            if (Math.abs(det) > 1e-5) {
-              const lx = (dx * eye.cy - dy * eye.cx) / det;
-              const ly = (-dx * eye.ay + dy * eye.ax) / det;
-              if (distToCapsule(lx, ly, eye.w, eye.h) < 0.06) val = 1;
-            }
-          }
-          bits.push(val);
+        PHYSICAL_POINTS.forEach((pt, i) => {
+          const byteIdx = Math.floor(i / 8);
+          const bitIdx = i % 8;
+          bits.push((lastFrameBytes[byteIdx] & (1 << bitIdx)) ? 1 : 0);
         });
         frames.push(bits);
       }
@@ -1705,13 +2760,14 @@
       const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({
         totalLeds: 393,
         rows: MATRIX_ROWS,
+        animation: state.currentAnim.name,
         fps: 12,
-        framesCount: totalFrames,
+        framesCount: totalF,
         frames
       }, null, 2));
       const link = document.createElement('a');
       link.setAttribute('href', dataStr);
-      link.setAttribute('download', `bloub_393_animation.json`);
+      link.setAttribute('download', `matrix_393_${state.currentAnim.id}.json`);
       link.click();
       showToast('已导出完整的 393 点阵动画 JSON');
     }
@@ -1719,7 +2775,6 @@
     /* ==========================================================================
        主循环与渲染调度
        ========================================================================== */
-
     let lastTimestamp = performance.now();
     let frameCounter = 0;
     let lastFpsTime = performance.now();
@@ -1728,7 +2783,6 @@
       const dt = (now - lastTimestamp) / 1000;
       lastTimestamp = now;
 
-      // 帧率统计
       frameCounter++;
       if (now - lastFpsTime >= 1000) {
         document.getElementById('fpsBadge').textContent = `${frameCounter} FPS`;
@@ -1736,39 +2790,42 @@
         lastFpsTime = now;
       }
 
-      if (state.playing) {
-        state.time += dt * state.speed;
+      const anim = state.currentAnim;
+      const maxTime = anim.isAvatar ? (anim.duration || 3.0) : (anim.frames || 24);
+      const animRate = anim.isAvatar ? 1.0 : 12.0;
 
-        // 自动连播所有动作状态
-        if (state.playSequence && state.isStateMode) {
-          const curIndex = STATES.findIndex(s => s.id === state.currentState.id);
-          if (state.time >= state.currentState.duration) {
+      if (state.playing) {
+        state.time += dt * state.speed * animRate;
+
+        // 连播模式
+        if (state.playSequence) {
+          if (state.time >= maxTime) {
             state.time = 0;
-            const nextIndex = (curIndex + 1) % STATES.length;
-            selectState(STATES[nextIndex]);
+            const curIdx = ALL_ANIMATIONS.findIndex(a => a.id === anim.id);
+            const nextIdx = (curIdx + 1) % ALL_ANIMATIONS.length;
+            selectAnimation(ALL_ANIMATIONS[nextIdx]);
           }
         }
       }
 
-      // 更新进度条
+      // 时间轴进度
       const scrubber = document.getElementById('timeScrubber');
-      scrubber.value = state.time % (parseFloat(scrubber.max) || 4);
-      document.getElementById('timeBadge').textContent = `${(state.time % (parseFloat(scrubber.max) || 4)).toFixed(2)}s`;
+      scrubber.max = maxTime;
+      scrubber.value = state.time % maxTime;
+      document.getElementById('timeBadge').textContent = anim.isAvatar 
+        ? `${(state.time % maxTime).toFixed(2)}s` 
+        : `帧 ${Math.floor(state.time % maxTime) + 1}/${maxTime}`;
 
-      // 计算并渲染
-      const frameData = evaluateFrame(state.time);
-      renderMatrix(frameData);
-      renderVector(frameData);
+      renderMatrix();
 
-      // 如果右侧导出面板处于显示状态，适度更新
-      if (document.getElementById('tabExportPanel').style.display === 'block' && frameCounter % 15 === 0) {
+      if (document.getElementById('exportSectionPanel').style.display === 'block' && frameCounter % 15 === 0) {
         updateCodeExports();
       }
 
       requestAnimationFrame(loop);
     }
 
-    // 启动引擎
+    // 启动系统
     initUI();
     setupInteractions();
     requestAnimationFrame(loop);
