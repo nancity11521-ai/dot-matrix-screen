@@ -2014,6 +2014,306 @@
       }
       break;
     }
+
+    case 'VOLUME': {
+      // 扬声器喇叭外形
+      line(3, 9, 3, 13);
+      line(3, 9, 6, 7);
+      line(6, 7, 6, 15);
+      line(6, 15, 3, 13);
+      line(6, 8, 6, 14);
+      // 阶梯音量柱 (根据当前音量值与时间动态弹跳)
+      const vol = opt.volume !== undefined ? opt.volume : 0.7;
+      const bars = [
+        { x: 9, h: 4 },
+        { x: 12, h: 7 },
+        { x: 15, h: 10 },
+        { x: 18, h: 13 }
+      ];
+      bars.forEach((b, idx) => {
+        const threshold = (idx + 1) / 4;
+        if (vol >= threshold - 0.15) {
+          const dynamicPulse = Math.sin(t * 0.5 + idx) * 1.5;
+          const actH = Math.max(2, Math.round(b.h + dynamicPulse));
+          line(b.x, 11 - Math.floor(actH / 2), b.x, 11 + Math.floor(actH / 2));
+        }
+      });
+      break;
+    }
+    case 'RADAR': {
+      // 雷达同心圆
+      circle(11, 11, 8);
+      circle(11, 11, 4);
+      put(11, 11);
+      // 十字刻度标点
+      put(11, 2); put(11, 20); put(2, 11); put(20, 11);
+      // 360° 平滑扫描光束
+      const ang = (t * Math.PI / 12);
+      const rx = 11 + Math.round(8 * Math.cos(ang));
+      const ry = 11 + Math.round(8 * Math.sin(ang));
+      line(11, 11, rx, ry);
+      // 回波目标闪烁
+      if ((t % 16) > 6 && (t % 16) < 14) {
+        put(15, 8); put(15, 9);
+      }
+      if (((t + 8) % 18) > 8 && ((t + 8) % 18) < 16) {
+        put(8, 15);
+      }
+      break;
+    }
+    case 'STEPS': {
+      // 运动步数 3 环与运动鞋
+      circle(11, 11, 9);
+      circle(11, 11, 6);
+      circle(11, 11, 3);
+      // 动态步数进度填充
+      const p = (t % 24) / 24;
+      for (let a = 0; a < p * Math.PI * 2; a += 0.25) {
+        put(11 + Math.round(9 * Math.cos(a - Math.PI/2)), 11 + Math.round(9 * Math.sin(a - Math.PI/2)));
+      }
+      // 跑步鞋印记
+      box(9, 10, 4, 3, true);
+      put(8, 12); put(13, 12);
+      break;
+    }
+    case 'COFFEE': {
+      // 咖啡杯身
+      box(6, 10, 10, 7, true);
+      line(7, 17, 14, 17);
+      line(8, 18, 13, 18);
+      // 杯耳
+      line(16, 11, 18, 11);
+      line(18, 11, 18, 15);
+      line(18, 15, 16, 15);
+      // 杯托盘
+      line(4, 19, 18, 19);
+      // 3 缕上升袅袅热气
+      for (let i = 0; i < 3; i++) {
+        const sx = 8 + i * 3;
+        const phaseOff = (t + i * 2) % 6;
+        put(sx + (phaseOff % 2 === 0 ? 1 : 0), 8 - phaseOff);
+        put(sx - (phaseOff % 2 === 0 ? 0 : 1), 6 - phaseOff);
+      }
+      break;
+    }
+    case 'WATER': {
+      // 水杯轮廓
+      line(6, 6, 8, 18);
+      line(16, 6, 14, 18);
+      line(8, 18, 14, 18);
+      // 动态波浪水面
+      const waterLevel = 13 + Math.round(Math.sin(t * 0.4) * 2);
+      for (let y = waterLevel; y <= 17; y++) {
+        const leftX = Math.round(6 + (y - 6) * (2 / 12));
+        const rightX = Math.round(16 - (y - 6) * (2 / 12));
+        line(leftX, y, rightX, y);
+      }
+      // 浮动气泡
+      put(10, 16 - (t % 8));
+      put(12, 17 - ((t + 4) % 8));
+      break;
+    }
+    case 'CAT': {
+      // 猫咪头部
+      circle(11, 12, 6, true);
+      // 猫耳 (左耳与右耳随帧率灵动微动)
+      const twitch = (t % 16 < 4) ? 1 : 0;
+      line(6, 7 - twitch, 8, 8); line(6, 7 - twitch, 6, 9);
+      line(16, 7 - twitch, 14, 8); line(16, 7 - twitch, 16, 9);
+      // 猫眼 (眨眼检测)
+      if (t % 20 >= 17) {
+        line(8, 11, 9, 11); line(13, 11, 14, 11);
+      } else {
+        box(8, 10, 2, 2, true); box(13, 10, 2, 2, true);
+      }
+      // 猫鼻子与胡须
+      put(11, 13);
+      line(4, 12, 7, 13); line(4, 14, 7, 14);
+      line(15, 13, 18, 12); line(15, 14, 18, 14);
+      break;
+    }
+    case 'BIRD': {
+      // 飞翔飞鸟扑翼
+      const wingPhase = t % 12;
+      box(10, 10, 3, 2, true); // 鸟身体
+      line(12, 10, 14, 9);     // 鸟头与喙
+      if (wingPhase < 6) {
+        // 向上扬起展翅
+        line(10, 9, 6, 5); line(6, 5, 3, 7);
+        line(11, 9, 15, 5); line(15, 5, 18, 7);
+      } else {
+        // 向下扑动羽翼
+        line(10, 10, 6, 14); line(6, 14, 3, 12);
+        line(11, 10, 15, 14); line(15, 14, 18, 12);
+      }
+      // 空中流云点缀
+      put(4, 18); put(5, 18); put(6, 18);
+      put(17, 17); put(18, 17);
+      break;
+    }
+    case 'PACMAN': {
+      // 吃豆人开合大嘴与移动
+      const px = 5 + (t % 14);
+      circle(px, 11, 5, true);
+      // 开闭口
+      if (t % 6 < 3) {
+        line(px, 11, px + 5, 8, false);
+        line(px, 11, px + 5, 14, false);
+        for (let x = px + 1; x <= px + 5; x++) {
+          line(x, 11 - Math.round((x - px) * 0.7), x, 11 + Math.round((x - px) * 0.7), false);
+        }
+      }
+      // 前方能量豆
+      for (let dx = px + 6; dx <= 19; dx += 4) {
+        put(dx, 11);
+      }
+      break;
+    }
+    case 'INVADER': {
+      // 太空侵略者 8-bit 外星人
+      const frameAlt = (Math.floor(t / 4) % 2 === 0);
+      const bobY = Math.floor(t / 8) % 3;
+      if (frameAlt) {
+        mask('00100000100/00010001000/00111111100/01101110110/11111111111/10111111101/10100000101/00011011000', 6, 6 + bobY);
+      } else {
+        mask('00100000100/10010001001/10111111101/11101110111/01111111110/00111111100/00100000100/01000000010', 6, 6 + bobY);
+      }
+      break;
+    }
+    case 'SNAKE': {
+      // 贪吃蛇爬行身躯与红苹果
+      const path = [
+        [6, 15], [7, 15], [8, 15], [9, 15], [10, 15],
+        [10, 14], [10, 13], [10, 12], [11, 12], [12, 12],
+        [13, 12], [14, 12], [14, 11], [14, 10], [14, 9],
+        [15, 9], [16, 9]
+      ];
+      const headIdx = (t * 2) % (path.length - 4);
+      for (let i = 0; i < 5; i++) {
+        const pt = path[headIdx + i];
+        if (pt) put(pt[0], pt[1]);
+      }
+      // 目标苹果
+      put(17, 8); put(18, 8); put(17, 9); put(18, 9);
+      put(17, 7);
+      break;
+    }
+    case 'TETRIS': {
+      // 底部已堆叠方块
+      box(5, 18, 5, 2, true);
+      box(13, 18, 5, 2, true);
+      box(7, 16, 4, 2, true);
+      // 下落中的 T 型或 L 型俄罗斯方块
+      const fallY = 4 + (t % 11);
+      box(10, fallY, 4, 2, true);
+      box(11, fallY - 2, 2, 2, true);
+      break;
+    }
+    case 'PIXEL_HEART': {
+      // 像素心形 + 心电图波形
+      const pulseScale = (t % 12 < 4);
+      if (pulseScale) {
+        mask('011000110/111101111/111111111/111111111/011111110/001111100/000111000/000010000', 7, 7);
+      } else {
+        mask('0100010/1110111/1111111/0111110/0011100/0001000', 8, 8);
+      }
+      // 穿越心电跳动线
+      line(3, 12, 6, 12);
+      line(6, 12, 7, 10);
+      line(7, 10, 8, 14);
+      line(8, 14, 9, 12);
+      line(14, 12, 19, 12);
+      break;
+    }
+    case 'DICE': {
+      // 骰子立体轮廓
+      box(5, 5, 13, 13);
+      put(5, 5, false); put(17, 5, false); put(5, 17, false); put(17, 17, false);
+      // 翻滚点数 (1~6 循环滚动)
+      const pipMode = Math.floor(t / 4) % 6;
+      if (pipMode === 0) { // 1 点
+        box(10, 10, 3, 3, true);
+      } else if (pipMode === 1) { // 2 点
+        box(7, 7, 2, 2, true); box(14, 14, 2, 2, true);
+      } else if (pipMode === 2) { // 3 点
+        box(7, 7, 2, 2, true); box(11, 11, 2, 2, true); box(14, 14, 2, 2, true);
+      } else if (pipMode === 3) { // 4 点
+        box(7, 7, 2, 2, true); box(14, 7, 2, 2, true); box(7, 14, 2, 2, true); box(14, 14, 2, 2, true);
+      } else if (pipMode === 4) { // 5 点
+        box(7, 7, 2, 2, true); box(14, 7, 2, 2, true); box(11, 11, 2, 2, true); box(7, 14, 2, 2, true); box(14, 14, 2, 2, true);
+      } else { // 6 点
+        box(7, 6, 2, 2, true); box(7, 11, 2, 2, true); box(7, 15, 2, 2, true);
+        box(14, 6, 2, 2, true); box(14, 11, 2, 2, true); box(14, 15, 2, 2, true);
+      }
+      break;
+    }
+    case 'DIAMOND': {
+      // 钻石切面轮廓
+      line(7, 6, 15, 6);
+      line(7, 6, 4, 10);
+      line(15, 6, 18, 10);
+      line(4, 10, 18, 10);
+      line(4, 10, 11, 18);
+      line(18, 10, 11, 18);
+      // 内部折射棱线
+      line(7, 6, 11, 10);
+      line(15, 6, 11, 10);
+      line(11, 10, 11, 18);
+      // 闪烁高光星芒
+      const spark = t % 12;
+      if (spark < 6) {
+        put(18, 9); put(19, 9); put(18, 8); put(18, 10);
+      }
+      break;
+    }
+    case 'FIREWORKS': {
+      // 粒子烟花 (发射上升 -> 爆炸四散绽放)
+      const stage = t % 24;
+      if (stage < 8) {
+        const upY = 20 - stage * 1.5;
+        line(11, 20, 11, Math.round(upY));
+        put(11, Math.round(upY));
+      } else {
+        const burstR = (stage - 8) * 1.1;
+        const sparkCount = 12;
+        for (let i = 0; i < sparkCount; i++) {
+          const a = i * (Math.PI * 2 / sparkCount);
+          const px = 11 + Math.round(Math.cos(a) * burstR);
+          const py = 8 + Math.round(Math.sin(a) * burstR + (stage - 8) * 0.35);
+          put(px, py);
+        }
+      }
+      break;
+    }
+    case 'CANDLE': {
+      // 蜡烛烛身
+      box(8, 11, 7, 9, true);
+      line(11, 9, 11, 11);
+      // 摇曳小火苗
+      const sway = Math.sin(t * 0.8) * 1.2;
+      const flameX = Math.round(11 + sway);
+      circle(flameX, 7, 2, true);
+      put(flameX, 4);
+      break;
+    }
+    case 'GIFT': {
+      // 礼盒盒身
+      box(6, 11, 11, 8, true);
+      const popY = (t % 16 < 4) ? 8 : 9;
+      box(5, popY, 13, 2, true);
+      // 十字丝带
+      line(11, popY, 11, 18, false);
+      line(6, 15, 16, 15, false);
+      // 顶部蝴蝶结
+      circle(9, popY - 2, 2);
+      circle(13, popY - 2, 2);
+      put(11, popY - 1);
+      if (t % 16 < 6) {
+        put(11, 4); put(10, 3); put(12, 3);
+      }
+      break;
+    }
+
   }
   if(kind === 'PERSON') {
     for(const id of [...out]) if(id % 23 > 11) out.delete(id);
@@ -2633,6 +2933,16 @@
             eyesCfg = pair(0.24, 0.08, 0, 0.05);
             gaze = { yaw: 6, pitch: 18, roll: -6 };
             break;
+          case 'egg':
+            const stretch = Math.sin(localT * 4) * 0.22;
+            eyesCfg = pair(0.20 * (1 - stretch), 0.44 * (1 + stretch));
+            gaze = { yaw: Math.sin(localT * 3) * 10, pitch: Math.cos(localT * 3) * 8, roll: Math.sin(localT * 2) * 8 };
+            effects.push({ type: 'egg', progress: localT, stretch });
+            break;
+          case 'hexagon':
+            const hexScale = 0.5 + 0.5 * Math.sin(localT * 3.5);
+            effects.push({ type: 'hexagon', progress: localT, scale: hexScale });
+            break;
           case 'play':
             gaze = { yaw: Math.sin(localT * 6) * 20, pitch: Math.cos(localT * 6) * 12, roll: Math.sin(localT * 4) * 10 };
             break;
@@ -2838,6 +3148,13 @@
             } else if (fx.type === 'burst') {
               const bP = (fx.progress % 2.6) / 2.6;
               if (Math.abs(dist - bP * 1.1) < 0.08) maxVal = Math.max(maxVal, (1 - bP));
+            } else if (fx.type === 'egg') {
+              const rE = Math.hypot(px / (1 - fx.stretch * 0.25), py / (1 + fx.stretch * 0.35));
+              if (Math.abs(rE - 0.86) < 0.08) maxVal = Math.max(maxVal, 0.9);
+            } else if (fx.type === 'hexagon') {
+              const angH = Math.atan2(py, px);
+              const hexR = (0.7 + 0.2 * fx.scale) / Math.cos(((angH + Math.PI/6) % (Math.PI/3)) - Math.PI/6);
+              if (Math.abs(dist - hexR) < 0.08) maxVal = Math.max(maxVal, 0.95);
             }
           }
 
@@ -3057,6 +3374,35 @@
             ctx.shadowColor = col;
             ctx.shadowBlur = 22;
             ctx.fill();
+            ctx.restore();
+          } else if (fx.type === 'egg') {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.scale(1 - fx.stretch * 0.25, 1 + fx.stretch * 0.35);
+            ctx.beginPath();
+            ctx.arc(0, 0, ballR, 0, Math.PI * 2);
+            ctx.strokeStyle = col;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = col;
+            ctx.shadowBlur = 24;
+            ctx.stroke();
+            ctx.restore();
+          } else if (fx.type === 'hexagon') {
+            ctx.save();
+            ctx.translate(cx, cy);
+            const hr = ballR * (0.8 + 0.3 * fx.scale);
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+              const a = i * Math.PI / 3;
+              const hx = Math.cos(a) * hr, hy = Math.sin(a) * hr;
+              if (i === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+            }
+            ctx.closePath();
+            ctx.strokeStyle = col;
+            ctx.lineWidth = 4;
+            ctx.shadowColor = col;
+            ctx.shadowBlur = 20;
+            ctx.stroke();
             ctx.restore();
           }
         }
