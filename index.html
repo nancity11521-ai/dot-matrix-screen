@@ -147,6 +147,17 @@ const patterns=[
   {name:'侧目扫视 · EYE_GLANCE',cat:'emotion',icon:'',frames:24,fn:()=>false},
   {name:'灵动瞳孔 · EYE_DANCE',cat:'emotion',icon:'',frames:24,fn:()=>false},
 
+  {name:'酷炫墨镜 · EYE_SUNGLASSES',cat:'emotion',icon:'🕶',frames:24,fn:()=>false},
+  {name:'学霸眼镜 · EYE_NERD',cat:'emotion',icon:'👓',frames:24,fn:()=>false},
+  {name:'爱心眼神 · EYE_LOVE',cat:'emotion',icon:'♥',frames:24,fn:()=>false},
+  {name:'泪眼汪汪 · EYE_TEARS',cat:'emotion',icon:'💧',frames:24,fn:()=>false},
+  {name:'见钱眼开 · EYE_MONEY',cat:'emotion',icon:'$',frames:24,fn:()=>false},
+  {name:'热血燃瞳 · EYE_FIRE',cat:'emotion',icon:'🔥',frames:24,fn:()=>false},
+  {name:'眩晕转圈 · EYE_DIZZY',cat:'emotion',icon:'🌀',frames:24,fn:()=>false},
+  {name:'无奈白眼 · EYE_ROLL',cat:'emotion',icon:'🙄',frames:24,fn:()=>false},
+  {name:'触电电眼 · EYE_SHOCK',cat:'emotion',icon:'⚡',frames:24,fn:()=>false},
+  {name:'弯月笑眼 · EYE_GRIN',cat:'emotion',icon:'^‿^',frames:24,fn:()=>false},
+
   {name:'平静 · E_CALM',cat:'emotion',icon:'',frames:24,fn:()=>false},
   {name:'专注 · E_FOCUS',cat:'emotion',icon:'',frames:24,fn:()=>false},
   {name:'惊讶 · E_SURPRISE',cat:'emotion',icon:'',frames:24,fn:()=>false},
@@ -450,6 +461,62 @@ function refinedFrame(kind, frame, opt = {}) {
       const d=[[0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1]][Math.floor(t/3)%8];
       mask('0110/1001/1001/0110',3,5);mask('0110/1001/1001/0110',8,5);
       put(4+d[0],6+d[1]);put(9-d[0],6+d[1]);break;
+    }
+    case 'EYE_SUNGLASSES':{
+      box(2,5,5,3,true);box(3,8,3,1,true);box(8,5,5,3,true);box(9,8,3,1,true);line(6,5,8,5);
+      const s=Math.floor(t/2)%12;
+      if(s===2||s===3){put(3,5,false);put(4,6,false);put(9,5,false);put(10,6,false)}
+      else if(s===4||s===5){put(4,5,false);put(5,6,false);put(10,5,false);put(11,6,false)}
+      else if(s===6){put(5,5,false);put(11,5,false)}
+      if(s>=8&&s<=10){put(1,5);put(13,5)}break;
+    }
+    case 'EYE_NERD':{
+      circle(4,6,2);circle(10,6,2);line(6,6,8,6);
+      const gaze=[-1,0,1,0][Math.floor(t/4)%4];put(4+gaze,6);put(10+gaze,6);
+      const flash=Math.floor(t/3)%8;
+      if(flash===1){put(3,5);put(9,5)}else if(flash===2){line(2,5,4,7);line(8,5,10,7)}else if(flash===3){put(4,7);put(10,7)}break;
+    }
+    case 'EYE_LOVE':{
+      const s=Math.floor(t/3)%4;
+      if(s===0||s===2){mask('01010/11111/11111/01110/00100',2,4);mask('01010/11111/11111/01110/00100',8,4)}
+      else{mask('101/111/010',3,5);mask('101/111/010',9,5)}break;
+    }
+    case 'EYE_TEARS':{
+      mask('0110/1001/0110',3,5);mask('0110/1001/0110',8,5);
+      const wobble=Math.floor(t/3)%2;put(wobble?4:5,6);put(wobble?9:10,6);
+      const drop=t%12;if(drop>=2&&drop<=10){const dy=7+Math.floor(drop/2);if(dy<=12){put(2,dy);put(12,dy)}}break;
+    }
+    case 'EYE_MONEY':{
+      const spin=Math.floor(t/3)%4;
+      if(spin===0||spin===3){mask('010/111/110/011/111/010',3,4);mask('010/111/110/011/111/010',9,4);if(spin===3){put(4,3);put(10,3)}}
+      else if(spin===1){mask('11/11/11/11/11',4,5);mask('11/11/11/11/11',9,5)}
+      else{line(3,7,5,7);line(8,7,10,7);put(1,4);put(13,4)}break;
+    }
+    case 'EYE_FIRE':{
+      const f=Math.floor(t/2)%4,pats=['00100/01110/11111/11111/01110','01000/01110/11101/11111/01110','00010/01110/10111/11111/01110','00100/11110/11111/01111/01110'];
+      mask(pats[f],2,4);mask(pats[f],8,4);put(4,f%2?6:7);put(10,f%2?6:7);break;
+    }
+    case 'EYE_DIZZY':{
+      const s=Math.floor(t/3)%4;
+      if(s===0){mask('10001/01010/00100/01010/10001',2,4);mask('10001/01010/00100/01010/10001',8,4)}
+      else if(s===1){mask('00100/00100/11111/00100/00100',2,4);mask('00100/00100/11111/00100/00100',8,4)}
+      else if(s===2){mask('0110/1001/1011/0100',2,4);mask('0110/1001/1011/0100',8,4)}
+      else{mask('101/010/101',3,5);mask('101/010/101',9,5)}break;
+    }
+    case 'EYE_ROLL':{
+      mask('01110/10001/10001/10001/01110',2,4);mask('01110/10001/10001/10001/01110',8,4);
+      const s=Math.floor(t/3)%6,pupilY=[6,6,5,4,4,5][s],pupilX=[0,0,0,1,-1,0][s];
+      put(4+pupilX,pupilY);put(10+pupilX,pupilY);break;
+    }
+    case 'EYE_SHOCK':{
+      const s=Math.floor(t/2)%4;
+      if(s===0||s===2){mask('0010/0110/1111/0011/0110/0100',3,4);mask('0010/0110/1111/0011/0110/0100',8,4)}
+      else{circle(4,6,2);circle(10,6,2);put(4,6);put(10,6);put(1,4);put(13,8)}break;
+    }
+    case 'EYE_GRIN':{
+      const s=Math.floor(t/3)%4,bob=s===1||s===3?-1:0;
+      mask('01110/10001',2,6+bob);mask('01110/10001',8,6+bob);
+      if(s>=2){put(1,8+bob);put(13,8+bob)}break;
     }
 
     case 'E_CALM':case 'E_FOCUS':case 'E_SURPRISE':case 'E_EXCITED':case 'E_HAPPY':case 'E_LAUGH':case 'E_ANGRY':case 'E_SAD2':case 'E_FEAR':case 'E_SKEPTIC':case 'E_CONFUSED2':case 'E_CURIOUS2':case 'E_PROUD2':case 'E_SHY':case 'E_BORED':case 'E_SLEEPY2':{
