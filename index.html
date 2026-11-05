@@ -57,17 +57,37 @@ button,input,select{font:inherit}.shell{max-width:1440px;margin:auto;padding:24p
 .ed-film-cell .film-tag.start{background:var(--accent2);color:#0c1a14}
 .ed-film-cell .film-tag.end{background:var(--accent);color:#1e1808}
 .modal-footer{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-top:1px solid #1e2c36;background:#10171d}
-.preset-actions{display:flex;gap:4px;align-items:center}
-.preset-action-btn{border:1px solid #33444f;background:#141f27;color:#b0c0cb;border-radius:6px;padding:3px 6px;font-size:9px;cursor:pointer;transition:.15s}
-.preset-action-btn:hover{border-color:var(--accent);color:#fff}
+/* Preset Card Layout, Foot & Buttons */
+.preset-foot{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.preset-foot-top{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.preset-meta-info{font-size:10px;color:#7e93a0;white-space:nowrap}
+.card-like-btn{border:1px solid #283a46;background:#121b22;color:#8ba0ad;border-radius:6px;padding:2px 7px;font-size:10px;cursor:pointer;transition:.15s;white-space:nowrap;line-height:1.4}
+.card-like-btn:hover{border-color:#ff758c;color:#ff8598}
+.card-like-btn.active{border-color:#ff6b81;color:#ff8093;background:#2a161c;font-weight:700}
+.preset-actions{display:grid;grid-template-columns:1fr 1fr 28px;gap:5px;align-items:center}
+.preset-action-btn{border:1px solid #293a46;background:#141f27;color:#b0c2ce;border-radius:6px;padding:4px 6px;font-size:10px;cursor:pointer;transition:.15s;white-space:nowrap;text-align:center;line-height:1.3}
+.preset-action-btn:hover{border-color:var(--accent);color:#fff;background:#1c2b36}
+.preset-action-btn.del{padding:4px 0;color:#8da2af}
 .preset-action-btn.del:hover{border-color:#ff6b81;color:#ff8595;background:#2a1619}
 .preset-badge{font-size:8px;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
 .preset-badge.edited{background:#2d2611;color:var(--accent);border:1px solid #ffd66b55}
 .preset-badge.custom{background:#132a20;color:var(--accent2);border:1px solid #86f0c055}
-
-
 .preset-corner-num{position:absolute;top:6px;left:7px;font-size:9px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#7e93a0;background:#080e12;border:1px solid #1f2f3a;border-radius:4px;padding:1px 5px;line-height:1.2;font-weight:600}
 .preset-num{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:10px;font-weight:700;color:var(--accent);background:#222013;border:1px solid #ffd66b44;border-radius:4px;padding:1px 4px;margin-right:4px;display:inline-block;vertical-align:baseline}
+
+/* Library Tools, Search, and Like Filters */
+.library-tools{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.search-input{width:100%;background:#090e12;color:#edf3f6;border:1px solid #273744;border-radius:9px;padding:8px 12px;font-size:12px;outline:none;transition:.15s}
+.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,214,107,0.15)}
+.search-input::placeholder{color:#637784}
+.like-filters{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.like-filter{border:1px solid #283945;background:#131c22;color:#8fa3b0;border-radius:8px;padding:6px 8px;font-size:11px;cursor:pointer;transition:.15s;text-align:center;white-space:nowrap}
+.like-filter:hover{border-color:#4a6170;color:#edf3f6;background:#18232b}
+.like-filter.active{background:#252214;border-color:var(--accent);color:var(--accent);font-weight:700;box-shadow:0 0 8px rgba(255,214,107,0.2)}
+#newAnimBtn{background:#15222b;border:1px solid #2e4454;color:var(--accent);font-weight:600;border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer;transition:.15s;text-align:center}
+#newAnimBtn:hover{background:#1d303d;border-color:var(--accent);color:#fff}
+#restoreDefaultsBtn{background:#24161a;border:1px solid #5a2732;color:#ff9caf;border-radius:8px;padding:7px 10px;font-size:11px;cursor:pointer;transition:.15s}
+#restoreDefaultsBtn:hover{background:#331920;border-color:#ff6b81;color:#fff}
 
 </style>
 </head>
@@ -2247,7 +2267,7 @@ const pickDrawing = s => {
   draw();
 };
 
-const likeBtnHtml = on => `<button class="like-btn ${on ? 'active' : ''}">${on ? '♥ 已点赞' : '♡ 点赞'}</button>`;
+const likeBtnHtml = on => `<button class="card-like-btn ${on ? 'active' : ''}">${on ? '♥ 已赞' : '♡ 赞'}</button>`;
 
 function updateRestoreBtn() {
   const btn = $('#restoreDefaultsBtn');
@@ -2318,15 +2338,19 @@ renderPresets = function(f = currentCategory) {
       <div class="preset-preview">✦</div>
       <b>${s.name}</b><span class="saved-badge">已保存手绘表情</span>
       <div class="preset-foot">
-        <small>${s.count || 393} 灯 · 静态图案</small>
-        <div class="preset-actions">
+        <div class="preset-foot-top">
+          <small class="preset-meta-info">${s.count || 393} 灯 · 静态</small>
           ${likeBtnHtml(isLiked(k))}
+        </div>
+        <div class="preset-actions" style="grid-template-columns:1fr 28px">
+          <button class="preset-action-btn use-drawing-btn">应用图案</button>
           <button class="preset-action-btn del del-drawing-btn" title="删除手绘">🗑️</button>
         </div>
       </div>
     `;
     b.onclick = () => pickDrawing(s);
-    b.querySelector('.like-btn').onclick = e => { e.stopPropagation(); flipLike(k); };
+    b.querySelector('.card-like-btn').onclick = e => { e.stopPropagation(); flipLike(k); };
+    b.querySelector('.use-drawing-btn').onclick = e => { e.stopPropagation(); pickDrawing(s); };
     b.querySelector('.del-drawing-btn').onclick = e => {
       e.stopPropagation();
       if (confirm(`确认删除手绘表情「${s.name}」吗？`)) {
@@ -2358,11 +2382,13 @@ renderPresets = function(f = currentCategory) {
       <div class="preset-preview"><span class="preset-corner-num">#${numStr}</span>${p.icon}</div>
       <b><span class="preset-num">#${numStr}</span>${p.name.split(' · ')[0]}${badgeHtml}</b>
       <div class="preset-foot">
-        <small>${p.frames} 帧${rangeHint}</small>
+        <div class="preset-foot-top">
+          <small class="preset-meta-info">${p.frames} 帧${rangeHint}</small>
+          ${likeBtnHtml(isLiked(k))}
+        </div>
         <div class="preset-actions">
           <button class="preset-action-btn edit-anim-btn" title="编辑修改与首尾帧">✏️ 编辑</button>
           <button class="preset-action-btn copy-code" title="复制代码">代码</button>
-          ${likeBtnHtml(isLiked(k))}
           <button class="preset-action-btn del del-anim-btn" title="删除该动画">🗑️</button>
         </div>
       </div>
