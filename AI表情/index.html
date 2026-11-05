@@ -368,6 +368,7 @@
       position: relative;
       overflow: hidden;
     }
+    #normalCanvas { width: 100%; height: 100%; border-radius: 50%; display: block; }
     #vectorContainer svg { width: 85%; height: 85%; display: block; overflow: visible; }
 
     /* 底部播放条 */
@@ -751,7 +752,7 @@
         <div class="view-modes">
           <button class="view-btn active" id="viewDualBtn" onclick="setViewMode('dual')">双模并列对比</button>
           <button class="view-btn" id="viewMatrixBtn" onclick="setViewMode('matrix')">仅 393 点阵屏</button>
-          <button class="view-btn" id="viewVectorBtn" onclick="setViewMode('vector')">仅矢量连续</button>
+          <button class="view-btn" id="viewVectorBtn" onclick="setViewMode('vector')">仅正常显示效果</button>
         </div>
       </div>
 
@@ -767,13 +768,13 @@
           </div>
         </div>
 
-        <!-- 矢量原版对比 -->
+        <!-- 正常连续显示效果对比 -->
         <div class="display-card" id="vectorCard">
           <div class="vector-frame" id="vectorFrame">
-            <div id="vectorContainer"></div>
+            <canvas id="normalCanvas" width="600" height="600"></canvas>
           </div>
           <div class="display-label">
-            <span></span> 原版 Bloub 矢量连续模拟 (Vector Comparison)
+            <span style="background:#22c55e"></span> 正常显示效果 (Normal Display)
           </div>
         </div>
       </div>
@@ -2164,7 +2165,8 @@
     /* 画布与容器 */
     const canvas = document.getElementById('matrixCanvas');
     const ctx = canvas.getContext('2d');
-    const vectorContainer = document.getElementById('vectorContainer');
+    const normalCanvas = document.getElementById('normalCanvas');
+    const normCtx = normalCanvas ? normalCanvas.getContext('2d') : null;
 
     /* UI 初始化与渲染 */
     function initUI() {
@@ -2611,8 +2613,8 @@
           brightnessArray[idx] = maxVal;
         });
 
-        // 矢量端同步渲染
-        renderVectorAvatar(frameData);
+        // 正常显示端同步渲染 (AI表情连续高保真)
+        renderNormalDisplay(anim, state.time, frameData, refinedOptions());
 
       } else {
         // 栅格动画直接使用 23×23 精准绘制
@@ -2624,13 +2626,8 @@
           brightnessArray[idx] = gridSet.has(pt.gridId) ? 1.0 : 0.0;
         });
 
-        // 矢量端同步展示图标
-        vectorContainer.innerHTML = `
-          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="100" cy="100" r="76" fill="#000000" stroke="#1f2c37" stroke-width="2" />
-            <text x="100" y="112" font-size="52" text-anchor="middle" fill="${state.color}">${anim.icon}</text>
-          </svg>
-        `;
+        // 正常显示端同步渲染 (系统/活动/生活/游戏/氛围连续高保真动画)
+        renderNormalDisplay(anim, state.time, null, refinedOptions());
       }
 
       // 导出数据准备
@@ -2675,25 +2672,1510 @@
       document.getElementById('litCountBadge').textContent = `${litCount} / 393 亮起 (${pct}%)`;
     }
 
-    function renderVectorAvatar(frameData) {
-      if (state.view === 'matrix') return;
-      const eyeSvg = frameData.eyes.map(e => {
-        const hw = e.w * 80, hh = e.h * 80;
-        const cx = 100 + e.center.x * 80, cy = 100 + e.center.y * 80;
-        return `
-          <g transform="matrix(${r2(e.ax)} ${r2(e.ay)} ${r2(e.cx)} ${r2(e.cy)} ${r2(cx)} ${r2(cy)})" opacity="${r2(e.alpha)}">
-            <rect x="${-hw/2}" y="${-hh/2}" width="${hw}" height="${hh}" rx="${Math.min(hw,hh)/2}" fill="#ffffff" />
-          </g>
-        `;
-      }).join('');
+    /* ==========================================================================
+       正常连续高清画面渲染系统 (右侧视窗：与左侧 393 点阵屏实时帧同步)
+       ========================================================================== */
 
-      vectorContainer.innerHTML = `
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="100" cy="100" r="76" fill="#000000" stroke="#1f2c37" stroke-width="2" />
-          ${eyeSvg}
-        </svg>
-      `;
+    function renderNormalDisplay(anim, curTime, frameData, opt) {
+      if (!normCtx || state.view === 'matrix') return;
+      const W = normalCanvas.width, H = normalCanvas.height;
+      const cx = W / 2, cy = H / 2;
+      normCtx.clearRect(0, 0, W, H);
+
+      // 1. 圆形屏幕机身外框与微倒角 (圆表/智能圆屏纯黑面板)
+      normCtx.beginPath();
+      normCtx.arc(cx, cy, cx - 8, 0, Math.PI * 2);
+      normCtx.fillStyle = '#060a0e';
+      normCtx.fill();
+      normCtx.strokeStyle = '#1e2b38';
+      normCtx.lineWidth = 4;
+      normCtx.stroke();
+
+      // 2. 屏幕玻璃显示裁切区域
+      normCtx.save();
+      normCtx.beginPath();
+      normCtx.arc(cx, cy, cx - 18, 0, Math.PI * 2);
+      normCtx.clip();
+
+      // OLED 纯黑深邃背景与微弱光泽
+      const bgGrad = normCtx.createRadialGradient(cx, cy - 50, 40, cx, cy, cx - 18);
+      bgGrad.addColorStop(0, '#0e1620');
+      bgGrad.addColorStop(0.6, '#06090d');
+      bgGrad.addColorStop(1, '#020406');
+      normCtx.fillStyle = bgGrad;
+      normCtx.fillRect(0, 0, W, H);
+
+      // 内边缘柔和防眩光圈
+      normCtx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      normCtx.lineWidth = 2;
+      normCtx.stroke();
+
+      const themeCol = state.color || '#ffd45e';
+      const totalF = anim.frames || 24;
+      const curF = Math.floor(curTime) % totalF;
+
+      if (anim.isAvatar && frameData) {
+        // AI 表情：连续 3D 拟真模型渲染
+        drawNormalAvatar(normCtx, cx, cy, curTime, anim, frameData, themeCol);
+      } else {
+        // 系统/活动/生活/游戏/氛围：连续高保真动画渲染
+        drawNormalEffect(normCtx, cx, cy, curTime, curF, anim, opt, themeCol);
+      }
+
+      normCtx.restore();
     }
+
+    /* 正常显示：AI 表情 3D 模型渲染 */
+    function drawNormalAvatar(ctx, cx, cy, t, anim, frameData, col) {
+      const breath = 1 + 0.024 * Math.sin(t * 2.8);
+      const ballR = 210 * breath;
+
+      // 1. 球体 3D 渐变本体 (柔和高保真暗球)
+      const sphereGrad = ctx.createRadialGradient(cx - 50, cy - 60, 40, cx, cy, ballR);
+      sphereGrad.addColorStop(0, '#223242');
+      sphereGrad.addColorStop(0.5, '#121b24');
+      sphereGrad.addColorStop(0.9, '#090e13');
+      sphereGrad.addColorStop(1, '#04070a');
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, ballR, 0, Math.PI * 2);
+      ctx.fillStyle = sphereGrad;
+      ctx.fill();
+
+      // 边缘微弱天光轮廓
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // 2. 特效装饰层 (orbit, burst, comet, notif 等)
+      if (frameData.effects) {
+        for (const fx of frameData.effects) {
+          if (fx.type === 'notif') {
+            const nx = cx + Math.cos(-Math.PI / 4) * (ballR - 15);
+            const ny = cy + Math.sin(-Math.PI / 4) * (ballR - 15);
+            ctx.beginPath();
+            ctx.arc(nx, ny, 26, 0, Math.PI * 2);
+            ctx.fillStyle = '#ef4444';
+            ctx.shadowColor = '#ef4444';
+            ctx.shadowBlur = 18;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 24px system-ui';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🔔', nx, ny);
+          } else if (fx.type === 'orbit') {
+            const ang = fx.progress * 2.6;
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(-0.35);
+            ctx.beginPath();
+            ctx.ellipse(0, 0, ballR * 1.28, ballR * 0.48, 0, 0, Math.PI * 2);
+            ctx.strokeStyle = col;
+            ctx.lineWidth = 3.5;
+            ctx.shadowColor = col;
+            ctx.shadowBlur = 18;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            // 轨道卫星
+            const ox = Math.cos(ang) * ballR * 1.28;
+            const oy = Math.sin(ang) * ballR * 0.48;
+            ctx.beginPath();
+            ctx.arc(ox, oy, 16, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = col;
+            ctx.shadowBlur = 14;
+            ctx.fill();
+            ctx.restore();
+          } else if (fx.type === 'burst') {
+            const p = (fx.progress % 2.6) / 2.6;
+            const count = 16;
+            ctx.save();
+            ctx.translate(cx, cy);
+            for (let i = 0; i < count; i++) {
+              const a = (i / count) * Math.PI * 2 + p * 1.2;
+              const dist = (ballR * 0.5) + p * ballR * 0.75;
+              const px = Math.cos(a) * dist, py = Math.sin(a) * dist;
+              ctx.beginPath();
+              ctx.arc(px, py, (1 - p) * 9 + 3, 0, Math.PI * 2);
+              ctx.fillStyle = col;
+              ctx.shadowColor = col;
+              ctx.shadowBlur = 14;
+              ctx.globalAlpha = 1 - p;
+              ctx.fill();
+            }
+            ctx.restore();
+          } else if (fx.type === 'comet') {
+            const p = (fx.progress % 2.4) / 2.4;
+            const comX = cx - 180 + p * 360;
+            const comY = cy - 80 + Math.sin(p * Math.PI) * 70;
+            ctx.save();
+            const cGrad = ctx.createLinearGradient(comX - 120, comY, comX, comY);
+            cGrad.addColorStop(0, 'transparent');
+            cGrad.addColorStop(1, col);
+            ctx.strokeStyle = cGrad;
+            ctx.lineWidth = 9;
+            ctx.beginPath();
+            ctx.moveTo(comX - 120, comY);
+            ctx.lineTo(comX, comY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(comX, comY, 11, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = col;
+            ctx.shadowBlur = 22;
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+      }
+
+      // 思考 / 睡眠 / 警觉 专属动态图标
+      if (anim.id === 'thinking') {
+        ctx.save();
+        for (let i = 0; i < 3; i++) {
+          const bx = cx + 110 + i * 30;
+          const by = cy - 130 - Math.sin(t * 3 + i) * 14;
+          ctx.beginPath();
+          ctx.arc(bx, by, 7 + i * 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.75)';
+          ctx.fill();
+        }
+        ctx.restore();
+      } else if (anim.id === 'sleep') {
+        ctx.save();
+        ctx.fillStyle = col;
+        ctx.font = 'bold 28px system-ui';
+        ctx.fillText('z', cx + 105, cy - 80 - ((t * 30) % 65));
+        ctx.font = 'bold 38px system-ui';
+        ctx.fillText('Z', cx + 130, cy - 118 - ((t * 30 + 22) % 65));
+        ctx.restore();
+      } else if (anim.id === 'alert') {
+        ctx.beginPath();
+        ctx.arc(cx, cy, ballR + 14 + Math.sin(t * 10) * 8, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 4;
+        ctx.shadowColor = '#ef4444';
+        ctx.shadowBlur = 20;
+        ctx.stroke();
+      }
+
+      // 3. 连续平滑矢量灵动双眸
+      for (const eye of frameData.eyes) {
+        ctx.save();
+        const ex = cx + eye.center.x * 210;
+        const ey = cy + eye.center.y * 210;
+        ctx.translate(ex, ey);
+        ctx.transform(eye.ax, eye.ay, eye.cx, eye.cy, 0, 0);
+
+        const ew = Math.max(3, eye.w * 210);
+        const eh = Math.max(3, eye.h * 210);
+        const r = Math.min(ew, eh) / 2;
+
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(-ew / 2, -eh / 2, ew, eh, r);
+        else ctx.rect(-ew / 2, -eh / 2, ew, eh);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = col;
+        ctx.shadowBlur = 18;
+        ctx.globalAlpha = eye.alpha;
+        ctx.fill();
+
+        // 瞳孔与神韵
+        if (eh > 26 && ew > 20) {
+          ctx.beginPath();
+          ctx.arc(0, 0, Math.min(ew, eh) * 0.28, 0, Math.PI * 2);
+          ctx.fillStyle = col;
+          ctx.shadowBlur = 6;
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
+
+    /* 正常显示：全分类高保真平滑动画渲染 (系统/活动/生活/游戏/氛围) */
+    function drawNormalEffect(ctx, cx, cy, t, curF, anim, opt, col) {
+      const id = anim.id;
+
+      switch (id) {
+        /* ================= 能量环流 (用户重点提出同款) ================= */
+        case 'ENERGY_RING': {
+          const rotA = (t * 2.2) % (Math.PI * 2);
+          // 外环 (r = 160)
+          ctx.beginPath();
+          ctx.arc(cx, cy, 160, 0, Math.PI * 2);
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 5;
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 20;
+          ctx.stroke();
+
+          // 内环 (r = 85)
+          ctx.beginPath();
+          ctx.arc(cx, cy, 85, 0, Math.PI * 2);
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 4;
+          ctx.shadowBlur = 14;
+          ctx.stroke();
+
+          // 中心能量发光核心
+          ctx.beginPath();
+          ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 25;
+          ctx.fill();
+
+          // 沿外环高速公转的能量粒子与拖尾 (完全同步点阵的公转节奏)
+          for (let i = 0; i < 7; i++) {
+            const trailA = rotA - i * 0.12;
+            const tx = cx + Math.cos(trailA) * 160;
+            const ty = cy + Math.sin(trailA) * 160;
+            ctx.beginPath();
+            ctx.arc(tx, ty, 16 - i * 2, 0, Math.PI * 2);
+            ctx.fillStyle = (i === 0) ? '#ffffff' : col;
+            ctx.globalAlpha = 1.0 - i * 0.15;
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1.0;
+
+          // 核心向外扩散的同心冲击能量波
+          const waveR = 85 + ((t * 45) % 75);
+          ctx.beginPath();
+          ctx.arc(cx, cy, waveR, 0, Math.PI * 2);
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 2.5;
+          ctx.globalAlpha = 1.0 - (waveR - 85) / 75;
+          ctx.stroke();
+          ctx.globalAlpha = 1.0;
+          break;
+        }
+
+        /* ================= 系统：时间与日历 ================= */
+        case 'CLOCK': {
+          const now = new Date();
+          const hh = String(opt.hour ?? now.getHours()).padStart(2, '0');
+          const mm = String(opt.minute ?? now.getMinutes()).padStart(2, '0');
+          const ss = now.getSeconds();
+          // 外圆周 60 秒刻度走时
+          for (let i = 0; i < 60; i++) {
+            const a = (i / 60) * Math.PI * 2 - Math.PI / 2;
+            const r1 = 225, r2 = (i % 5 === 0 ? 208 : 218);
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+            ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+            ctx.strokeStyle = i <= ss ? col : 'rgba(255,255,255,0.12)';
+            ctx.lineWidth = i % 5 === 0 ? 3.5 : 1.5;
+            ctx.stroke();
+          }
+          // 上下大数字时钟 (极简科幻表盘排版)
+          ctx.font = 'bold 96px system-ui, -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 18;
+          ctx.fillText(hh, cx, cy - 65);
+          if (Math.sin(t * 4) > 0) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, 7, 0, Math.PI * 2);
+            ctx.fillStyle = col;
+            ctx.fill();
+          }
+          ctx.fillText(mm, cx, cy + 65);
+          ctx.font = '600 22px system-ui';
+          ctx.fillStyle = col;
+          ctx.shadowBlur = 0;
+          ctx.fillText(opt.date || '2026-07-01', cx, cy + 155);
+          break;
+        }
+
+        case 'DATE': {
+          const parts = (opt.date || '2026-07-01').split('-');
+          ctx.font = 'bold 30px system-ui';
+          ctx.fillStyle = '#ef4444';
+          ctx.textAlign = 'center';
+          ctx.fillText(`MONTH ${parts[1]}`, cx, cy - 105);
+          ctx.font = 'bold 125px system-ui';
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 24;
+          ctx.fillText(parts[2], cx, cy + 10);
+          ctx.shadowBlur = 0;
+          ctx.font = '600 28px system-ui';
+          ctx.fillStyle = col;
+          ctx.fillText(parts[0], cx, cy + 110);
+          break;
+        }
+
+        case 'WEEKDAY': {
+          const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+          const activeIdx = new Date((opt.date || '2026-07-01') + 'T12:00:00').getDay();
+          for (let i = 0; i < 7; i++) {
+            const a = (i / 7) * Math.PI * 2 - Math.PI / 2;
+            const dx = cx + Math.cos(a) * 165;
+            const dy = cy + Math.sin(a) * 165;
+            const isActive = (i === activeIdx);
+            ctx.beginPath();
+            ctx.arc(dx, dy, isActive ? 30 : 22, 0, Math.PI * 2);
+            ctx.fillStyle = isActive ? col : '#16222d';
+            ctx.fill();
+            ctx.font = `bold ${isActive ? 18 : 14}px system-ui`;
+            ctx.fillStyle = isActive ? '#0b1116' : '#8899a6';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(days[i], dx, dy);
+          }
+          ctx.font = 'bold 70px system-ui';
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 20;
+          ctx.fillText(days[activeIdx], cx, cy);
+          break;
+        }
+
+        /* ================= 系统：硬件仪表 ================= */
+        case 'BATTERY': {
+          const bPct = Math.round(opt.battery ?? 20);
+          const startA = Math.PI * 0.75, endA = Math.PI * 2.25;
+          const curA = startA + (bPct / 100) * (endA - startA);
+          ctx.beginPath();
+          ctx.arc(cx, cy, 160, startA, endA);
+          ctx.strokeStyle = '#182430';
+          ctx.lineWidth = 22;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+
+          const bColor = bPct > 40 ? '#22c55e' : (bPct > 20 ? '#f59e0b' : '#ef4444');
+          ctx.beginPath();
+          ctx.arc(cx, cy, 160, startA, curA);
+          ctx.strokeStyle = bColor;
+          ctx.lineWidth = 22;
+          ctx.shadowColor = bColor;
+          ctx.shadowBlur = 20;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          ctx.font = 'bold 92px system-ui';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`${bPct}%`, cx, cy - 20);
+          ctx.font = 'bold 32px system-ui';
+          ctx.fillStyle = bColor;
+          ctx.fillText('⚡ BATTERY', cx, cy + 60);
+          break;
+        }
+
+        case 'CHARGE': {
+          const rot = t * 3.5;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(rot);
+          ctx.beginPath();
+          ctx.arc(0, 0, 160, 0, Math.PI * 1.5);
+          ctx.strokeStyle = '#22c55e';
+          ctx.lineWidth = 9;
+          ctx.shadowColor = '#22c55e';
+          ctx.shadowBlur = 25;
+          ctx.stroke();
+          ctx.rotate(Math.PI);
+          ctx.beginPath();
+          ctx.arc(0, 0, 130, 0, Math.PI * 1.4);
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 6;
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 18;
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.font = 'bold 96px system-ui';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 25;
+          ctx.fillText('⚡', cx, cy);
+          break;
+        }
+
+        case 'VOLUME': {
+          const vLevel = Math.round(opt.volume ?? 50);
+          const totalBars = 22;
+          const activeBars = Math.round((vLevel / 100) * totalBars);
+          for (let i = 0; i < totalBars; i++) {
+            const a = Math.PI * 0.75 + (i / (totalBars - 1)) * (Math.PI * 1.5);
+            const r1 = 150, r2 = 185;
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+            ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+            ctx.strokeStyle = i < activeBars ? col : '#1a2632';
+            ctx.lineWidth = 9;
+            ctx.lineCap = 'round';
+            if (i < activeBars) {
+              ctx.shadowColor = col;
+              ctx.shadowBlur = 15;
+            }
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+          }
+          ctx.font = 'bold 88px system-ui';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`${vLevel}%`, cx, cy - 20);
+          ctx.font = 'bold 32px system-ui';
+          ctx.fillStyle = col;
+          ctx.fillText('🔊 VOLUME', cx, cy + 60);
+          break;
+        }
+
+        case 'TEMP': {
+          const temp = Math.round(opt.temperature ?? 37);
+          const tPct = clamp((temp - 10) / 40, 0, 1);
+          const startA = Math.PI * 0.75, endA = Math.PI * 2.25;
+          const curA = startA + tPct * (endA - startA);
+          ctx.beginPath();
+          ctx.arc(cx, cy, 160, startA, endA);
+          ctx.strokeStyle = '#182430';
+          ctx.lineWidth = 18;
+          ctx.stroke();
+          const tColor = temp > 35 ? '#ef4444' : (temp > 25 ? '#f59e0b' : '#38bdf8');
+          ctx.beginPath();
+          ctx.arc(cx, cy, 160, startA, curA);
+          ctx.strokeStyle = tColor;
+          ctx.lineWidth = 18;
+          ctx.shadowColor = tColor;
+          ctx.shadowBlur = 20;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          ctx.font = 'bold 96px system-ui';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`${temp}°C`, cx, cy - 20);
+          ctx.font = 'bold 30px system-ui';
+          ctx.fillStyle = tColor;
+          ctx.fillText('🌡️ THERMOMETER', cx, cy + 60);
+          break;
+        }
+
+        /* ================= 系统：传感与连接 ================= */
+        case 'COMPASS': {
+          const deg = opt.bearing ?? 45;
+          const rotRad = (-deg * Math.PI) / 180;
+          ctx.save();
+          ctx.translate(cx, cy);
+          for (let i = 0; i < 360; i += 15) {
+            const a = (i * Math.PI) / 180 - Math.PI / 2;
+            const r1 = 200, r2 = (i % 90 === 0 ? 175 : (i % 45 === 0 ? 185 : 192));
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * r1, Math.sin(a) * r1);
+            ctx.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
+            ctx.strokeStyle = (i === 0 ? '#ef4444' : '#6b7d8e');
+            ctx.lineWidth = i % 45 === 0 ? 3 : 1.5;
+            ctx.stroke();
+          }
+          ctx.font = 'bold 24px system-ui';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#ef4444'; ctx.fillText('N', 0, -150);
+          ctx.fillStyle = '#ffffff'; ctx.fillText('E', 150, 0);
+          ctx.fillStyle = '#ffffff'; ctx.fillText('S', 0, 150);
+          ctx.fillStyle = '#ffffff'; ctx.fillText('W', -150, 0);
+
+          ctx.rotate(rotRad);
+          // 北红指针
+          ctx.beginPath();
+          ctx.moveTo(-16, 0); ctx.lineTo(0, -135); ctx.lineTo(16, 0);
+          ctx.fillStyle = '#ef4444';
+          ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 18;
+          ctx.fill();
+          // 南银指针
+          ctx.beginPath();
+          ctx.moveTo(-16, 0); ctx.lineTo(0, 135); ctx.lineTo(16, 0);
+          ctx.fillStyle = '#e2e8f0';
+          ctx.shadowColor = '#000'; ctx.shadowBlur = 6;
+          ctx.fill();
+          // 轴心铆钉
+          ctx.beginPath();
+          ctx.arc(0, 0, 18, 0, Math.PI * 2);
+          ctx.fillStyle = col;
+          ctx.fill();
+          ctx.restore();
+
+          ctx.font = 'bold 30px system-ui';
+          ctx.fillStyle = col;
+          ctx.textAlign = 'center';
+          ctx.fillText(`${deg}° ${['N','NE','E','SE','S','SW','W','NW'][Math.round(deg/45)%8]}`, cx, cy + 225);
+          break;
+        }
+
+        case 'RADAR': {
+          const sweepA = (t * 2.8) % (Math.PI * 2);
+          [60, 120, 180].forEach(r => {
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(34, 197, 94, 0.28)';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          });
+          ctx.beginPath();
+          ctx.moveTo(cx - 180, cy); ctx.lineTo(cx + 180, cy);
+          ctx.moveTo(cx, cy - 180); ctx.lineTo(cx + 180, cy);
+          ctx.strokeStyle = 'rgba(34, 197, 94, 0.28)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          // 雷达扫描锥面
+          const sweepGrad = ctx.createConicGradient(sweepA - 0.8, cx, cy);
+          sweepGrad.addColorStop(0, 'rgba(34, 197, 94, 0)');
+          sweepGrad.addColorStop(0.12, 'rgba(34, 197, 94, 0.45)');
+          sweepGrad.addColorStop(0.13, '#22c55e');
+          sweepGrad.addColorStop(0.14, 'rgba(34, 197, 94, 0)');
+          ctx.fillStyle = sweepGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 180, 0, Math.PI * 2);
+          ctx.fill();
+
+          const blips = [{ r: 90, a: 1.2 }, { r: 140, a: 3.8 }, { r: 70, a: 5.1 }];
+          blips.forEach(b => {
+            const bx = cx + Math.cos(b.a) * b.r;
+            const by = cy + Math.sin(b.a) * b.r;
+            const diff = (sweepA - b.a + Math.PI * 4) % (Math.PI * 2);
+            const alpha = diff < 1.6 ? Math.max(0, 1 - diff / 1.6) : 0.15;
+            ctx.beginPath();
+            ctx.arc(bx, by, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#22c55e';
+            ctx.shadowColor = '#22c55e'; ctx.shadowBlur = 16;
+            ctx.globalAlpha = alpha;
+            ctx.fill();
+          });
+          ctx.globalAlpha = 1.0;
+          break;
+        }
+
+        case 'BLUETOOTH': {
+          for (let i = 0; i < 3; i++) {
+            const p = ((t * 1.5 + i * 0.33) % 1.0);
+            const r = 50 + p * 135;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 3;
+            ctx.globalAlpha = 1 - p;
+            ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 14;
+            ctx.stroke();
+          }
+          ctx.globalAlpha = 1.0;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 54, 0, Math.PI * 2);
+          ctx.fillStyle = '#0284c7';
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 7;
+          ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - 34); ctx.lineTo(cx, cy + 34);
+          ctx.moveTo(cx - 18, cy - 16); ctx.lineTo(cx + 18, cy + 16); ctx.lineTo(cx, cy + 34);
+          ctx.lineTo(cx, cy - 34); ctx.lineTo(cx + 18, cy - 16); ctx.lineTo(cx - 18, cy + 16);
+          ctx.stroke();
+          break;
+        }
+
+        /* ================= 活动：运动与专注 ================= */
+        case 'RUNNER': {
+          const cycle = t * 6.5;
+          const bobY = Math.sin(cycle * 2) * 8;
+          ctx.save();
+          ctx.translate(cx, cy + bobY);
+          // 头部
+          ctx.beginPath();
+          ctx.arc(0, -75, 24, 0, Math.PI * 2);
+          ctx.fillStyle = col;
+          ctx.shadowColor = col; ctx.shadowBlur = 18;
+          ctx.fill();
+          // 躯干
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 16;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(0, -50); ctx.lineTo(-12, 10);
+          ctx.stroke();
+          // 手臂前后摆动
+          const armA1 = Math.sin(cycle) * 0.95;
+          const armA2 = Math.sin(cycle + Math.PI) * 0.95;
+          ctx.lineWidth = 11;
+          ctx.beginPath();
+          ctx.moveTo(-6, -40); ctx.lineTo(-6 + Math.cos(armA1) * 38, -40 + Math.sin(armA1) * 38);
+          ctx.moveTo(-6, -40); ctx.lineTo(-6 + Math.cos(armA2) * 38, -40 + Math.sin(armA2) * 38);
+          ctx.stroke();
+          // 腿部奔跑蹬地
+          const legA1 = Math.sin(cycle) * 1.15;
+          const legA2 = Math.sin(cycle + Math.PI) * 1.15;
+          ctx.lineWidth = 13;
+          ctx.beginPath();
+          ctx.moveTo(-12, 10); ctx.lineTo(-12 + Math.sin(legA1) * 48, 10 + Math.cos(legA1) * 48);
+          ctx.moveTo(-12, 10); ctx.lineTo(-12 + Math.sin(legA2) * 48, 10 + Math.cos(legA2) * 48);
+          ctx.stroke();
+          ctx.restore();
+          // 地面速度线
+          for (let i = 0; i < 4; i++) {
+            const gx = (cx + 250 - ((t * 280 + i * 130) % 520));
+            ctx.beginPath();
+            ctx.moveTo(gx, cy + 90 + i * 9); ctx.lineTo(gx - 70, cy + 90 + i * 9);
+            ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 3;
+            ctx.stroke();
+          }
+          break;
+        }
+
+        case 'STEPS':
+        case 'WORKOUT':
+        case 'PERSON': {
+          // 健身律动环 (Apple Watch 风格健康圆环)
+          const rList = [180, 140, 100];
+          const colList = ['#ef4444', '#22c55e', '#38bdf8'];
+          const valList = [0.85 + 0.1 * Math.sin(t * 2), 0.72 + 0.1 * Math.cos(t * 2), 0.90];
+          for (let i = 0; i < 3; i++) {
+            const r = rList[i];
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 20;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + valList[i] * Math.PI * 2);
+            ctx.strokeStyle = colList[i];
+            ctx.lineWidth = 20;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = colList[i];
+            ctx.shadowBlur = 14;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+          }
+          ctx.font = 'bold 36px system-ui';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('10,248', cx, cy - 10);
+          ctx.font = '600 20px system-ui';
+          ctx.fillStyle = '#22c55e';
+          ctx.fillText('STEPS', cx, cy + 28);
+          break;
+        }
+
+        case 'FOCUS':
+        case 'SAND': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          // 沙漏外壳
+          ctx.beginPath();
+          ctx.moveTo(-75, -115); ctx.lineTo(75, -115);
+          ctx.bezierCurveTo(75, -45, 18, -12, 12, 0);
+          ctx.bezierCurveTo(18, 12, 75, 45, 75, 115);
+          ctx.lineTo(-75, 115);
+          ctx.bezierCurveTo(-75, 45, -18, 12, -12, 0);
+          ctx.bezierCurveTo(-18, -12, -75, -45, -75, -115);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.lineWidth = 7;
+          ctx.stroke();
+
+          const p = (t * 0.25) % 1.0;
+          // 上层沙堆逐渐下降
+          const topH = 65 * (1 - p);
+          ctx.beginPath();
+          ctx.moveTo(-55 * (1 - p), -105 + (65 - topH));
+          ctx.lineTo(55 * (1 - p), -105 + (65 - topH));
+          ctx.lineTo(0, 0);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fill();
+
+          // 下落细沙流
+          ctx.beginPath();
+          ctx.moveTo(0, 0); ctx.lineTo(0, 95);
+          ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 4;
+          ctx.stroke();
+
+          // 下层沙堆逐渐堆高
+          const botH = 60 * p;
+          ctx.beginPath();
+          ctx.moveTo(-60 * p, 105); ctx.lineTo(60 * p, 105);
+          ctx.lineTo(0, 105 - botH);
+          ctx.fillStyle = '#f59e0b';
+          ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'PROGRESS': {
+          const bars = [0.85, 0.60, 0.42];
+          for (let i = 0; i < 3; i++) {
+            const by = cy - 60 + i * 60;
+            ctx.beginPath();
+            ctx.roundRect(cx - 150, by - 12, 300, 24, 12);
+            ctx.fillStyle = '#182430';
+            ctx.fill();
+            const fillW = 300 * ((bars[i] + Math.sin(t * 2 + i) * 0.1) % 1.0);
+            ctx.beginPath();
+            ctx.roundRect(cx - 150, by - 12, fillW, 24, 12);
+            ctx.fillStyle = [col, '#38bdf8', '#22c55e'][i];
+            ctx.shadowColor = ctx.fillStyle;
+            ctx.shadowBlur = 14;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+          break;
+        }
+
+        case 'SUCCESS': {
+          ctx.beginPath();
+          ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+          ctx.fillStyle = '#10b981';
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 30;
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 14;
+          ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+          ctx.beginPath();
+          ctx.moveTo(cx - 55, cy); ctx.lineTo(cx - 15, cy + 45); ctx.lineTo(cx + 60, cy - 40);
+          ctx.stroke();
+          break;
+        }
+
+        case 'MAIL': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.beginPath();
+          ctx.roundRect(-120, -75, 240, 150, 14);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 24;
+          ctx.fill();
+          ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(-120, -75); ctx.lineTo(0, 15); ctx.lineTo(120, -75);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(100, -65, 20, 0, Math.PI * 2);
+          ctx.fillStyle = '#ef4444';
+          ctx.fill();
+          ctx.font = 'bold 20px system-ui';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('1', 100, -65);
+          ctx.restore();
+          break;
+        }
+
+        /* ================= 生活：气象与影音 ================= */
+        case 'SUNNY': {
+          const rot = t * 0.8;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.beginPath();
+          ctx.arc(0, 0, 70, 0, Math.PI * 2);
+          ctx.fillStyle = '#f59e0b';
+          ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 35;
+          ctx.fill();
+          ctx.rotate(rot);
+          for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * 95, Math.sin(a) * 95);
+            ctx.lineTo(Math.cos(a) * 140, Math.sin(a) * 140);
+            ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 8;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          }
+          ctx.restore();
+          break;
+        }
+
+        case 'CLOUDY': {
+          ctx.save();
+          const cx2 = cx + Math.sin(t * 1.2) * 20;
+          ctx.beginPath();
+          ctx.arc(cx2 - 50, cy, 55, 0, Math.PI * 2);
+          ctx.arc(cx2 + 20, cy - 35, 65, 0, Math.PI * 2);
+          ctx.arc(cx2 + 75, cy, 45, 0, Math.PI * 2);
+          ctx.fillStyle = '#e2e8f0';
+          ctx.shadowColor = 'rgba(255,255,255,0.4)'; ctx.shadowBlur = 20;
+          ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'RAINY':
+        case 'RAIN': {
+          // 云层
+          ctx.beginPath();
+          ctx.arc(cx - 50, cy - 60, 50, 0, Math.PI * 2);
+          ctx.arc(cx + 20, cy - 85, 60, 0, Math.PI * 2);
+          ctx.arc(cx + 70, cy - 60, 45, 0, Math.PI * 2);
+          ctx.fillStyle = '#64748b';
+          ctx.fill();
+          // 雨线与水滴
+          for (let i = 0; i < 8; i++) {
+            const rx = cx - 110 + i * 30;
+            const ry = cy - 20 + ((t * 220 + i * 50) % 180);
+            ctx.beginPath();
+            ctx.moveTo(rx, ry); ctx.lineTo(rx - 8, ry + 22);
+            ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 4;
+            ctx.stroke();
+          }
+          break;
+        }
+
+        case 'SNOW': {
+          for (let i = 0; i < 12; i++) {
+            const sx = cx - 140 + (i * 26 + Math.sin(t + i) * 20);
+            const sy = cy - 160 + ((t * 70 + i * 45) % 320);
+            ctx.beginPath();
+            ctx.arc(sx, sy, 7 + (i % 3) * 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 10;
+            ctx.fill();
+          }
+          break;
+        }
+
+        case 'STORM': {
+          ctx.beginPath();
+          ctx.arc(cx - 50, cy - 60, 50, 0, Math.PI * 2);
+          ctx.arc(cx + 20, cy - 85, 60, 0, Math.PI * 2);
+          ctx.arc(cx + 70, cy - 60, 45, 0, Math.PI * 2);
+          ctx.fillStyle = '#334155';
+          ctx.fill();
+          if (Math.sin(t * 8) > 0.5) {
+            ctx.strokeStyle = '#facc15'; ctx.lineWidth = 8;
+            ctx.shadowColor = '#facc15'; ctx.shadowBlur = 30;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - 30); ctx.lineTo(cx - 20, cy + 25);
+            ctx.lineTo(cx + 15, cy + 30); ctx.lineTo(cx - 15, cy + 120);
+            ctx.stroke();
+          }
+          break;
+        }
+
+        case 'WAVE': {
+          for (let w = 0; w < 3; w++) {
+            ctx.beginPath();
+            for (let x = -200; x <= 200; x += 4) {
+              const y = Math.sin(x * 0.03 + t * 4.5 + w * 1.6) * 58 * Math.cos((x / 200) * (Math.PI / 2));
+              if (x === -200) ctx.moveTo(cx + x, cy + y);
+              else ctx.lineTo(cx + x, cy + y);
+            }
+            ctx.strokeStyle = [col, '#38bdf8', '#ec4899'][w];
+            ctx.lineWidth = 6;
+            ctx.shadowColor = ctx.strokeStyle;
+            ctx.shadowBlur = 20;
+            ctx.stroke();
+          }
+          break;
+        }
+
+        case 'SPECTRUM': {
+          const bands = 14;
+          const bw = 18, gap = 8;
+          const startX = cx - (bands * (bw + gap)) / 2;
+          for (let i = 0; i < bands; i++) {
+            const h = Math.abs(Math.sin(t * 5 + i * 0.7)) * 175 + 20;
+            const bx = startX + i * (bw + gap);
+            const by = cy + 100 - h;
+            const barGrad = ctx.createLinearGradient(bx, by, bx, cy + 100);
+            barGrad.addColorStop(0, '#ec4899');
+            barGrad.addColorStop(0.5, col);
+            barGrad.addColorStop(1, '#38bdf8');
+            ctx.fillStyle = barGrad;
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bw, h, 6);
+            ctx.fill();
+          }
+          break;
+        }
+
+        case 'COFFEE': {
+          ctx.save();
+          ctx.translate(cx, cy + 20);
+          ctx.beginPath();
+          ctx.roundRect(-70, -40, 140, 90, [0, 0, 45, 45]);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col; ctx.shadowBlur = 20;
+          ctx.fill();
+          // 手柄
+          ctx.beginPath();
+          ctx.arc(70, 0, 28, -Math.PI / 2, Math.PI / 2);
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 10;
+          ctx.stroke();
+          // 热咖啡蒸汽袅袅上升
+          for (let i = 0; i < 3; i++) {
+            const sx = -35 + i * 35 + Math.sin(t * 3 + i) * 12;
+            const sy = -60 - ((t * 40 + i * 25) % 65);
+            ctx.beginPath();
+            ctx.arc(sx, sy, 7, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.fill();
+          }
+          ctx.restore();
+          break;
+        }
+
+        case 'WATER': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.beginPath();
+          ctx.roundRect(-60, -90, 120, 180, [10, 10, 20, 20]);
+          ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 6;
+          ctx.stroke();
+          // 水体晃动
+          ctx.beginPath();
+          ctx.moveTo(-54, 84);
+          ctx.lineTo(54, 84);
+          ctx.lineTo(54, 10 + Math.sin(t * 4) * 8);
+          ctx.lineTo(-54, 10 - Math.sin(t * 4) * 8);
+          ctx.fillStyle = '#38bdf8';
+          ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 18;
+          ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'ALARM': {
+          ctx.save();
+          ctx.translate(cx, cy + Math.sin(t * 20) * 4);
+          ctx.beginPath();
+          ctx.arc(0, 0, 110, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col; ctx.shadowBlur = 22;
+          ctx.fill();
+          // 顶铃
+          ctx.beginPath();
+          ctx.arc(-75, -85, 30, 0, Math.PI * 2);
+          ctx.arc(75, -85, 30, 0, Math.PI * 2);
+          ctx.fillStyle = col; ctx.fill();
+          // 指针
+          ctx.strokeStyle = '#0b1116'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -60); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(40, 0); ctx.stroke();
+          ctx.restore();
+          break;
+        }
+
+        case 'DAWN': {
+          // 地平线海浪朝阳
+          const sunY = cy + 40 - Math.abs(Math.sin(t * 0.8)) * 80;
+          ctx.beginPath();
+          ctx.arc(cx, sunY, 70, 0, Math.PI * 2);
+          ctx.fillStyle = '#f97316';
+          ctx.shadowColor = '#f97316'; ctx.shadowBlur = 35;
+          ctx.fill();
+          // 海浪
+          ctx.fillStyle = '#0284c7';
+          ctx.fillRect(cx - 200, cy + 40, 400, 160);
+          break;
+        }
+
+        case 'CAT': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          // 猫头
+          ctx.beginPath();
+          ctx.arc(0, 10, 95, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col; ctx.shadowBlur = 20;
+          ctx.fill();
+          // 猫耳朵
+          ctx.beginPath();
+          ctx.moveTo(-75, -40); ctx.lineTo(-90, -120 + Math.sin(t * 5) * 8); ctx.lineTo(-20, -75);
+          ctx.moveTo(75, -40); ctx.lineTo(90, -120 + Math.sin(t * 5 + 1) * 8); ctx.lineTo(20, -75);
+          ctx.fillStyle = col; ctx.fill();
+          // 眼睛眨眼
+          const blinkH = Math.abs(Math.sin(t * 2)) < 0.15 ? 3 : 16;
+          ctx.beginPath();
+          ctx.ellipse(-38, 0, 14, blinkH, 0, 0, Math.PI * 2);
+          ctx.ellipse(38, 0, 14, blinkH, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#0b1116'; ctx.fill();
+          // 鼻子胡须
+          ctx.beginPath(); ctx.arc(0, 30, 8, 0, Math.PI * 2); ctx.fillStyle = '#ef4444'; ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'DOG': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.beginPath();
+          ctx.arc(0, 0, 95, 0, Math.PI * 2);
+          ctx.fillStyle = '#f59e0b';
+          ctx.shadowColor = col; ctx.shadowBlur = 20;
+          ctx.fill();
+          // 垂耳摆动
+          ctx.beginPath();
+          ctx.ellipse(-95, -20 + Math.sin(t * 4) * 10, 26, 60, 0.3, 0, Math.PI * 2);
+          ctx.ellipse(95, -20 - Math.sin(t * 4) * 10, 26, 60, -0.3, 0, Math.PI * 2);
+          ctx.fillStyle = '#b45309'; ctx.fill();
+          // 舌头哈气
+          ctx.beginPath();
+          ctx.arc(0, 50, 18, 0, Math.PI);
+          ctx.fillStyle = '#ef4444'; ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'FISH': {
+          ctx.save();
+          const ang = t * 1.8;
+          const fx = cx + Math.cos(ang) * 100;
+          const fy = cy + Math.sin(ang) * 100;
+          ctx.translate(fx, fy);
+          ctx.rotate(ang + Math.PI / 2);
+          // 金鱼体
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 25, 45, 0, 0, Math.PI * 2);
+          ctx.fillStyle = '#f97316';
+          ctx.shadowColor = '#f97316'; ctx.shadowBlur = 18;
+          ctx.fill();
+          // 鱼尾摇摆
+          ctx.beginPath();
+          ctx.moveTo(0, 40);
+          ctx.lineTo(-24 + Math.sin(t * 12) * 14, 75);
+          ctx.lineTo(24 + Math.sin(t * 12) * 14, 75);
+          ctx.fillStyle = '#ea580c'; ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'BIRD': {
+          const wing = Math.sin(t * 8) * 40;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 9; ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(-90, wing); ctx.quadraticCurveTo(-45, -wing, 0, 0);
+          ctx.quadraticCurveTo(45, -wing, 90, wing);
+          ctx.shadowColor = col; ctx.shadowBlur = 20;
+          ctx.stroke();
+          ctx.restore();
+          break;
+        }
+
+        /* ================= 游戏：复古与像素 ================= */
+        case 'PACMAN': {
+          const mouth = Math.abs(Math.sin(t * 8)) * 0.45;
+          const posX = cx - 110 + ((t * 90) % 220);
+          ctx.beginPath();
+          ctx.arc(posX, cy, 60, mouth, Math.PI * 2 - mouth);
+          ctx.lineTo(posX, cy);
+          ctx.fillStyle = '#eab308';
+          ctx.shadowColor = '#eab308'; ctx.shadowBlur = 22;
+          ctx.fill();
+          for (let i = 0; i < 4; i++) {
+            const px = cx - 110 + i * 70;
+            if (px > posX + 28) {
+              ctx.beginPath();
+              ctx.arc(px, cy, 10, 0, Math.PI * 2);
+              ctx.fillStyle = '#ffffff';
+              ctx.fill();
+            }
+          }
+          break;
+        }
+
+        case 'INVADER': {
+          ctx.save();
+          ctx.translate(cx, cy + Math.sin(t * 3) * 10);
+          ctx.fillStyle = '#a855f7';
+          ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 24;
+          // 复古侵略者外形
+          const sz = 16;
+          const invaderGrid = [
+            '00100000100',
+            '00010001000',
+            '00111111100',
+            '01101110110',
+            '11111111111',
+            '10111111101',
+            '10100000101',
+            '00011011000'
+          ];
+          invaderGrid.forEach((row, ry) => {
+            [...row].forEach((c, rx) => {
+              if (c === '1') ctx.fillRect((rx - 5.5) * sz, (ry - 4) * sz, sz - 2, sz - 2);
+            });
+          });
+          ctx.restore();
+          break;
+        }
+
+        case 'SNAKE': {
+          ctx.save();
+          const segs = 7;
+          for (let i = 0; i < segs; i++) {
+            const sx = cx - i * 28 + Math.sin(t * 5 + i * 0.8) * 16;
+            const sy = cy + Math.cos(t * 5 + i * 0.8) * 16;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 18 - i * 1.5, 0, Math.PI * 2);
+            ctx.fillStyle = i === 0 ? '#10b981' : '#059669';
+            ctx.shadowColor = '#10b981'; ctx.shadowBlur = 14;
+            ctx.fill();
+          }
+          // 红色苹果
+          ctx.beginPath();
+          ctx.arc(cx + 100, cy, 18, 0, Math.PI * 2);
+          ctx.fillStyle = '#ef4444';
+          ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 18;
+          ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'TETRIS': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          const sz = 34;
+          // T 块 (紫色)
+          ctx.fillStyle = '#a855f7';
+          ctx.fillRect(-sz * 1.5, -sz, sz * 3, sz);
+          ctx.fillRect(-sz * 0.5, 0, sz, sz);
+          // I 块 (青色)
+          ctx.fillStyle = '#06b6d4';
+          ctx.fillRect(-sz * 2, sz * 1.2, sz * 4, sz);
+          ctx.restore();
+          break;
+        }
+
+        case 'PIXEL_HEART':
+        case 'HEART':
+        case 'HEARTBEAT': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          const pulse = 1.0 + 0.18 * Math.sin(t * 7) + (Math.sin(t * 14) > 0.8 ? 0.12 : 0);
+          ctx.scale(pulse, pulse);
+          ctx.beginPath();
+          ctx.moveTo(0, 45);
+          ctx.bezierCurveTo(-110, -45, -100, -135, 0, -65);
+          ctx.bezierCurveTo(100, -135, 110, -45, 0, 45);
+          ctx.fillStyle = '#ef4444';
+          ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 30;
+          ctx.fill();
+
+          // ECG 心电图脉冲穿心划过
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(-120, 0); ctx.lineTo(-40, 0);
+          ctx.lineTo(-20, -35); ctx.lineTo(0, 35); ctx.lineTo(20, -15);
+          ctx.lineTo(35, 0); ctx.lineTo(120, 0);
+          ctx.stroke();
+          ctx.restore();
+          break;
+        }
+
+        case 'DICE': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(t * 1.5);
+          ctx.beginPath();
+          ctx.roundRect(-85, -85, 170, 170, 24);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col; ctx.shadowBlur = 24;
+          ctx.fill();
+          // 点数
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#0b1116';
+          [[-45, -45], [45, 45], [-45, 45], [45, -45]].forEach(([dx, dy]) => {
+            ctx.beginPath(); ctx.arc(dx, dy, 12, 0, Math.PI * 2); ctx.fill();
+          });
+          ctx.restore();
+          break;
+        }
+
+        case 'DIAMOND': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(Math.sin(t * 2) * 0.2);
+          ctx.beginPath();
+          ctx.moveTo(0, -105); ctx.lineTo(105, 0); ctx.lineTo(0, 105); ctx.lineTo(-105, 0);
+          ctx.closePath();
+          ctx.fillStyle = '#38bdf8';
+          ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 30;
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4; ctx.stroke();
+          // 内部光芒棱镜
+          ctx.beginPath();
+          ctx.moveTo(-105, 0); ctx.lineTo(105, 0);
+          ctx.moveTo(0, -105); ctx.lineTo(0, 105);
+          ctx.stroke();
+          ctx.restore();
+          break;
+        }
+
+        /* ================= 氛围：节日与奇境 ================= */
+        case 'FIREWORKS': {
+          const count = 24;
+          const p = (t * 1.2) % 1.0;
+          for (let i = 0; i < count; i++) {
+            const a = (i / count) * Math.PI * 2;
+            const dist = p * 190;
+            const fx = cx + Math.cos(a) * dist;
+            const fy = cy + Math.sin(a) * dist + p * p * 50; // 重力下坠
+            ctx.beginPath();
+            ctx.arc(fx, fy, (1 - p) * 9 + 2, 0, Math.PI * 2);
+            ctx.fillStyle = ['#ef4444', '#f59e0b', '#38bdf8', '#a855f7', '#10b981'][i % 5];
+            ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 18;
+            ctx.globalAlpha = 1 - p;
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1.0;
+          break;
+        }
+
+        case 'CANDLE': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          // 蜡烛台柱
+          ctx.beginPath();
+          ctx.roundRect(-45, -20, 90, 150, [8, 8, 0, 0]);
+          ctx.fillStyle = '#f8fafc';
+          ctx.shadowColor = col; ctx.shadowBlur = 15;
+          ctx.fill();
+          // 烛芯
+          ctx.strokeStyle = '#334155'; ctx.lineWidth = 4;
+          ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(0, -45); ctx.stroke();
+          // 摇曳火苗
+          const flameWiggle = Math.sin(t * 15) * 6;
+          ctx.beginPath();
+          ctx.moveTo(0, -45);
+          ctx.bezierCurveTo(-25, -75, -20 + flameWiggle, -125, 0 + flameWiggle, -145);
+          ctx.bezierCurveTo(20 + flameWiggle, -125, 25, -75, 0, -45);
+          ctx.fillStyle = '#f59e0b';
+          ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 35;
+          ctx.fill();
+          // 火苗内焰
+          ctx.beginPath();
+          ctx.arc(0, -55, 12, 0, Math.PI * 2);
+          ctx.fillStyle = '#38bdf8'; ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'GIFT': {
+          ctx.save();
+          ctx.translate(cx, cy + Math.sin(t * 6) * 8);
+          // 礼盒底
+          ctx.beginPath();
+          ctx.roundRect(-80, -40, 160, 130, 10);
+          ctx.fillStyle = '#ef4444';
+          ctx.shadowColor = col; ctx.shadowBlur = 24;
+          ctx.fill();
+          // 礼盒盖
+          ctx.beginPath();
+          ctx.roundRect(-90, -75, 180, 40, 8);
+          ctx.fillStyle = '#dc2626'; ctx.fill();
+          // 金色缎带
+          ctx.fillStyle = '#facc15';
+          ctx.fillRect(-15, -75, 30, 165);
+          // 蝴蝶结
+          ctx.beginPath();
+          ctx.ellipse(-30, -90, 25, 16, -0.4, 0, Math.PI * 2);
+          ctx.ellipse(30, -90, 25, 16, 0.4, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'ORBIT': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          // 太阳行星
+          ctx.beginPath();
+          ctx.arc(0, 0, 50, 0, Math.PI * 2);
+          ctx.fillStyle = '#f59e0b';
+          ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 35;
+          ctx.fill();
+          // 双重开普勒轨道
+          ctx.rotate(-0.4);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 190, 75, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = col; ctx.lineWidth = 3;
+          ctx.stroke();
+          // 卫星1
+          const a1 = t * 2.2;
+          ctx.beginPath();
+          ctx.arc(Math.cos(a1) * 190, Math.sin(a1) * 75, 15, 0, Math.PI * 2);
+          ctx.fillStyle = '#38bdf8';
+          ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 18;
+          ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        case 'PULSE': {
+          for (let i = 0; i < 4; i++) {
+            const p = ((t * 0.8 + i * 0.25) % 1.0);
+            const r = p * 210;
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = col;
+            ctx.lineWidth = 4 * (1 - p);
+            ctx.globalAlpha = 1 - p;
+            ctx.shadowColor = col; ctx.shadowBlur = 16;
+            ctx.stroke();
+          }
+          ctx.globalAlpha = 1.0;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = col; ctx.shadowBlur = 30;
+          ctx.fill();
+          break;
+        }
+
+        case 'PORTAL': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(t * 3);
+          for (let i = 0; i < 6; i++) {
+            ctx.rotate(Math.PI / 3);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(50, 40, 110, 120, 180, 0);
+            ctx.strokeStyle = col; ctx.lineWidth = 4;
+            ctx.shadowColor = col; ctx.shadowBlur = 16;
+            ctx.stroke();
+          }
+          ctx.restore();
+          break;
+        }
+
+        case 'FIREFLY': {
+          for (let i = 0; i < 9; i++) {
+            const fx = cx + Math.sin(t * 1.5 + i * 1.7) * 150;
+            const fy = cy + Math.cos(t * 1.8 + i * 2.1) * 150;
+            const alpha = Math.abs(Math.sin(t * 3 + i));
+            ctx.beginPath();
+            ctx.arc(fx, fy, 8, 0, Math.PI * 2);
+            ctx.fillStyle = col;
+            ctx.shadowColor = col; ctx.shadowBlur = 24;
+            ctx.globalAlpha = alpha;
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1.0;
+          break;
+        }
+
+        case 'BLOOM': {
+          ctx.save();
+          ctx.translate(cx, cy);
+          const petalCount = 8;
+          const open = Math.sin(t * 2) * 0.2 + 0.8;
+          for (let i = 0; i < petalCount; i++) {
+            const a = (i / petalCount) * Math.PI * 2;
+            ctx.save();
+            ctx.rotate(a);
+            ctx.beginPath();
+            ctx.ellipse(0, -75 * open, 30, 65 * open, 0, 0, Math.PI * 2);
+            ctx.fillStyle = '#f472b6';
+            ctx.shadowColor = '#f472b6'; ctx.shadowBlur = 18;
+            ctx.globalAlpha = 0.85;
+            ctx.fill();
+            ctx.restore();
+          }
+          ctx.globalAlpha = 1.0;
+          ctx.beginPath();
+          ctx.arc(0, 0, 24, 0, Math.PI * 2);
+          ctx.fillStyle = '#facc15'; ctx.fill();
+          ctx.restore();
+          break;
+        }
+
+        /* ================= 灵动眼眸与符号 ================= */
+        case 'EYE_SHOCK': {
+          // 闪电电眼
+          [-75, 75].forEach(x => {
+            ctx.save();
+            ctx.translate(cx + x, cy);
+            ctx.strokeStyle = '#facc15'; ctx.lineWidth = 9;
+            ctx.shadowColor = '#facc15'; ctx.shadowBlur = 22;
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(15, -45); ctx.lineTo(-15, 0); ctx.lineTo(15, 5); ctx.lineTo(-15, 45);
+            ctx.stroke();
+            ctx.restore();
+          });
+          break;
+        }
+
+        case 'EYE_GRIN': {
+          // 弯月笑眼
+          [-75, 75].forEach(x => {
+            ctx.beginPath();
+            ctx.arc(cx + x, cy + 20, 50, Math.PI * 1.15, Math.PI * 1.85);
+            ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 12;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = col; ctx.shadowBlur = 18;
+            ctx.stroke();
+          });
+          break;
+        }
+
+        case 'EYES': {
+          // 情绪双眸
+          const eyeShift = Math.sin(t * 3) * 16;
+          [-75, 75].forEach(x => {
+            ctx.beginPath();
+            ctx.arc(cx + x, cy, 48, 0, Math.PI * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = col; ctx.shadowBlur = 18;
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(cx + x + eyeShift, cy, 22, 0, Math.PI * 2);
+            ctx.fillStyle = '#0b1116';
+            ctx.fill();
+          });
+          break;
+        }
+
+        case 'MOOD': {
+          // 面具微笑
+          ctx.beginPath();
+          ctx.arc(cx, cy, 120, 0, Math.PI * 2);
+          ctx.fillStyle = col;
+          ctx.shadowColor = col; ctx.shadowBlur = 24;
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(cx, cy + 15, 60, 0.1 * Math.PI, 0.9 * Math.PI);
+          ctx.strokeStyle = '#0b1116'; ctx.lineWidth = 10; ctx.lineCap = 'round';
+          ctx.stroke();
+          break;
+        }
+
+        /* ================= 通用保底平滑显示 ================= */
+        default: {
+          // 若为其它图形，以平滑发光图标与呼吸环高保真展现
+          ctx.beginPath();
+          ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 4;
+          ctx.shadowColor = col; ctx.shadowBlur = 20;
+          ctx.stroke();
+
+          ctx.font = 'bold 96px system-ui';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(anim.icon || '✦', cx, cy);
+          break;
+        }
+      }
+    }
+
 
     /* 代码导出功能 */
     function updateCodeExports() {
