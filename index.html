@@ -12,6 +12,59 @@ button,input,select{font:inherit}.shell{max-width:1440px;margin:auto;padding:24p
 .stage{min-height:720px;padding:20px;display:flex;flex-direction:column}.stage-head{display:flex;align-items:center;justify-content:space-between}.stage-head strong{font-size:14px}.stage-head span{font-size:11px;color:var(--muted)}.screen-wrap{flex:1;display:grid;place-items:center;position:relative;min-height:520px}.halo{position:absolute;width:min(72%,540px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#ffd66b13 0,#ffd66b05 42%,transparent 70%);filter:blur(12px)}canvas{position:relative;width:min(78%,590px);aspect-ratio:1;border-radius:50%;background:#050709;border:1px solid #3b474e;box-shadow:0 32px 90px #000, inset 0 0 65px #000;cursor:crosshair}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#0c1216;border:1px solid #223039;border-radius:12px;padding:11px}.metric b{display:block;font-size:18px}.metric span{font-size:10px;color:var(--muted)}
 .library{padding:18px;max-height:780px;overflow:auto}.tabs{display:flex;gap:6px;margin-bottom:13px;position:sticky;top:-18px;padding:10px 0;background:#141d23;z-index:2}.tab{font-size:11px;padding:7px 10px;border:1px solid #2f3e48;border-radius:999px;background:#0d1418;color:#9cacb5;cursor:pointer}.tab.active{color:#171308;background:var(--accent);border-color:var(--accent)}.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.preset{background:#0b1115;border:1px solid #293842;border-radius:12px;padding:10px;text-align:left;color:#dce5e9;cursor:pointer}.preset:hover,.preset.active{border-color:#d3ae4c;background:#1d211d}.preset-preview{height:106px;border-radius:8px;background:#050708;display:grid;place-items:center;margin-bottom:8px;color:var(--accent);font-size:21px;letter-spacing:.05em}.preset b{font-size:12px;display:block}.preset small{font-size:9px;color:#738691}.preset-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:8px}.copy-code{border:1px solid #3b4c57;background:#162129;color:#b9c7ce;border-radius:7px;padding:4px 7px;font-size:9px;cursor:pointer}.copy-code:hover{border-color:var(--accent);color:var(--accent)}.footer-note{margin-top:14px;padding:11px;border-radius:10px;background:#0b1216;color:#70828d;font-size:10px;line-height:1.6}
 @media(max-width:1050px){.layout{grid-template-columns:240px 1fr}.library{grid-column:1/-1;max-height:none}.preset-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:720px){.shell{padding:12px}.layout{grid-template-columns:1fr}.stage{min-height:560px;order:-1}.screen-wrap{min-height:380px}.preset-grid{grid-template-columns:1fr 1fr}.status{display:none}}
+
+/* Animation Editor Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(4,7,10,0.85);backdrop-filter:blur(14px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;animation:modalFadeIn .2s ease-out}
+@keyframes modalFadeIn{from{opacity:0;transform:scale(0.98)}to{opacity:1;transform:scale(1)}}
+.modal-window{background:linear-gradient(180deg,#141c22,#0d1318);border:1px solid #2b3b46;border-radius:18px;box-shadow:0 28px 70px rgba(0,0,0,0.85);width:min(960px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;color:var(--text)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #1e2c36;background:#10171d}
+.modal-title-group{display:flex;align-items:center;gap:10px}
+.modal-title-group h3{margin:0;font-size:15px;letter-spacing:.05em}
+.modal-badge{font-size:10px;padding:3px 8px;border-radius:999px;background:#1b2830;border:1px solid #334653;color:#8da4b3}
+.modal-badge.edited{background:#2b2512;border-color:#ffd66b66;color:var(--accent)}
+.modal-badge.custom{background:#142a22;border-color:#86f0c066;color:var(--accent2)}
+.modal-close-btn{background:transparent;border:none;color:#81929e;font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1}
+.modal-close-btn:hover{color:#fff;background:#22303a}
+.modal-body{display:grid;grid-template-columns:400px 1fr;gap:18px;padding:18px 20px;overflow-y:auto;flex:1}
+@media(max-width:860px){.modal-body{grid-template-columns:1fr}}
+.ed-canvas-col{display:flex;flex-direction:column;align-items:center}
+.ed-canvas-wrap{position:relative;width:100%;max-width:370px;aspect-ratio:1;display:grid;place-items:center}
+#edMatrixCanvas{width:100%;height:100%;border-radius:50%;background:#040709;border:1px solid #32424d;box-shadow:0 16px 40px #000,inset 0 0 35px #000;cursor:crosshair}
+.ed-frame-overlay{position:absolute;bottom:12px;background:rgba(8,14,18,0.88);border:1px solid #2b3a45;border-radius:999px;padding:4px 12px;font-size:11px;color:var(--accent);pointer-events:none}
+.ed-paint-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;max-width:370px;margin-top:10px}
+.btn-sm{padding:6px 9px;font-size:11px}
+.btn-xs{padding:4px 7px;font-size:10px;border-radius:6px;border:1px solid #32434e;background:#141f27;color:#b0c0cb;cursor:pointer}
+.btn-xs:hover{border-color:#5c7280;color:#fff}
+.ed-ctrl-col{display:flex;flex-direction:column;gap:13px}
+.ed-section{background:#0d1419;border:1px solid #1f2c35;border-radius:12px;padding:12px 14px}
+.ed-section h4{margin:0 0 10px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8da2b0}
+.ed-row{display:flex;gap:10px;align-items:flex-end}
+.ed-field{display:flex;flex-direction:column}
+.ed-field label{display:flex;justify-content:space-between;font-size:11px;color:#9cb0bd;margin-bottom:5px}
+.ed-input{width:100%;background:#070c0f;color:#edf3f6;border:1px solid #283742;border-radius:8px;padding:7px 9px;font-size:12px;outline:none}
+.ed-input:focus{border-color:var(--accent)}
+.ed-range-hint{margin-top:8px;font-size:11px;color:var(--accent);background:#172118;border:1px solid #23452b;border-radius:7px;padding:6px 10px}
+.ed-filmstrip{display:flex;gap:8px;overflow-x:auto;padding:8px 4px;margin-top:4px;max-height:120px;border:1px solid #1a252d;border-radius:9px;background:#080d11}
+.ed-filmstrip::-webkit-scrollbar{height:6px}
+.ed-filmstrip::-webkit-scrollbar-thumb{background:#253642;border-radius:3px}
+.ed-film-cell{flex:0 0 52px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:5px 3px;border-radius:8px;border:1px solid #22323e;background:#0f161c;cursor:pointer;position:relative;transition:.15s}
+.ed-film-cell:hover{border-color:#4b6272;background:#17222b}
+.ed-film-cell.active{border-color:var(--accent);background:#242214;box-shadow:0 0 8px rgba(255,214,107,0.25)}
+.ed-film-cell.in-range{border-top-color:var(--accent2);border-top-width:2px}
+.ed-film-cell canvas{width:42px;height:42px;border-radius:50%;background:#030507;border:1px solid #283742;box-shadow:none}
+.ed-film-cell span{font-size:9px;color:#7b8e9b}
+.ed-film-cell .film-tag{position:absolute;top:-4px;right:-4px;font-size:8px;padding:1px 4px;border-radius:4px;font-weight:700;line-height:1.2}
+.ed-film-cell .film-tag.start{background:var(--accent2);color:#0c1a14}
+.ed-film-cell .film-tag.end{background:var(--accent);color:#1e1808}
+.modal-footer{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-top:1px solid #1e2c36;background:#10171d}
+.preset-actions{display:flex;gap:4px;align-items:center}
+.preset-action-btn{border:1px solid #33444f;background:#141f27;color:#b0c0cb;border-radius:6px;padding:3px 6px;font-size:9px;cursor:pointer;transition:.15s}
+.preset-action-btn:hover{border-color:var(--accent);color:#fff}
+.preset-action-btn.del:hover{border-color:#ff6b81;color:#ff8595;background:#2a1619}
+.preset-badge{font-size:8px;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
+.preset-badge.edited{background:#2d2611;color:var(--accent);border:1px solid #ffd66b55}
+.preset-badge.custom{background:#132a20;color:var(--accent2);border:1px solid #86f0c055}
+
 </style>
 </head>
 <body>
@@ -25,13 +78,115 @@ button,input,select{font:inherit}.shell{max-width:1440px;margin:auto;padding:24p
    <div class="section"><h2>手绘图案</h2><div class="btnrow"><button class="btn" id="custom">进入绘制</button><button class="btn" id="clear">清空画布</button></div><p class="hint">进入绘制后，点击灯珠切换亮灭；拖动可连续点亮。自定义结果保留在当前页面。</p></div>
   </aside>
   <main class="panel stage">
-   <div class="stage-head"><strong id="patternName">轨道 · ORBIT</strong><span id="modeText">预设动画</span></div>
+   <div class="stage-head"><div style="display:flex;flex-direction:column;gap:3px"><strong id="patternName">轨道 · ORBIT</strong><span id="modeText">预设动画</span></div><button class="btn btn-sm" id="editCurrentAnimBtn" style="padding:6px 12px;font-size:11px;display:flex;align-items:center;gap:4px">✏️ 编辑此动画</button></div>
    <div class="screen-wrap"><div class="halo"></div><canvas id="matrix" width="760" height="760"></canvas></div>
    <div class="metrics"><div class="metric"><b id="totalMetric">393</b><span>物理灯数</span></div><div class="metric"><b id="litMetric">0</b><span>当前点亮</span></div><div class="metric"><b id="frameMetric">01 / 24</b><span>动画帧</span></div></div>
   </main>
   <aside class="panel library"><h2>图案与场景</h2><div class="tabs"><button class="tab active" data-filter="all">全部</button><button class="tab" data-filter="system">系统</button><button class="tab" data-filter="activity">活动</button><button class="tab" data-filter="life">生活</button><button class="tab" data-filter="emotion">情绪</button></div><div class="preset-grid" id="presets"></div><div class="footer-note">393灯 · 0707CSP (间距0.16mm / Φ20.00mm) · 23×23高密圆形点阵 · 时间：上方小时、下方分钟；日期：上方月份、下方日期。</div><details class="footer-note" style="margin-top:10px;cursor:pointer"><summary style="font-weight:600;color:var(--accent);margin-bottom:8px">📋 对比 Nothing 手机 Glyph 体系与分类说明</summary><div style="font-size:10px;line-height:1.7;color:#94a3b8"><div style="margin-bottom:8px"><b>Nothing Phone (Glyph 体系)</b>：采用 5~11 组异形分段导光条（12~33 个控制区），本质为线性段码灯，主要承担粗粒度进度、铃声节拍与闪烁通知。</div><div style="margin-bottom:8px"><b>DOT LAB (393颗 CSP 点阵屏)</b>：采用 23×23 二维紧密微矩阵（Φ20.00mm），拥有真实 2D 图形与字符显示能力。</div><div style="margin-bottom:6px"><b>五大核心分类规划：</b></div><ul style="padding-left:16px;margin:4px 0 8px"><li><b>系统状态 (System)</b>：高精度数字电量(如 20%)、时间双排显示、日期与星期、温度指示、指南针航向罗盘、音量格阵、WiFi/蓝牙/安全锁等。</li><li><b>实时活动 (Activity)</b>：对标 Glyph Progress & Timer，提供时砂沙漏、三排进度条、要事震颤通知、旋转刻度盘、空间门加载等。</li><li><b>生活环境 (Life)</b>：动态五类气象(晴/云/雨/雪/雷暴)、步进与跑步运动小人、健身杠铃、8款灵动萌宠伴侣、酒瓶聚会互动等。</li><li><b>灵动情绪 (Emotion)</b>：全眼神眼动库(扫视/眨眼/星光/困倦/警觉/灵动瞳孔)、16态经典情绪面孔、心跳回响与点赞/OK手势。</li><li><b>个性创作 (Custom)</b>：393点物理网格自由手绘，支持本地表情库存储、点赞与一键导出驱动代码。</li></ul></div></details></aside>
  </div>
 </div>
+
+<div id="animEditorModal" class="modal-backdrop" style="display:none">
+ <div class="modal-window">
+  <div class="modal-header">
+   <div class="modal-title-group">
+    <h3 id="edModalTitle">🎬 动画与帧编辑器</h3>
+    <span id="edBadge" class="modal-badge">官方预设模板</span>
+   </div>
+   <button class="modal-close-btn" id="edCloseBtn" title="关闭 (Esc)">✕</button>
+  </div>
+  <div class="modal-body">
+   <div class="ed-canvas-col">
+    <div class="ed-canvas-wrap">
+     <canvas id="edMatrixCanvas" width="460" height="460"></canvas>
+     <div class="ed-frame-overlay"><span id="edCurFrameTag">第 01 帧 / 共 24 帧</span></div>
+    </div>
+    <div class="ed-paint-tools">
+     <button class="btn btn-sm" id="edToolClear" title="清空本帧所有灯">🧹 清空</button>
+     <button class="btn btn-sm" id="edToolInvert" title="反选本帧亮灭">⬛ 反选</button>
+     <button class="btn btn-sm" id="edToolCopyPrev" title="复制上一帧点阵">📋 拷上帧</button>
+     <button class="btn btn-sm" id="edToolResetOrig" title="还原为系统预设原始帧">↺ 还原</button>
+    </div>
+    <p class="hint" style="text-align:center;margin:8px 0 0">💡 点击或按住拖动灯珠切换亮灭；可随时微调像素</p>
+   </div>
+   <div class="ed-ctrl-col">
+    <div class="ed-section">
+     <h4>基本信息</h4>
+     <div class="ed-row">
+      <div class="ed-field" style="flex:1">
+       <label>动画名称</label>
+       <input id="edInputName" type="text" class="ed-input" maxlength="28" placeholder="例如：心跳 · HEARTBEAT">
+      </div>
+      <div class="ed-field" style="width:65px">
+       <label>图标</label>
+       <input id="edInputIcon" type="text" class="ed-input" style="text-align:center" maxlength="4" placeholder="✨">
+      </div>
+     </div>
+     <div class="ed-row" style="margin-top:8px">
+      <div class="ed-field" style="flex:1">
+       <label>所属分类</label>
+       <select id="edSelectCat" class="ed-input">
+        <option value="system">系统 (System)</option>
+        <option value="activity">活动 (Activity)</option>
+        <option value="life">生活 (Life)</option>
+        <option value="emotion">情绪 (Emotion)</option>
+       </select>
+      </div>
+      <div class="ed-field" style="width:115px">
+       <label>播放帧率: <output id="edFpsVal">6 FPS</output></label>
+       <input id="edInputFps" type="range" min="1" max="24" value="6" style="margin-top:6px;accent-color:var(--accent)">
+      </div>
+     </div>
+    </div>
+    <div class="ed-section">
+     <h4>首尾帧设置 (播放循环区间)</h4>
+     <div class="ed-row">
+      <div class="ed-field" style="flex:1">
+       <label>首帧 (Start Frame)</label>
+       <input id="edInputStartF" type="number" min="1" max="24" value="1" class="ed-input">
+      </div>
+      <div class="ed-field" style="flex:1">
+       <label>尾帧 (End Frame)</label>
+       <input id="edInputEndF" type="number" min="1" max="24" value="24" class="ed-input">
+      </div>
+      <div class="ed-field" style="flex:1">
+       <label>总帧数 (Total)</label>
+       <input id="edInputTotalF" type="number" min="1" max="64" value="24" class="ed-input">
+      </div>
+     </div>
+     <div class="ed-range-hint" id="edRangeSummary">当前循环区间：第 1 帧 ~ 第 24 帧 (共 24 帧)</div>
+     <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-sm primary" id="edPlayToggle">▶ 预览首尾帧循环</button>
+      <button class="btn btn-sm" id="edResetRange">重置为全帧区间</button>
+     </div>
+    </div>
+    <div class="ed-section" style="flex:1;display:flex;flex-direction:column;min-height:0">
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <h4>帧序列胶卷 (点击选择当前编辑帧)</h4>
+      <div style="display:flex;gap:5px">
+       <button class="btn btn-xs" id="edAddBlankFrame" title="在当前帧后添加空白帧">➕ 加空帧</button>
+       <button class="btn btn-xs" id="edDupCurrentFrame" title="复制并插入当前帧">📄 复制帧</button>
+       <button class="btn btn-xs" id="edDelCurrentFrame" style="color:#ff8595" title="删除当前帧">🗑️ 删本帧</button>
+      </div>
+     </div>
+     <div class="ed-filmstrip" id="edFilmstrip"></div>
+    </div>
+   </div>
+  </div>
+  <div class="modal-footer">
+   <div style="display:flex;gap:8px">
+    <button class="btn" id="edBtnDeleteAnim" style="color:#ff8595;border-color:#5a2b33">🗑️ 删除此动画</button>
+    <button class="btn" id="edBtnResetAnim" style="display:none">↺ 恢复官方默认</button>
+   </div>
+   <div style="display:flex;gap:8px">
+    <button class="btn" id="edBtnCancel">取消</button>
+    <button class="btn" id="edBtnSaveAsNew">📥 另存为新动画</button>
+    <button class="btn primary" id="edBtnSave">💾 保存修改</button>
+   </div>
+  </div>
+ </div>
+</div>
+
 <script>
 const $=s=>document.querySelector(s), canvas=$('#matrix'),ctx=canvas.getContext('2d');
 const state={count:393,points:[],pitch:.087,pattern:0,phase:0,playing:false,fps:6,color:'#fff3cf',brightness:.9,custom:false,customOn:new Set(),drag:false,last:0};let batteryLevel=20,volumeLevel=50,temperatureLevel=37,compassBearing=45,selectedDate='2026-07-01';
@@ -1085,38 +1240,1213 @@ function refinedFrame(kind, frame, opt = {}) {
 }
 
 function refinedOptions(){return {date:selectedDate,battery:batteryLevel,temperature:temperatureLevel,volume:volumeLevel,bearing:compassBearing}}
-function activeSet(){if(state.custom)return state.customOn;const p=patterns[state.pattern],grid=refinedFrame(p.name.split(' · ')[1],state.phase%p.frames,refinedOptions()),lit=new Set();state.points.forEach((v,i)=>{if(grid.has(Math.round(v.y*11.5+11)*23+Math.round(v.x*11.5+11)))lit.add(i)});return lit}
-function draw(){let W=canvas.width,cx=W/2,scale=W*.405,active=activeSet(),cell=Math.max(5,state.pitch*scale*.82);
- ctx.clearRect(0,0,W,W);let bg=ctx.createRadialGradient(cx,cx,20,cx,cx,W/2);bg.addColorStop(0,'#0c1114');bg.addColorStop(1,'#030506');ctx.fillStyle=bg;ctx.fillRect(0,0,W,W);
- state.points.forEach((p,i)=>{let x=cx+p.x*scale,y=cx+p.y*scale,on=active.has(i);ctx.shadowColor=on?state.color:'transparent';ctx.shadowBlur=on?9*state.brightness:0;ctx.fillStyle=on?hexAlpha(state.color,state.brightness):'#172027';ctx.fillRect(x-cell/2,y-cell/2,cell,cell)});ctx.shadowBlur=0;$('#litMetric').textContent=active.size;let frames=state.custom?1:patterns[state.pattern].frames;$('#frameMetric').textContent=`${String(state.phase%frames+1).padStart(2,'0')} / ${frames}`}
-function hexAlpha(hex,a){let n=parseInt(hex.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return`rgba(${r},${g},${b},${a})`}
-function selectPattern(i){state.pattern=i;state.phase=0;state.custom=false;$('#patternName').textContent=patterns[i].name;$('#modeText').textContent='预设动画';$('#custom').classList.remove('active');document.querySelectorAll('.preset').forEach((b,j)=>b.classList.toggle('active',+b.dataset.pattern===i));draw()}
-function animationCode(i){const p=patterns[i];return '// '+p.name+' · 393灯高密矩阵版 (0707CSP/393PCS/间距0.16mm/Φ20mm)\n'+refinedFrame.toString()+'\nconst options='+JSON.stringify(refinedOptions())+';\nconst animation={name:'+JSON.stringify(p.name)+',frames:'+p.frames+',isLit(x,y,frame){return refinedFrame('+JSON.stringify(p.name.split(' · ')[1])+',frame%this.frames,options).has(Math.round(y*11.5+11)*23+Math.round(x*11.5+11));}};\n// 393灯坐标：23×23圆形矩阵，x=(列-11)/11.5，y=(行-11)/11.5；日期、温度等由 options 设置。';}
-async function copyAnimation(i,button){let code=animationCode(i);try{await navigator.clipboard.writeText(code)}catch(e){let ta=document.createElement('textarea');ta.value=code;ta.style.position='fixed';ta.style.opacity='0';document.body.append(ta);ta.select();document.execCommand('copy');ta.remove()}let old=button.textContent;button.textContent='✓ 已复制';$('#status').textContent=`✓ 已复制「${patterns[i].name.split(' · ')[0]}」动画代码`;setTimeout(()=>{button.textContent=old;$('#status').textContent=`● ${state.count} 个物理像素已就绪`},1800)}
-function preview177(target,p){const c=document.createElement('canvas');c.width=150;c.height=150;c.style.cssText='width:96px;height:96px;display:block;margin:auto;box-shadow:none';target.replaceChildren(c);const cx=c.getContext('2d'),grid=refinedFrame(p.name.split(' · ')[1],(p.name.endsWith('EYES')?6:Math.min(16,p.frames-1)),refinedOptions());cx.fillStyle='#030608';cx.beginPath();cx.arc(75,75,74,0,Math.PI*2);cx.fill();const pts=buildPoints(state.count||393),cell=pts.length===393?4.2:pts.length>200?5:7;pts.forEach(v=>{const gx=Math.round(v.x*11.5+11),y=Math.round(v.y*11.5+11);const on=grid.has(y*23+gx);cx.fillStyle=on?'#fff3cf':'#141d24';const px=75+v.x*64,py=75+v.y*64;cx.fillRect(px-cell/2,py-cell/2,cell,cell)})}
-function renderPresets(filter='all'){let box=$('#presets');box.innerHTML='';patterns.forEach((p,i)=>{if(filter!=='all'&&p.cat!==filter)return;let b=document.createElement('div');b.className='preset'+(i===state.pattern?' active':'');b.innerHTML=`<div class="preset-preview">${p.icon}</div><b>${p.name.split(' · ')[0]}</b><div class="preset-foot"><small>${p.frames} 帧动画</small><button class="copy-code">复制代码</button></div>`;b.dataset.pattern=i;b.onclick=()=>selectPattern(i);b.querySelector('.copy-code').onclick=e=>{e.stopPropagation();copyAnimation(i,e.currentTarget)};box.append(b);preview177(b.querySelector('.preset-preview'),p)})}
-let lastClockHalfSecond=-1;
-function tick(t){let dirty=false;if(state.playing&&t-state.last>1000/state.fps){state.phase++;state.last=t;dirty=true}if(!state.custom&&patterns[state.pattern].name.endsWith(' · CLOCK')){const halfSecond=Math.floor(Date.now()/500);if(halfSecond!==lastClockHalfSecond){lastClockHalfSecond=halfSecond;dirty=true}}else lastClockHalfSecond=-1;if(dirty)draw();requestAnimationFrame(tick)}
-$('#play').onclick=()=>{state.playing=!state.playing;$('#play').textContent=state.playing?'❚❚ 暂停':'▶ 播放';$('#play').classList.toggle('primary',!state.playing)};
-$('#step').onclick=()=>{state.phase++;draw()};$('#count').onchange=e=>rebuild(+e.target.value);document.querySelectorAll('[data-count]').forEach(b=>b.onclick=()=>rebuild(+b.dataset.count));
-$('#speed').oninput=e=>{state.fps=+e.target.value;$('#speedOut').value=state.fps+' FPS'};$('#bright').oninput=e=>{state.brightness=+e.target.value/100;$('#brightOut').value=e.target.value+'%';draw()};$('#displayDate').oninput=e=>{selectedDate=e.target.value||'2026-07-01';let [,m,d]=selectedDate.split('-');$('#dateOut').value=m+'/'+d;state.phase=13;draw()};$('#battery').oninput=e=>{batteryLevel=+e.target.value;$('#batteryOut').value=batteryLevel+'%';state.phase=13;draw()};$('#volume').oninput=e=>{volumeLevel=+e.target.value;$('#volumeOut').value=volumeLevel+'%';state.phase=13;draw()};$('#temperature').oninput=e=>{temperatureLevel=+e.target.value;$('#temperatureOut').value=temperatureLevel+'°';state.phase=13;draw()};$('#bearing').oninput=e=>{compassBearing=+e.target.value;let dirs=['N','NE','E','SE','S','SW','W','NW'];$('#bearingOut').value=compassBearing+'° '+dirs[Math.round(compassBearing/45)%8];state.phase=0;draw()};
-$('#swatches').onclick=e=>{let b=e.target.closest('.swatch');if(!b)return;state.color=b.dataset.color;document.querySelectorAll('.swatch').forEach(x=>x.classList.toggle('active',x===b));draw()};
-$('#custom').onclick=()=>{state.custom=true;state.playing=false;$('#play').textContent='▶ 播放';$('#patternName').textContent='自定义图案 · CUSTOM';$('#modeText').textContent='点击或拖动灯珠';$('#custom').classList.add('active');document.querySelectorAll('.preset').forEach(b=>b.classList.remove('active'));draw()};
-$('#clear').onclick=()=>{state.custom=true;state.customOn.clear();$('#patternName').textContent='自定义图案 · CUSTOM';draw()};
-function pointer(e,drag=false){if(!state.custom)return;let r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*canvas.width,y=(e.clientY-r.top)/r.height*canvas.height,c=canvas.width/2,scale=canvas.width*.405;let best=-1,dist=1e9;state.points.forEach((p,i)=>{let d=Math.hypot(c+p.x*scale-x,c+p.y*scale-y);if(d<dist){dist=d;best=i}});if(best>=0&&dist<28){if(drag)state.customOn.add(best);else state.customOn.has(best)?state.customOn.delete(best):state.customOn.add(best);draw()}}
-canvas.onpointerdown=e=>{state.drag=true;pointer(e)};canvas.onpointermove=e=>{if(state.drag)pointer(e,true)};window.onpointerup=()=>state.drag=false;
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));renderPresets(t.dataset.filter)});
-let initialPattern=Math.max(0,patterns.findIndex(p=>location.hash&&p.name.toLowerCase().includes(location.hash.slice(1).toLowerCase())));rebuild(393);renderPresets();selectPattern(initialPattern);state.phase=Math.max(0,+new URLSearchParams(location.search).get('frame')||0);draw();requestAnimationFrame(tick);
 
-/* DOT LAB shared library */
-(()=>{if($('#patternSearch'))return;const K='dotLabR2LocalExpressionsV1',D={liked:{},drawings:[]};let C='all',F='all',Q='';try{Object.assign(D,JSON.parse(localStorage.getItem(K))||{})}catch(e){}const save=()=>localStorage.setItem(K,JSON.stringify(D)),like=k=>!!D.liked[k],ok=(k,n,c)=>(n+' '+c).toLowerCase().includes(Q.toLowerCase())&&(F==='all'||F==='liked'&&like(k)||F==='unliked'&&!like(k)),flip=k=>{D.liked[k]=!like(k);save();renderPresets(C)};let z=document.createElement('style');z.textContent='.library-tools{display:grid;gap:8px;margin:0 0 12px}.search-input{width:100%;background:#0b1115;color:#edf3f6;border:1px solid #33434e;border-radius:9px;padding:8px 10px;font-size:12px}.like-filters{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.like-filter,.like-btn{border:1px solid #3b4c57;background:#162129;color:#b9c7ce;border-radius:7px;padding:6px 5px;font-size:10px;cursor:pointer}.like-filter.active{background:#273945;border-color:#ffd66b;color:#fff3cf}.like-btn.active{border-color:#ff8ea0;color:#ff9caf;background:#2a1820}.saved-badge{color:#86f0c0;font-size:9px}';document.head.append(z);$('.tabs').insertAdjacentHTML('beforebegin','<div class="library-tools"><input id="patternSearch" class="search-input" type="search" placeholder="搜索表情、动画或已保存图案"><div class="like-filters"><button class="like-filter active" data-f="all">全部</button><button class="like-filter" data-f="liked">已点赞</button><button class="like-filter" data-f="unliked">未点赞</button></div></div>');$('#clear').insertAdjacentHTML('afterend','<button class="btn" id="saveDrawing" style="width:100%;margin-top:8px">保存当前表情</button>');
-const pick=s=>{rebuild(s.count||393);state.custom=true;state.customOn=new Set(s.pixels||[]);state.playing=false;$('#patternName').textContent=s.name+' · SAVED';$('#modeText').textContent='已保存的手绘表情';draw()},btn=(on)=>'<button class="like-btn '+(on?'active':'')+'">'+(on?'♥ 已点赞':'♡ 点赞')+'</button>';
-renderPresets=function(f=C){C=f;let box=$('#presets');box.innerHTML='';D.drawings.forEach(s=>{let k='saved:'+s.id;if((C!=='all'&&C!=='emotion')||!ok(k,s.name,'emotion'))return;let b=document.createElement('div');b.className='preset';b.innerHTML='<div class="preset-preview">✦</div><b>'+s.name+'</b><span class="saved-badge">已保存手绘表情</span><div class="preset-foot"><small>'+(s.count||393)+' 灯 · 静态图案</small>'+btn(like(k))+'</div>';b.onclick=()=>pick(s);b.querySelector('.like-btn').onclick=e=>{e.stopPropagation();flip(k)};box.append(b)});patterns.forEach((p,i)=>{let k='preset:'+p.name;if((C!=='all'&&p.cat!==C)||!ok(k,p.name,p.cat))return;let b=document.createElement('div');b.className='preset'+(!state.custom&&i===state.pattern?' active':'');b.innerHTML='<div class="preset-preview">'+p.icon+'</div><b>'+p.name.split(' · ')[0]+'</b><div class="preset-foot"><small>'+p.frames+' 帧动画</small><button class="copy-code">复制代码</button></div>'+btn(like(k));b.onclick=()=>selectPattern(i);b.querySelector('.copy-code').onclick=e=>{e.stopPropagation();copyAnimation(i,e.currentTarget)};b.querySelector('.like-btn').onclick=e=>{e.stopPropagation();flip(k)};box.append(b);preview177(b.querySelector('.preset-preview'),p)});if(!box.children.length)box.innerHTML='<div class="footer-note">没有匹配的表情或动画。</div>'};
-$('#patternSearch').oninput=e=>{Q=e.target.value.trim();renderPresets(C)};document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{F=b.dataset.f;document.querySelectorAll('[data-f]').forEach(x=>x.classList.toggle('active',x===b));renderPresets(C)});$('#saveDrawing').onclick=()=>{if(!state.custom||!state.customOn.size){$('#status').textContent='请先进入绘制并点亮至少一颗灯珠';return}let n=(prompt('为这个手绘表情命名','我的表情')||'').trim();if(!n)return;D.drawings.unshift({id:Date.now().toString(36),name:n.slice(0,24),pixels:[...state.customOn],count:state.count});save();renderPresets(C);$('#status').textContent='✓ 已保存「'+n.slice(0,24)+'」'};renderPresets()})();
+/* ============================================================
+   DOT LAB: ANIMATION STORAGE, OVERRIDES & CUSTOM ANIMATIONS
+   ============================================================ */
+const ANIM_STORAGE_KEY = 'dotLabAnimCustomV2';
+let animStorage = { deleted: {}, overrides: {}, customList: [] };
+try {
+  const saved = JSON.parse(localStorage.getItem(ANIM_STORAGE_KEY));
+  if (saved && typeof saved === 'object') {
+    animStorage.deleted = saved.deleted || {};
+    animStorage.overrides = saved.overrides || {};
+    animStorage.customList = Array.isArray(saved.customList) ? saved.customList : [];
+  }
+} catch (e) {
+  console.warn('Failed to parse animStorage', e);
+}
+const saveAnimStorage = () => {
+  try {
+    localStorage.setItem(ANIM_STORAGE_KEY, JSON.stringify(animStorage));
+  } catch (e) {
+    console.warn('Failed to save animStorage', e);
+  }
+};
 
+function getEffectivePatterns() {
+  const list = [];
+  // 1. Base built-in patterns
+  patterns.forEach(p => {
+    const origName = p.originalName || p.name;
+    if (animStorage.deleted[origName]) return;
+    const over = animStorage.overrides[origName];
+    if (over) {
+      list.push(Object.assign({}, p, over, {
+        isOverridden: true,
+        originalName: origName,
+        frames: over.frames || p.frames,
+        startFrame: (over.startFrame !== undefined) ? over.startFrame : 0,
+        endFrame: (over.endFrame !== undefined) ? over.endFrame : ((over.frames || p.frames) - 1),
+        fps: over.fps || p.fps || 6
+      }));
+    } else {
+      list.push(Object.assign({}, p, {
+        originalName: origName,
+        startFrame: 0,
+        endFrame: p.frames - 1,
+        fps: p.fps || 6
+      }));
+    }
+  });
+  // 2. Custom created animations
+  animStorage.customList.forEach(c => {
+    list.push(Object.assign({}, c, {
+      isCustom: true,
+      originalName: c.name,
+      startFrame: (c.startFrame !== undefined) ? c.startFrame : 0,
+      endFrame: (c.endFrame !== undefined) ? c.endFrame : (c.frames - 1),
+      fps: c.fps || 6,
+      fn: () => false
+    }));
+  });
+  return list;
+}
 
-/* DOT LAB pagination */
-(()=>{if($('#pageControls'))return;let pg=0;const css=document.createElement('style');css.textContent='#pageControls{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:12px;color:#81929e;font-size:11px}#pageControls button{border:1px solid #3b4c57;background:#162129;color:#dce5ea;border-radius:7px;padding:6px 9px;cursor:pointer}#pageControls button:disabled{opacity:.35;cursor:default}';document.head.append(css);$('#presets').insertAdjacentHTML('afterend','<div id="pageControls"></div>');const prior=renderPresets;const paint=()=>{const cards=[...$('#presets').querySelectorAll('.preset')],total=Math.ceil(cards.length/10);if(!total){$('#pageControls').innerHTML='';return}pg=Math.min(pg,total-1);cards.forEach((card,i)=>card.hidden=Math.floor(i/10)!==pg);const nav=$('#pageControls');nav.innerHTML='<button '+(pg===0?'disabled':'')+' data-page="prev">上一页</button><span>'+ (pg+1)+' / '+total+' 页 · 共 '+cards.length+' 个</span><button '+(pg===total-1?'disabled':'')+' data-page="next">下一页</button>';nav.querySelector('[data-page="prev"]').onclick=()=>{if(pg){pg--;paint()}};nav.querySelector('[data-page="next"]').onclick=()=>{if(pg<total-1){pg++;paint()}}};renderPresets=function(...args){pg=0;prior.apply(this,args);paint()};renderPresets()})();
+let currentPatterns = getEffectivePatterns();
+function getActivePattern() {
+  if (!currentPatterns.length) currentPatterns = getEffectivePatterns();
+  return currentPatterns[state.pattern] || currentPatterns[0] || patterns[0];
+}
+
+function showToast(msg) {
+  $('#status').textContent = msg;
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => {
+    $('#status').textContent = `● ${state.count} 个物理像素已就绪`;
+  }, 2400);
+}
+
+function activeSet() {
+  if (state.custom) return state.customOn;
+  const p = getActivePattern();
+  if (!p) return new Set();
+  
+  const total = p.frames || 1;
+  const startF = Math.max(0, Math.min(total - 1, (p.startFrame !== undefined) ? p.startFrame : 0));
+  const endF = Math.max(startF, Math.min(total - 1, (p.endFrame !== undefined) ? p.endFrame : total - 1));
+  const span = Math.max(1, endF - startF + 1);
+  const curF = startF + (state.phase % span);
+  
+  let grid;
+  if (p.framesData && p.framesData[curF]) {
+    grid = new Set(p.framesData[curF]);
+  } else {
+    const kind = (p.originalName || p.name).split(' · ')[1] || p.name;
+    grid = refinedFrame(kind, curF, refinedOptions());
+  }
+  
+  const lit = new Set();
+  state.points.forEach((v, i) => {
+    if (grid.has(Math.round(v.y * 11.5 + 11) * 23 + Math.round(v.x * 11.5 + 11))) lit.add(i);
+  });
+  return lit;
+}
+
+function draw() {
+  let W = canvas.width, cx = W / 2, scale = W * .405, active = activeSet(), cell = Math.max(5, state.pitch * scale * .82);
+  ctx.clearRect(0, 0, W, W);
+  let bg = ctx.createRadialGradient(cx, cx, 20, cx, cx, W / 2);
+  bg.addColorStop(0, '#0c1114');
+  bg.addColorStop(1, '#030506');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, W);
+  state.points.forEach((p, i) => {
+    let x = cx + p.x * scale, y = cx + p.y * scale, on = active.has(i);
+    ctx.shadowColor = on ? state.color : 'transparent';
+    ctx.shadowBlur = on ? 9 * state.brightness : 0;
+    ctx.fillStyle = on ? hexAlpha(state.color, state.brightness) : '#172027';
+    ctx.fillRect(x - cell / 2, y - cell / 2, cell, cell);
+  });
+  ctx.shadowBlur = 0;
+  $('#litMetric').textContent = active.size;
+  
+  const p = getActivePattern();
+  if (state.custom) {
+    $('#frameMetric').textContent = '01 / 01';
+  } else if (p) {
+    const total = p.frames || 1;
+    const startF = Math.max(0, Math.min(total - 1, (p.startFrame !== undefined) ? p.startFrame : 0));
+    const endF = Math.max(startF, Math.min(total - 1, (p.endFrame !== undefined) ? p.endFrame : total - 1));
+    const span = Math.max(1, endF - startF + 1);
+    const curF = startF + (state.phase % span);
+    const rangeTag = (startF > 0 || endF < total - 1) ? ` (首尾:${startF + 1}~${endF + 1})` : '';
+    $('#frameMetric').textContent = `${String(curF + 1).padStart(2, '0')} / ${total}${rangeTag}`;
+  }
+}
+
+function hexAlpha(hex, a) {
+  let n = parseInt(hex.slice(1), 16), r = n >> 16, g = n >> 8 & 255, b = n & 255;
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function selectPattern(i) {
+  currentPatterns = getEffectivePatterns();
+  state.pattern = Math.max(0, Math.min(currentPatterns.length - 1, i));
+  state.phase = 0;
+  state.custom = false;
+  const p = getActivePattern();
+  if (p) {
+    $('#patternName').textContent = p.name;
+    $('#modeText').textContent = p.isCustom ? '自定义动画' : p.isOverridden ? '已修改动画' : '预设动画';
+  }
+  $('#custom').classList.remove('active');
+  document.querySelectorAll('.preset').forEach((b, j) => b.classList.toggle('active', +b.dataset.pattern === state.pattern));
+  draw();
+}
+
+function animationCode(i) {
+  currentPatterns = getEffectivePatterns();
+  const p = currentPatterns[i] || patterns[i];
+  if (p && p.framesData && Object.keys(p.framesData).length > 0) {
+    return '// ' + p.name + ' · 393灯高密矩阵版 (已自定义修改)\n' +
+      'const animation = {\n' +
+      '  name: ' + JSON.stringify(p.name) + ',\n' +
+      '  frames: ' + p.frames + ',\n' +
+      '  startFrame: ' + (p.startFrame || 0) + ',\n' +
+      '  endFrame: ' + (p.endFrame !== undefined ? p.endFrame : p.frames - 1) + ',\n' +
+      '  fps: ' + (p.fps || 6) + ',\n' +
+      '  framesData: ' + JSON.stringify(p.framesData) + ',\n' +
+      '  isLit(x, y, frame) {\n' +
+      '    const s = this.startFrame || 0, e = this.endFrame ?? (this.frames - 1);\n' +
+      '    const f = s + (frame % (e - s + 1));\n' +
+      '    const list = this.framesData[f] || [];\n' +
+      '    const id = Math.round(y * 11.5 + 11) * 23 + Math.round(x * 11.5 + 11);\n' +
+      '    return list.includes(id);\n' +
+      '  }\n' +
+      '};\n// 393灯坐标：23×23圆形矩阵，x=(列-11)/11.5，y=(行-11)/11.5';
+  }
+  return '// ' + p.name + ' · 393灯高密矩阵版 (0707CSP/393PCS/间距0.16mm/Φ20mm)\n' +
+    refinedFrame.toString() + '\nconst options=' + JSON.stringify(refinedOptions()) + ';\n' +
+    'const animation={name:' + JSON.stringify(p.name) + ',frames:' + p.frames +
+    ',startFrame:' + (p.startFrame || 0) + ',endFrame:' + (p.endFrame !== undefined ? p.endFrame : p.frames - 1) +
+    ',isLit(x,y,frame){const s=this.startFrame||0,e=this.endFrame??(this.frames-1);const f=s+(frame%(e-s+1));return refinedFrame(' +
+    JSON.stringify((p.originalName || p.name).split(' · ')[1]) + ',f,options).has(Math.round(y*11.5+11)*23+Math.round(x*11.5+11));}};\n' +
+    '// 393灯坐标：23×23圆形矩阵，x=(列-11)/11.5，y=(行-11)/11.5；日期、温度等由 options 设置。';
+}
+
+async function copyAnimation(i, button) {
+  let code = animationCode(i);
+  try {
+    await navigator.clipboard.writeText(code);
+  } catch (e) {
+    let ta = document.createElement('textarea');
+    ta.value = code;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.append(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+  }
+  let old = button.textContent;
+  button.textContent = '✓ 已复制';
+  currentPatterns = getEffectivePatterns();
+  const name = currentPatterns[i] ? currentPatterns[i].name.split(' · ')[0] : '动画';
+  showToast(`✓ 已复制「${name}」动画代码`);
+  setTimeout(() => { button.textContent = old; }, 1800);
+}
+
+function preview177(target, p) {
+  const c = document.createElement('canvas');
+  c.width = 150;
+  c.height = 150;
+  c.style.cssText = 'width:96px;height:96px;display:block;margin:auto;box-shadow:none';
+  target.replaceChildren(c);
+  const cx = c.getContext('2d');
+  
+  const startF = (p.startFrame !== undefined) ? p.startFrame : 0;
+  const kind = (p.originalName || p.name).split(' · ')[1] || p.name;
+  let frameIdx = startF;
+  if (!p.framesData || !p.framesData[frameIdx]) {
+    frameIdx = p.name.endsWith('EYES') ? 6 : Math.min(16, p.frames - 1);
+  }
+  
+  let grid;
+  if (p.framesData && p.framesData[frameIdx]) {
+    grid = new Set(p.framesData[frameIdx]);
+  } else {
+    grid = refinedFrame(kind, frameIdx, refinedOptions());
+  }
+  
+  cx.fillStyle = '#030608';
+  cx.beginPath();
+  cx.arc(75, 75, 74, 0, Math.PI * 2);
+  cx.fill();
+  const pts = buildPoints(state.count || 393), cell = pts.length === 393 ? 4.2 : pts.length > 200 ? 5 : 7;
+  pts.forEach(v => {
+    const gx = Math.round(v.x * 11.5 + 11), y = Math.round(v.y * 11.5 + 11);
+    const on = grid.has(y * 23 + gx);
+    cx.fillStyle = on ? '#fff3cf' : '#141d24';
+    const px = 75 + v.x * 64, py = 75 + v.y * 64;
+    cx.fillRect(px - cell / 2, py - cell / 2, cell, cell);
+  });
+}
+
+function renderPresets(filter = 'all') {
+  let box = $('#presets');
+  box.innerHTML = '';
+  currentPatterns = getEffectivePatterns();
+  currentPatterns.forEach((p, i) => {
+    if (filter !== 'all' && p.cat !== filter) return;
+    let b = document.createElement('div');
+    b.className = 'preset' + (i === state.pattern ? ' active' : '');
+    b.innerHTML = `<div class="preset-preview">${p.icon}</div><b>${p.name.split(' · ')[0]}</b><div class="preset-foot"><small>${p.frames} 帧动画</small><button class="copy-code">复制代码</button></div>`;
+    b.dataset.pattern = i;
+    b.onclick = () => selectPattern(i);
+    b.querySelector('.copy-code').onclick = e => { e.stopPropagation(); copyAnimation(i, e.currentTarget); };
+    box.append(b);
+    preview177(b.querySelector('.preset-preview'), p);
+  });
+}
+
+let lastClockHalfSecond = -1;
+function tick(t) {
+  let dirty = false;
+  const p = getActivePattern();
+  const curFps = (!state.custom && p && p.fps) ? p.fps : state.fps;
+  if (state.playing && t - state.last > 1000 / curFps) {
+    state.phase++;
+    state.last = t;
+    dirty = true;
+  }
+  if (!state.custom && p && p.name.endsWith(' · CLOCK')) {
+    const halfSecond = Math.floor(Date.now() / 500);
+    if (halfSecond !== lastClockHalfSecond) {
+      lastClockHalfSecond = halfSecond;
+      dirty = true;
+    }
+  } else lastClockHalfSecond = -1;
+  if (dirty) draw();
+  requestAnimationFrame(tick);
+}
+
+$('#play').onclick = () => {
+  state.playing = !state.playing;
+  $('#play').textContent = state.playing ? '❚❚ 暂停' : '▶ 播放';
+  $('#play').classList.toggle('primary', !state.playing);
+};
+$('#step').onclick = () => { state.phase++; draw(); };
+$('#count').onchange = e => rebuild(+e.target.value);
+document.querySelectorAll('[data-count]').forEach(b => b.onclick = () => rebuild(+b.dataset.count));
+
+$('#speed').oninput = e => {
+  state.fps = +e.target.value;
+  $('#speedOut').value = state.fps + ' FPS';
+};
+$('#bright').oninput = e => {
+  state.brightness = +e.target.value / 100;
+  $('#brightOut').value = e.target.value + '%';
+  draw();
+};
+$('#displayDate').oninput = e => {
+  selectedDate = e.target.value || '2026-07-01';
+  let [, m, d] = selectedDate.split('-');
+  $('#dateOut').value = m + '/' + d;
+  state.phase = 13;
+  draw();
+};
+$('#battery').oninput = e => {
+  batteryLevel = +e.target.value;
+  $('#batteryOut').value = batteryLevel + '%';
+  state.phase = 13;
+  draw();
+};
+$('#volume').oninput = e => {
+  volumeLevel = +e.target.value;
+  $('#volumeOut').value = volumeLevel + '%';
+  state.phase = 13;
+  draw();
+};
+$('#temperature').oninput = e => {
+  temperatureLevel = +e.target.value;
+  $('#temperatureOut').value = temperatureLevel + '°';
+  state.phase = 13;
+  draw();
+};
+$('#bearing').oninput = e => {
+  compassBearing = +e.target.value;
+  let dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  $('#bearingOut').value = compassBearing + '° ' + dirs[Math.round(compassBearing / 45) % 8];
+  state.phase = 0;
+  draw();
+};
+
+$('#swatches').onclick = e => {
+  let b = e.target.closest('.swatch');
+  if (!b) return;
+  state.color = b.dataset.color;
+  document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('active', x === b));
+  draw();
+};
+
+$('#custom').onclick = () => {
+  state.custom = true;
+  state.playing = false;
+  $('#play').textContent = '▶ 播放';
+  $('#patternName').textContent = '自定义图案 · CUSTOM';
+  $('#modeText').textContent = '点击或拖动灯珠';
+  $('#custom').classList.add('active');
+  document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+  draw();
+};
+$('#clear').onclick = () => {
+  state.custom = true;
+  state.customOn.clear();
+  $('#patternName').textContent = '自定义图案 · CUSTOM';
+  draw();
+};
+
+function pointer(e, drag = false) {
+  if (!state.custom) return;
+  let r = canvas.getBoundingClientRect(),
+      x = (e.clientX - r.left) / r.width * canvas.width,
+      y = (e.clientY - r.top) / r.height * canvas.height,
+      c = canvas.width / 2,
+      scale = canvas.width * .405;
+  let best = -1, dist = 1e9;
+  state.points.forEach((p, i) => {
+    let d = Math.hypot(c + p.x * scale - x, c + p.y * scale - y);
+    if (d < dist) { dist = d; best = i; }
+  });
+  if (best >= 0 && dist < 28) {
+    if (drag) state.customOn.add(best);
+    else state.customOn.has(best) ? state.customOn.delete(best) : state.customOn.add(best);
+    draw();
+  }
+}
+canvas.onpointerdown = e => { state.drag = true; pointer(e); };
+canvas.onpointermove = e => { if (state.drag) pointer(e, true); };
+window.onpointerup = () => state.drag = false;
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+  renderPresets(t.dataset.filter);
+});
+
+let initialPattern = Math.max(0, patterns.findIndex(p => location.hash && p.name.toLowerCase().includes(location.hash.slice(1).toLowerCase())));
+rebuild(393);
+renderPresets();
+selectPattern(initialPattern);
+state.phase = Math.max(0, +new URLSearchParams(location.search).get('frame') || 0);
+draw();
+requestAnimationFrame(tick);
+
+/* ============================================================
+   DOT LAB: ANIMATION EDITOR MODAL & INTERACTIVE CONTROLS
+   ============================================================ */
+let edState = {
+  active: false,
+  pattern: null,
+  index: -1,
+  name: '',
+  cat: 'emotion',
+  icon: '✨',
+  fps: 6,
+  totalFrames: 24,
+  startFrame: 0,
+  endFrame: 23,
+  currentFrame: 0,
+  framesData: [],
+  isPlaying: false,
+  playTimer: null,
+  isDragging: false,
+  dragMode: null
+};
+
+const edCanvas = document.getElementById('edMatrixCanvas');
+const edCtx = edCanvas ? edCanvas.getContext('2d') : null;
+
+function updateEdRangeSummary() {
+  const start = edState.startFrame + 1;
+  const end = edState.endFrame + 1;
+  const span = Math.max(1, end - start + 1);
+  $('#edRangeSummary').textContent = `当前循环区间：第 ${start} 帧 ~ 第 ${end} 帧 (共 ${span} 帧循环)`;
+}
+
+function syncEdFrameInputs() {
+  $('#edInputTotalF').value = edState.totalFrames;
+  $('#edInputStartF').max = edState.totalFrames;
+  $('#edInputStartF').value = edState.startFrame + 1;
+  $('#edInputEndF').max = edState.totalFrames;
+  $('#edInputEndF').value = edState.endFrame + 1;
+  updateEdRangeSummary();
+}
+
+function drawEdCanvas() {
+  if (!edCtx) return;
+  const W = edCanvas.width, cx = W / 2;
+  edCtx.clearRect(0, 0, W, W);
+  
+  let bg = edCtx.createRadialGradient(cx, cx, 15, cx, cx, W / 2);
+  bg.addColorStop(0, '#0c1114');
+  bg.addColorStop(1, '#030506');
+  edCtx.fillStyle = bg;
+  edCtx.fillRect(0, 0, W, W);
+  
+  const curPoints = edState.framesData[edState.currentFrame] || [];
+  const litSet = new Set(curPoints);
+  const pts = buildPoints(393);
+  const scale = W * .405;
+  const cell = 6.2;
+  
+  pts.forEach(p => {
+    const x = cx + p.x * scale, y = cx + p.y * scale;
+    const gridId = Math.round(p.y * 11.5 + 11) * 23 + Math.round(p.x * 11.5 + 11);
+    const on = litSet.has(gridId);
+    edCtx.shadowColor = on ? (state.color || '#fff3cf') : 'transparent';
+    edCtx.shadowBlur = on ? 8 : 0;
+    edCtx.fillStyle = on ? (state.color || '#fff3cf') : '#162027';
+    edCtx.fillRect(x - cell / 2, y - cell / 2, cell, cell);
+  });
+  edCtx.shadowBlur = 0;
+  
+  $('#edCurFrameTag').textContent = `第 ${String(edState.currentFrame + 1).padStart(2, '0')} 帧 / 共 ${edState.totalFrames} 帧`;
+}
+
+function renderEdFilmstrip() {
+  const box = $('#edFilmstrip');
+  if (!box) return;
+  box.innerHTML = '';
+  const pts = buildPoints(393);
+  
+  for (let f = 0; f < edState.totalFrames; f++) {
+    const cell = document.createElement('div');
+    cell.className = 'ed-film-cell' + (f === edState.currentFrame ? ' active' : '') +
+      (f >= edState.startFrame && f <= edState.endFrame ? ' in-range' : '');
+    cell.dataset.frame = f;
+    
+    let tagHtml = '';
+    if (f === edState.startFrame) tagHtml += '<span class="film-tag start">首</span>';
+    if (f === edState.endFrame) tagHtml += '<span class="film-tag end">尾</span>';
+    
+    cell.innerHTML = `${tagHtml}<canvas width="44" height="44"></canvas><span>#${String(f + 1).padStart(2, '0')}</span>`;
+    
+    // Draw miniature preview
+    const mc = cell.querySelector('canvas');
+    const mcx = mc.getContext('2d');
+    mcx.fillStyle = '#030507';
+    mcx.fillRect(0, 0, 44, 44);
+    
+    const curLit = new Set(edState.framesData[f] || []);
+    mcx.fillStyle = state.color || '#fff3cf';
+    pts.forEach(p => {
+      const gid = Math.round(p.y * 11.5 + 11) * 23 + Math.round(p.x * 11.5 + 11);
+      if (curLit.has(gid)) {
+        const px = 22 + p.x * 19, py = 22 + p.y * 19;
+        mcx.fillRect(px - 0.9, py - 0.9, 1.8, 1.8);
+      }
+    });
+    
+    cell.onclick = () => {
+      stopEdPlay();
+      edState.currentFrame = f;
+      drawEdCanvas();
+      highlightActiveFilmCell();
+    };
+    box.append(cell);
+  }
+}
+
+function updateFilmstripCell(f) {
+  const cell = $(`#edFilmstrip [data-frame="${f}"]`);
+  if (!cell) return;
+  
+  cell.classList.toggle('in-range', f >= edState.startFrame && f <= edState.endFrame);
+  let tag = cell.querySelector('.film-tag');
+  if (tag) tag.remove();
+  if (f === edState.startFrame) cell.insertAdjacentHTML('afterbegin', '<span class="film-tag start">首</span>');
+  else if (f === edState.endFrame) cell.insertAdjacentHTML('afterbegin', '<span class="film-tag end">尾</span>');
+  
+  const mc = cell.querySelector('canvas');
+  if (!mc) return;
+  const mcx = mc.getContext('2d');
+  mcx.fillStyle = '#030507';
+  mcx.fillRect(0, 0, 44, 44);
+  
+  const curLit = new Set(edState.framesData[f] || []);
+  const pts = buildPoints(393);
+  mcx.fillStyle = state.color || '#fff3cf';
+  pts.forEach(p => {
+    const gid = Math.round(p.y * 11.5 + 11) * 23 + Math.round(p.x * 11.5 + 11);
+    if (curLit.has(gid)) {
+      const px = 22 + p.x * 19, py = 22 + p.y * 19;
+      mcx.fillRect(px - 0.9, py - 0.9, 1.8, 1.8);
+    }
+  });
+}
+
+function highlightActiveFilmCell() {
+  document.querySelectorAll('#edFilmstrip .ed-film-cell').forEach(c => {
+    const isAct = +c.dataset.frame === edState.currentFrame;
+    c.classList.toggle('active', isAct);
+    if (isAct) c.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  });
+}
+
+function stopEdPlay() {
+  if (edState.isPlaying) {
+    edState.isPlaying = false;
+    clearInterval(edState.playTimer);
+    edState.playTimer = null;
+    $('#edPlayToggle').textContent = '▶ 预览首尾帧循环';
+    $('#edPlayToggle').classList.add('primary');
+  }
+}
+
+function startEdPlay() {
+  edState.isPlaying = true;
+  $('#edPlayToggle').textContent = '❚❚ 暂停预览';
+  $('#edPlayToggle').classList.remove('primary');
+  clearInterval(edState.playTimer);
+  edState.playTimer = setInterval(() => {
+    edState.currentFrame++;
+    if (edState.currentFrame > edState.endFrame || edState.currentFrame < edState.startFrame) {
+      edState.currentFrame = edState.startFrame;
+    }
+    drawEdCanvas();
+    highlightActiveFilmCell();
+  }, 1000 / edState.fps);
+}
+
+function getEdHitPoint(e) {
+  const r = edCanvas.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width * edCanvas.width;
+  const y = (e.clientY - r.top) / r.height * edCanvas.height;
+  const cx = edCanvas.width / 2;
+  const scale = edCanvas.width * .405;
+  let best = -1, dist = 1e9;
+  const pts = buildPoints(393);
+  pts.forEach((p, i) => {
+    const d = Math.hypot(cx + p.x * scale - x, cx + p.y * scale - y);
+    if (d < dist) { dist = d; best = i; }
+  });
+  if (best >= 0 && dist < 18) {
+    const p = pts[best];
+    return {
+      index: best,
+      gridId: Math.round(p.y * 11.5 + 11) * 23 + Math.round(p.x * 11.5 + 11)
+    };
+  }
+  return null;
+}
+
+if (edCanvas) {
+  edCanvas.onpointerdown = e => {
+    stopEdPlay();
+    const hit = getEdHitPoint(e);
+    if (!hit) return;
+    edState.isDragging = true;
+    const curList = edState.framesData[edState.currentFrame] || [];
+    const curSet = new Set(curList);
+    if (curSet.has(hit.gridId)) {
+      edState.dragMode = 'erase';
+      curSet.delete(hit.gridId);
+    } else {
+      edState.dragMode = 'draw';
+      curSet.add(hit.gridId);
+    }
+    edState.framesData[edState.currentFrame] = Array.from(curSet);
+    drawEdCanvas();
+    updateFilmstripCell(edState.currentFrame);
+  };
+  
+  edCanvas.onpointermove = e => {
+    if (!edState.isDragging) return;
+    const hit = getEdHitPoint(e);
+    if (!hit) return;
+    const curList = edState.framesData[edState.currentFrame] || [];
+    const curSet = new Set(curList);
+    if (edState.dragMode === 'draw') curSet.add(hit.gridId);
+    else curSet.delete(hit.gridId);
+    edState.framesData[edState.currentFrame] = Array.from(curSet);
+    drawEdCanvas();
+    updateFilmstripCell(edState.currentFrame);
+  };
+  
+  window.addEventListener('pointerup', () => { edState.isDragging = false; });
+}
+
+function openAnimationEditor(p, idx) {
+  if (!p) return;
+  edState.active = true;
+  edState.pattern = p;
+  edState.index = idx;
+  edState.name = p.name || '未命名动画';
+  edState.cat = p.cat || 'emotion';
+  edState.icon = p.icon || '✨';
+  edState.fps = p.fps || 6;
+  edState.totalFrames = p.frames || 24;
+  edState.startFrame = Math.max(0, Math.min(edState.totalFrames - 1, (p.startFrame !== undefined) ? p.startFrame : 0));
+  edState.endFrame = Math.max(edState.startFrame, Math.min(edState.totalFrames - 1, (p.endFrame !== undefined) ? p.endFrame : edState.totalFrames - 1));
+  edState.currentFrame = edState.startFrame;
+  stopEdPlay();
+  
+  // Initialize frames data
+  edState.framesData = [];
+  const kind = (p.originalName || p.name).split(' · ')[1] || p.name;
+  for (let f = 0; f < edState.totalFrames; f++) {
+    if (p.framesData && p.framesData[f]) {
+      edState.framesData[f] = [...p.framesData[f]];
+    } else {
+      const set = refinedFrame(kind, f, refinedOptions());
+      edState.framesData[f] = Array.from(set);
+    }
+  }
+  
+  // Populate form fields
+  $('#edModalTitle').textContent = `🎬 动画编辑器 · ${p.name.split(' · ')[0]}`;
+  $('#edInputName').value = edState.name;
+  $('#edInputIcon').value = edState.icon;
+  $('#edSelectCat').value = edState.cat;
+  $('#edInputFps').value = edState.fps;
+  $('#edFpsVal').textContent = edState.fps + ' FPS';
+  
+  syncEdFrameInputs();
+  
+  const badge = $('#edBadge');
+  if (p.isCustom) {
+    badge.className = 'modal-badge custom';
+    badge.textContent = '自定义动画';
+  } else if (p.isOverridden) {
+    badge.className = 'modal-badge edited';
+    badge.textContent = '已修改预设';
+  } else {
+    badge.className = 'modal-badge';
+    badge.textContent = '官方预设模板';
+  }
+  
+  $('#edBtnResetAnim').style.display = p.isOverridden ? 'inline-block' : 'none';
+  
+  renderEdFilmstrip();
+  drawEdCanvas();
+  highlightActiveFilmCell();
+  
+  $('#animEditorModal').style.display = 'flex';
+}
+
+function closeAnimationEditor() {
+  stopEdPlay();
+  $('#animEditorModal').style.display = 'none';
+  edState.active = false;
+}
+
+$('#edCloseBtn').onclick = closeAnimationEditor;
+$('#edBtnCancel').onclick = closeAnimationEditor;
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && edState.active) closeAnimationEditor();
+});
+
+// Start/End frames event bindings
+$('#edInputStartF').oninput = e => {
+  let val = Math.max(1, Math.min(edState.totalFrames, +e.target.value || 1));
+  edState.startFrame = val - 1;
+  if (edState.startFrame > edState.endFrame) {
+    edState.endFrame = edState.startFrame;
+    $('#edInputEndF').value = val;
+  }
+  updateEdRangeSummary();
+  renderEdFilmstrip();
+};
+
+$('#edInputEndF').oninput = e => {
+  let val = Math.max(1, Math.min(edState.totalFrames, +e.target.value || 1));
+  edState.endFrame = val - 1;
+  if (edState.endFrame < edState.startFrame) {
+    edState.startFrame = edState.endFrame;
+    $('#edInputStartF').value = val;
+  }
+  updateEdRangeSummary();
+  renderEdFilmstrip();
+};
+
+$('#edInputTotalF').onchange = e => {
+  let val = Math.max(1, Math.min(64, +e.target.value || 1));
+  if (val > edState.totalFrames) {
+    while (edState.framesData.length < val) {
+      const last = edState.framesData[edState.framesData.length - 1] || [];
+      edState.framesData.push([...last]);
+    }
+  } else if (val < edState.totalFrames) {
+    edState.framesData = edState.framesData.slice(0, val);
+  }
+  edState.totalFrames = val;
+  edState.startFrame = Math.min(edState.startFrame, val - 1);
+  edState.endFrame = Math.min(edState.endFrame, val - 1);
+  edState.currentFrame = Math.min(edState.currentFrame, val - 1);
+  syncEdFrameInputs();
+  renderEdFilmstrip();
+  drawEdCanvas();
+};
+
+$('#edResetRange').onclick = () => {
+  edState.startFrame = 0;
+  edState.endFrame = edState.totalFrames - 1;
+  syncEdFrameInputs();
+  renderEdFilmstrip();
+};
+
+$('#edPlayToggle').onclick = () => {
+  if (edState.isPlaying) stopEdPlay();
+  else startEdPlay();
+};
+
+$('#edInputFps').oninput = e => {
+  edState.fps = +e.target.value;
+  $('#edFpsVal').textContent = edState.fps + ' FPS';
+  if (edState.isPlaying) {
+    stopEdPlay();
+    startEdPlay();
+  }
+};
+
+// Canvas Tools
+$('#edToolClear').onclick = () => {
+  stopEdPlay();
+  edState.framesData[edState.currentFrame] = [];
+  drawEdCanvas();
+  updateFilmstripCell(edState.currentFrame);
+};
+
+$('#edToolInvert').onclick = () => {
+  stopEdPlay();
+  const curSet = new Set(edState.framesData[edState.currentFrame] || []);
+  const inverted = [];
+  const pts = buildPoints(393);
+  pts.forEach(p => {
+    const gid = Math.round(p.y * 11.5 + 11) * 23 + Math.round(p.x * 11.5 + 11);
+    if (!curSet.has(gid)) inverted.push(gid);
+  });
+  edState.framesData[edState.currentFrame] = inverted;
+  drawEdCanvas();
+  updateFilmstripCell(edState.currentFrame);
+};
+
+$('#edToolCopyPrev').onclick = () => {
+  stopEdPlay();
+  if (edState.currentFrame > 0) {
+    edState.framesData[edState.currentFrame] = [...(edState.framesData[edState.currentFrame - 1] || [])];
+    drawEdCanvas();
+    updateFilmstripCell(edState.currentFrame);
+    showToast(`✓ 已从第 ${edState.currentFrame} 帧复制点阵`);
+  } else {
+    showToast('第一帧没有上一帧可复制');
+  }
+};
+
+$('#edToolResetOrig').onclick = () => {
+  stopEdPlay();
+  const kind = (edState.pattern.originalName || edState.pattern.name).split(' · ')[1] || edState.pattern.name;
+  const origSet = refinedFrame(kind, edState.currentFrame, refinedOptions());
+  edState.framesData[edState.currentFrame] = Array.from(origSet);
+  drawEdCanvas();
+  updateFilmstripCell(edState.currentFrame);
+  showToast('✓ 已还原当前帧为官方预设');
+};
+
+$('#edAddBlankFrame').onclick = () => {
+  stopEdPlay();
+  edState.framesData.splice(edState.currentFrame + 1, 0, []);
+  edState.totalFrames = edState.framesData.length;
+  if (edState.endFrame >= edState.currentFrame) edState.endFrame++;
+  edState.currentFrame++;
+  syncEdFrameInputs();
+  renderEdFilmstrip();
+  drawEdCanvas();
+  highlightActiveFilmCell();
+};
+
+$('#edDupCurrentFrame').onclick = () => {
+  stopEdPlay();
+  const clone = [...(edState.framesData[edState.currentFrame] || [])];
+  edState.framesData.splice(edState.currentFrame + 1, 0, clone);
+  edState.totalFrames = edState.framesData.length;
+  if (edState.endFrame >= edState.currentFrame) edState.endFrame++;
+  edState.currentFrame++;
+  syncEdFrameInputs();
+  renderEdFilmstrip();
+  drawEdCanvas();
+  highlightActiveFilmCell();
+};
+
+$('#edDelCurrentFrame').onclick = () => {
+  stopEdPlay();
+  if (edState.totalFrames <= 1) {
+    alert('至少需要保留 1 帧动画');
+    return;
+  }
+  edState.framesData.splice(edState.currentFrame, 1);
+  edState.totalFrames = edState.framesData.length;
+  if (edState.currentFrame >= edState.totalFrames) edState.currentFrame = edState.totalFrames - 1;
+  if (edState.endFrame >= edState.totalFrames) edState.endFrame = edState.totalFrames - 1;
+  if (edState.startFrame > edState.endFrame) edState.startFrame = edState.endFrame;
+  syncEdFrameInputs();
+  renderEdFilmstrip();
+  drawEdCanvas();
+  highlightActiveFilmCell();
+};
+
+// Save, Save As New, Delete, Reset
+$('#edBtnSave').onclick = () => {
+  const name = ($('#edInputName').value || '未命名动画').trim().slice(0, 28);
+  const icon = ($('#edInputIcon').value || '✨').trim().slice(0, 4);
+  const cat = $('#edSelectCat').value;
+  const fps = +$('#edInputFps').value || 6;
+  
+  const overrideData = {
+    name,
+    icon,
+    cat,
+    fps,
+    frames: edState.totalFrames,
+    startFrame: edState.startFrame,
+    endFrame: edState.endFrame,
+    framesData: edState.framesData
+  };
+  
+  if (edState.pattern.isCustom) {
+    const idx = animStorage.customList.findIndex(item => item.id === edState.pattern.id || item.name === edState.pattern.name);
+    if (idx !== -1) {
+      animStorage.customList[idx] = Object.assign({}, animStorage.customList[idx], overrideData);
+    }
+  } else {
+    const origKey = edState.pattern.originalName || edState.pattern.name;
+    animStorage.overrides[origKey] = overrideData;
+  }
+  saveAnimStorage();
+  closeAnimationEditor();
+  currentPatterns = getEffectivePatterns();
+  renderPresets(currentCategory);
+  selectPattern(edState.index);
+  showToast(`✓ 已保存「${name.split(' · ')[0]}」动画修改`);
+};
+
+$('#edBtnSaveAsNew').onclick = () => {
+  const baseName = ($('#edInputName').value || '自定义动画').trim();
+  let name = prompt('请输入新动画名称：', baseName.includes('(') ? baseName : baseName + ' (自定义)');
+  if (!name || !name.trim()) return;
+  name = name.trim().slice(0, 28);
+  
+  const newAnim = {
+    id: 'anim_' + Date.now().toString(36),
+    name: name.includes(' · ') ? name : `${name} · CUSTOM_${Date.now().toString(36).slice(-4).toUpperCase()}`,
+    icon: ($('#edInputIcon').value || '✨').trim().slice(0, 4),
+    cat: $('#edSelectCat').value,
+    fps: +$('#edInputFps').value || 6,
+    frames: edState.totalFrames,
+    startFrame: edState.startFrame,
+    endFrame: edState.endFrame,
+    framesData: edState.framesData
+  };
+  
+  animStorage.customList.unshift(newAnim);
+  saveAnimStorage();
+  closeAnimationEditor();
+  currentPatterns = getEffectivePatterns();
+  renderPresets(currentCategory);
+  const newIdx = currentPatterns.findIndex(p => p.id === newAnim.id);
+  selectPattern(newIdx !== -1 ? newIdx : 0);
+  showToast(`✓ 已另存为「${newAnim.name.split(' · ')[0]}」`);
+};
+
+function confirmDeleteAnimation(p, idx) {
+  const shortName = p.name.split(' · ')[0];
+  if (!confirm(`确认删除动画「${shortName}」吗？\n删除后将不再显示于列表中。`)) return;
+  
+  if (p.isCustom) {
+    animStorage.customList = animStorage.customList.filter(item => item.id !== p.id && item.name !== p.name);
+  } else {
+    const origName = p.originalName || p.name;
+    animStorage.deleted[origName] = true;
+    delete animStorage.overrides[origName];
+  }
+  saveAnimStorage();
+  currentPatterns = getEffectivePatterns();
+  if (state.pattern >= currentPatterns.length) {
+    state.pattern = Math.max(0, currentPatterns.length - 1);
+  }
+  renderPresets(currentCategory);
+  selectPattern(state.pattern);
+  showToast(`已删除动画「${shortName}」`);
+}
+
+$('#edBtnDeleteAnim').onclick = () => {
+  confirmDeleteAnimation(edState.pattern, edState.index);
+  closeAnimationEditor();
+};
+
+$('#edBtnResetAnim').onclick = () => {
+  const origKey = edState.pattern.originalName || edState.pattern.name;
+  if (confirm(`确认还原「${edState.pattern.name.split(' · ')[0]}」为官方预设吗？`)) {
+    delete animStorage.overrides[origKey];
+    saveAnimStorage();
+    closeAnimationEditor();
+    currentPatterns = getEffectivePatterns();
+    renderPresets(currentCategory);
+    selectPattern(edState.index);
+    showToast(`✓ 已恢复「${edState.pattern.name.split(' · ')[0]}」为官方预设`);
+  }
+};
+
+$('#editCurrentAnimBtn').onclick = () => {
+  currentPatterns = getEffectivePatterns();
+  const p = getActivePattern();
+  openAnimationEditor(p, state.pattern);
+};
+
+/* ============================================================
+   DOT LAB: SHARED LIBRARY, SEARCH, FILTER, FAVORITES & PAGINATION
+   ============================================================ */
+let currentCategory = 'all', currentFilter = 'all', searchQuery = '';
+const K_EXPR = 'dotLabR2LocalExpressionsV1';
+const D_EXPR = { liked: {}, drawings: [] };
+try {
+  Object.assign(D_EXPR, JSON.parse(localStorage.getItem(K_EXPR)) || {});
+} catch(e) {}
+const saveExpr = () => localStorage.setItem(K_EXPR, JSON.stringify(D_EXPR));
+const isLiked = k => !!D_EXPR.liked[k];
+const flipLike = k => {
+  D_EXPR.liked[k] = !isLiked(k);
+  saveExpr();
+  renderPresets(currentCategory);
+};
+
+// UI tools bar insertion
+const libToolsHtml = `
+<div class="library-tools">
+  <input id="patternSearch" class="search-input" type="search" placeholder="搜索表情、动画或已保存图案">
+  <div class="like-filters">
+    <button class="like-filter active" data-f="all">全部</button>
+    <button class="like-filter" data-f="liked">已点赞</button>
+    <button class="like-filter" data-f="unliked">未点赞</button>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="btn btn-xs" id="newAnimBtn" style="flex:1">➕ 新建自定义动画</button>
+    <button class="btn btn-xs" id="restoreDefaultsBtn" style="display:none;color:#ff9caf">↺ 恢复默认预设</button>
+  </div>
+</div>
+`;
+$('.tabs').insertAdjacentHTML('beforebegin', libToolsHtml);
+$('#clear').insertAdjacentHTML('afterend', '<button class="btn" id="saveDrawing" style="width:100%;margin-top:8px">保存当前表情</button>');
+
+const pickDrawing = s => {
+  rebuild(s.count || 393);
+  state.custom = true;
+  state.customOn = new Set(s.pixels || []);
+  state.playing = false;
+  $('#patternName').textContent = s.name + ' · SAVED';
+  $('#modeText').textContent = '已保存的手绘表情';
+  draw();
+};
+
+const likeBtnHtml = on => `<button class="like-btn ${on ? 'active' : ''}">${on ? '♥ 已点赞' : '♡ 点赞'}</button>`;
+
+function updateRestoreBtn() {
+  const btn = $('#restoreDefaultsBtn');
+  if (!btn) return;
+  const hasChanges = Object.keys(animStorage.deleted).length > 0 || Object.keys(animStorage.overrides).length > 0;
+  btn.style.display = hasChanges ? 'inline-block' : 'none';
+}
+
+$('#restoreDefaultsBtn').onclick = () => {
+  if (confirm('确认恢复所有已删除与修改的官方预设吗？\n您自己新建的动画仍会保留。')) {
+    animStorage.deleted = {};
+    animStorage.overrides = {};
+    saveAnimStorage();
+    currentPatterns = getEffectivePatterns();
+    renderPresets(currentCategory);
+    selectPattern(0);
+    showToast('✓ 已恢复所有官方预设动画');
+  }
+};
+
+$('#newAnimBtn').onclick = () => {
+  const blankFrames = Array.from({ length: 12 }, () => []);
+  const newAnim = {
+    id: 'anim_' + Date.now().toString(36),
+    name: '新动画 · NEW_ANIM',
+    cat: 'emotion',
+    icon: '✨',
+    frames: 12,
+    startFrame: 0,
+    endFrame: 11,
+    fps: 6,
+    framesData: blankFrames,
+    isCustom: true
+  };
+  openAnimationEditor(newAnim, currentPatterns.length);
+};
+
+function matchFilter(k, name, cat) {
+  const text = (name + ' ' + cat).toLowerCase();
+  const query = searchQuery.toLowerCase();
+  const matchesSearch = text.includes(query);
+  const matchesLike = (currentFilter === 'all') ||
+    (currentFilter === 'liked' && isLiked(k)) ||
+    (currentFilter === 'unliked' && !isLiked(k));
+  return matchesSearch && matchesLike;
+}
+
+renderPresets = function(f = currentCategory) {
+  currentCategory = f;
+  currentPatterns = getEffectivePatterns();
+  let box = $('#presets');
+  box.innerHTML = '';
+  
+  // 1. Saved Drawings
+  D_EXPR.drawings.forEach(s => {
+    let k = 'saved:' + s.id;
+    if ((currentCategory !== 'all' && currentCategory !== 'emotion') || !matchFilter(k, s.name, 'emotion')) return;
+    let b = document.createElement('div');
+    b.className = 'preset';
+    b.innerHTML = `
+      <div class="preset-preview">✦</div>
+      <b>${s.name}</b><span class="saved-badge">已保存手绘表情</span>
+      <div class="preset-foot">
+        <small>${s.count || 393} 灯 · 静态图案</small>
+        <div class="preset-actions">
+          ${likeBtnHtml(isLiked(k))}
+          <button class="preset-action-btn del del-drawing-btn" title="删除手绘">🗑️</button>
+        </div>
+      </div>
+    `;
+    b.onclick = () => pickDrawing(s);
+    b.querySelector('.like-btn').onclick = e => { e.stopPropagation(); flipLike(k); };
+    b.querySelector('.del-drawing-btn').onclick = e => {
+      e.stopPropagation();
+      if (confirm(`确认删除手绘表情「${s.name}」吗？`)) {
+        D_EXPR.drawings = D_EXPR.drawings.filter(x => x.id !== s.id);
+        saveExpr();
+        renderPresets(currentCategory);
+      }
+    };
+    box.append(b);
+  });
+  
+  // 2. Animations
+  currentPatterns.forEach((p, i) => {
+    let k = 'preset:' + (p.originalName || p.name);
+    if ((currentCategory !== 'all' && p.cat !== currentCategory) || !matchFilter(k, p.name, p.cat)) return;
+    
+    let badgeHtml = '';
+    if (p.isCustom) badgeHtml = '<span class="preset-badge custom">自定义</span>';
+    else if (p.isOverridden) badgeHtml = '<span class="preset-badge edited">已修改</span>';
+    
+    const startF = (p.startFrame !== undefined) ? p.startFrame : 0;
+    const endF = (p.endFrame !== undefined) ? p.endFrame : (p.frames - 1);
+    let rangeHint = (startF > 0 || endF < p.frames - 1) ? ` (首尾:${startF + 1}~${endF + 1})` : '';
+    
+    let b = document.createElement('div');
+    b.className = 'preset' + (!state.custom && i === state.pattern ? ' active' : '');
+    b.innerHTML = `
+      <div class="preset-preview">${p.icon}</div>
+      <b>${p.name.split(' · ')[0]}${badgeHtml}</b>
+      <div class="preset-foot">
+        <small>${p.frames} 帧${rangeHint}</small>
+        <div class="preset-actions">
+          <button class="preset-action-btn edit-anim-btn" title="编辑修改与首尾帧">✏️ 编辑</button>
+          <button class="preset-action-btn copy-code" title="复制代码">代码</button>
+          ${likeBtnHtml(isLiked(k))}
+          <button class="preset-action-btn del del-anim-btn" title="删除该动画">🗑️</button>
+        </div>
+      </div>
+    `;
+    b.dataset.pattern = i;
+    b.onclick = () => selectPattern(i);
+    b.querySelector('.edit-anim-btn').onclick = e => {
+      e.stopPropagation();
+      openAnimationEditor(p, i);
+    };
+    b.querySelector('.copy-code').onclick = e => {
+      e.stopPropagation();
+      copyAnimation(i, e.currentTarget);
+    };
+    b.querySelector('.like-btn').onclick = e => {
+      e.stopPropagation();
+      flipLike(k);
+    };
+    b.querySelector('.del-anim-btn').onclick = e => {
+      e.stopPropagation();
+      confirmDeleteAnimation(p, i);
+    };
+    box.append(b);
+    preview177(b.querySelector('.preset-preview'), p);
+  });
+  
+  if (!box.children.length) {
+    box.innerHTML = '<div class="footer-note" style="grid-column:1/-1;text-align:center">没有匹配的表情或动画。</div>';
+  }
+  
+  updateRestoreBtn();
+};
+
+$('#patternSearch').oninput = e => {
+  searchQuery = e.target.value.trim();
+  renderPresets(currentCategory);
+};
+
+document.querySelectorAll('[data-f]').forEach(b => {
+  b.onclick = () => {
+    currentFilter = b.dataset.f;
+    document.querySelectorAll('[data-f]').forEach(x => x.classList.toggle('active', x === b));
+    renderPresets(currentCategory);
+  };
+});
+
+$('#saveDrawing').onclick = () => {
+  if (!state.custom || !state.customOn.size) {
+    showToast('请先进入绘制并点亮至少一颗灯珠');
+    return;
+  }
+  let n = (prompt('为这个手绘表情命名', '我的表情') || '').trim();
+  if (!n) return;
+  D_EXPR.drawings.unshift({
+    id: Date.now().toString(36),
+    name: n.slice(0, 24),
+    pixels: [...state.customOn],
+    count: state.count
+  });
+  saveExpr();
+  renderPresets(currentCategory);
+  showToast('✓ 已保存「' + n.slice(0, 24) + '」');
+};
+
+/* Pagination Setup */
+let pg = 0;
+const pageCss = document.createElement('style');
+pageCss.textContent = '#pageControls{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:12px;color:#81929e;font-size:11px}#pageControls button{border:1px solid #3b4c57;background:#162129;color:#dce5ea;border-radius:7px;padding:6px 9px;cursor:pointer}#pageControls button:disabled{opacity:.35;cursor:default}';
+document.head.append(pageCss);
+$('#presets').insertAdjacentHTML('afterend', '<div id="pageControls"></div>');
+
+const priorRender = renderPresets;
+const paintPagination = () => {
+  const cards = [...$('#presets').querySelectorAll('.preset')];
+  const total = Math.ceil(cards.length / 10);
+  if (!total) {
+    $('#pageControls').innerHTML = '';
+    return;
+  }
+  pg = Math.min(pg, total - 1);
+  cards.forEach((card, i) => card.hidden = Math.floor(i / 10) !== pg);
+  const nav = $('#pageControls');
+  nav.innerHTML = '<button ' + (pg === 0 ? 'disabled' : '') + ' data-page="prev">上一页</button><span>' +
+    (pg + 1) + ' / ' + total + ' 页 · 共 ' + cards.length + ' 个</span><button ' +
+    (pg === total - 1 ? 'disabled' : '') + ' data-page="next">下一页</button>';
+  nav.querySelector('[data-page="prev"]').onclick = () => {
+    if (pg > 0) { pg--; paintPagination(); }
+  };
+  nav.querySelector('[data-page="next"]').onclick = () => {
+    if (pg < total - 1) { pg++; paintPagination(); }
+  };
+};
+
+renderPresets = function(...args) {
+  pg = 0;
+  priorRender.apply(this, args);
+  paintPagination();
+};
+
+renderPresets();
 
 </script>
 </body></html>
