@@ -65,6 +65,10 @@ button,input,select{font:inherit}.shell{max-width:1440px;margin:auto;padding:24p
 .preset-badge.edited{background:#2d2611;color:var(--accent);border:1px solid #ffd66b55}
 .preset-badge.custom{background:#132a20;color:var(--accent2);border:1px solid #86f0c055}
 
+
+.preset-corner-num{position:absolute;top:6px;left:7px;font-size:9px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#7e93a0;background:#080e12;border:1px solid #1f2f3a;border-radius:4px;padding:1px 5px;line-height:1.2;font-weight:600}
+.preset-num{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:10px;font-weight:700;color:var(--accent);background:#222013;border:1px solid #ffd66b44;border-radius:4px;padding:1px 4px;margin-right:4px;display:inline-block;vertical-align:baseline}
+
 </style>
 </head>
 <body>
@@ -1387,7 +1391,8 @@ function selectPattern(i) {
   state.custom = false;
   const p = getActivePattern();
   if (p) {
-    $('#patternName').textContent = p.name;
+    const numStr = String(state.pattern + 1).padStart(3, '0');
+    $('#patternName').textContent = `#${numStr} · ${p.name}`;
     $('#modeText').textContent = p.isCustom ? '自定义动画' : p.isOverridden ? '已修改动画' : '预设动画';
   }
   $('#custom').classList.remove('active');
@@ -1399,7 +1404,8 @@ function animationCode(i) {
   currentPatterns = getEffectivePatterns();
   const p = currentPatterns[i] || patterns[i];
   if (p && p.framesData && Object.keys(p.framesData).length > 0) {
-    return '// ' + p.name + ' · 393灯高密矩阵版 (已自定义修改)\n' +
+    const numStr = String(i + 1).padStart(3, '0');
+    return '// #' + numStr + ' · ' + p.name + ' · 393灯高密矩阵版 (已自定义修改)\n' +
       'const animation = {\n' +
       '  name: ' + JSON.stringify(p.name) + ',\n' +
       '  frames: ' + p.frames + ',\n' +
@@ -1416,7 +1422,8 @@ function animationCode(i) {
       '  }\n' +
       '};\n// 393灯坐标：23×23圆形矩阵，x=(列-11)/11.5，y=(行-11)/11.5';
   }
-  return '// ' + p.name + ' · 393灯高密矩阵版 (0707CSP/393PCS/间距0.16mm/Φ20mm)\n' +
+  const numStr = String(i + 1).padStart(3, '0');
+  return '// #' + numStr + ' · ' + p.name + ' · 393灯高密矩阵版 (0707CSP/393PCS/间距0.16mm/Φ20mm)\n' +
     refinedFrame.toString() + '\nconst options=' + JSON.stringify(refinedOptions()) + ';\n' +
     'const animation={name:' + JSON.stringify(p.name) + ',frames:' + p.frames +
     ',startFrame:' + (p.startFrame || 0) + ',endFrame:' + (p.endFrame !== undefined ? p.endFrame : p.frames - 1) +
@@ -1895,7 +1902,8 @@ function openAnimationEditor(p, idx) {
   }
   
   // Populate form fields
-  $('#edModalTitle').textContent = `🎬 动画编辑器 · ${p.name.split(' · ')[0]}`;
+  const numStr = String(idx + 1).padStart(3, '0');
+  $('#edModalTitle').textContent = `🎬 动画编辑器 · #${numStr} ${p.name.split(' · ')[0]}`;
   $('#edInputName').value = edState.name;
   $('#edInputIcon').value = edState.icon;
   $('#edSelectCat').value = edState.cat;
@@ -2277,10 +2285,17 @@ $('#newAnimBtn').onclick = () => {
   openAnimationEditor(newAnim, currentPatterns.length);
 };
 
-function matchFilter(k, name, cat) {
+function matchFilter(k, name, cat, numStr = '') {
+  const query = searchQuery.toLowerCase().trim();
+  if (!query) {
+    return (currentFilter === 'all') ||
+      (currentFilter === 'liked' && isLiked(k)) ||
+      (currentFilter === 'unliked' && !isLiked(k));
+  }
+  const cleanQ = query.replace(/^#/, '');
   const text = (name + ' ' + cat).toLowerCase();
-  const query = searchQuery.toLowerCase();
-  const matchesSearch = text.includes(query);
+  const matchesNum = numStr ? (numStr === cleanQ.padStart(3, '0') || String(parseInt(numStr, 10)) === cleanQ || ('#' + numStr).toLowerCase().includes(query)) : false;
+  const matchesSearch = text.includes(query) || matchesNum;
   const matchesLike = (currentFilter === 'all') ||
     (currentFilter === 'liked' && isLiked(k)) ||
     (currentFilter === 'unliked' && !isLiked(k));
@@ -2326,7 +2341,7 @@ renderPresets = function(f = currentCategory) {
   // 2. Animations
   currentPatterns.forEach((p, i) => {
     let k = 'preset:' + (p.originalName || p.name);
-    if ((currentCategory !== 'all' && p.cat !== currentCategory) || !matchFilter(k, p.name, p.cat)) return;
+    if ((currentCategory !== 'all' && p.cat !== currentCategory) || !matchFilter(k, p.name, p.cat, String(i + 1).padStart(3, '0'))) return;
     
     let badgeHtml = '';
     if (p.isCustom) badgeHtml = '<span class="preset-badge custom">自定义</span>';
@@ -2336,11 +2351,12 @@ renderPresets = function(f = currentCategory) {
     const endF = (p.endFrame !== undefined) ? p.endFrame : (p.frames - 1);
     let rangeHint = (startF > 0 || endF < p.frames - 1) ? ` (首尾:${startF + 1}~${endF + 1})` : '';
     
+    const numStr = String(i + 1).padStart(3, '0');
     let b = document.createElement('div');
     b.className = 'preset' + (!state.custom && i === state.pattern ? ' active' : '');
     b.innerHTML = `
-      <div class="preset-preview">${p.icon}</div>
-      <b>${p.name.split(' · ')[0]}${badgeHtml}</b>
+      <div class="preset-preview"><span class="preset-corner-num">#${numStr}</span>${p.icon}</div>
+      <b><span class="preset-num">#${numStr}</span>${p.name.split(' · ')[0]}${badgeHtml}</b>
       <div class="preset-foot">
         <small>${p.frames} 帧${rangeHint}</small>
         <div class="preset-actions">
