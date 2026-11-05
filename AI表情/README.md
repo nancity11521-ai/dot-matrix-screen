@@ -1,4 +1,4 @@
-# Bloub AI 球 · 393 物理点阵屏模拟器与定制器
+# AI表情点阵屏 · 393 物理点阵模拟器与定制器
 
 基于 [x.ai Grok](https://x.ai/) 灵动球开源内核 [jeremy-prt/bloub](https://github.com/jeremy-prt/bloub)（在线版：[bloub.vercel.app](https://bloub.vercel.app/)），将其数学模型与动态姿态全量重构并适配至 **393 颗物理圆形微密点阵屏** 的 Web 模拟器与硬件开发工具。
 
