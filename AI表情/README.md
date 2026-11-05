@@ -56,6 +56,16 @@
 
 ---
 
+
+## 🌐 在线实时体验
+
+- 🚀 **点阵屏项目在线演示 (GitHub Pages)**：  
+  👉 **https://nancity11521-ai.github.io/dot-matrix-project/**
+- 📝 **在线需求说明文档 (即改即存)**：  
+  👉 **https://nancity11521-ai.github.io/dot-matrix-project/docs.html**
+- 📦 **GitHub 开源仓库**：  
+  👉 **https://github.com/nancity11521-ai/dot-matrix-project**
+
 ## 🚀 本地运行
 
 该页面为 100% 纯原生自包含网页（HTML5 Canvas + SVG + Vanilla JS），无任何外网 CDN 或 node 构建依赖：
