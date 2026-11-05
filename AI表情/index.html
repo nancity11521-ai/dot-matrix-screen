@@ -371,6 +371,101 @@
     #normalCanvas { width: 100%; height: 100%; border-radius: 50%; display: block; }
     #vectorContainer svg { width: 85%; height: 85%; display: block; overflow: visible; }
 
+    /* 桌面小部件与控制中心快捷模块模拟 */
+    .widget-preview-box {
+      background: #0d151c;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .widget-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .widget-2x2-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      margin: 0 auto;
+      background: radial-gradient(circle at 35% 35%, #1c2a36 0%, #090e13 75%);
+      border: 3px solid #2d4052;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .widget-2x2-circle.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .widget-2x2-circle:active {
+      transform: scale(0.95);
+    }
+    .widget-inner-ring {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .widget-icon { font-size: 24px; transition: transform 0.2s; }
+    .widget-status { font-size: 11px; font-weight: 700; color: var(--accent); }
+
+    /* 控制中心快捷按钮 */
+    .cc-tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .cc-tile {
+      background: #131c24;
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 8px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text);
+      gap: 4px;
+      user-select: none;
+    }
+    .cc-tile:hover {
+      background: #1a2732;
+    }
+    .cc-tile.active {
+      background: var(--accent);
+      color: #0b1116;
+      border-color: var(--accent);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+    .cc-tile.active .cc-name, .cc-tile.active .cc-sub {
+      color: #0b1116 !important;
+    }
+    .cc-tile .cc-icon { font-size: 18px; }
+    .cc-tile .cc-name { font-size: 10px; font-weight: 700; }
+    .cc-tile .cc-sub { font-size: 9px; color: var(--muted); }
+
+    .phone-flash-indicator {
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 11px;
+      text-align: center;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
     /* 底部播放条 */
     .stage-bottom-bar {
       position: absolute;
@@ -724,6 +819,57 @@
         <div class="control-row">
           <div class="control-label"><span>罗盘角度</span><span id="simCompassVal">45° NE</span></div>
           <input type="range" class="range-input" min="0" max="359" value="45" oninput="onSimCompass(this.value)">
+        </div>
+      </div>
+
+      <!-- 移动端桌面小部件 & 控制中心快捷交互模拟 (PRD v2.2.0) -->
+      <div class="panel-section">
+        <div class="section-title">📱 桌面小部件 & 控制中心快捷控制</div>
+        
+        <!-- 桌面 2x2 圆形小部件 -->
+        <div class="widget-preview-box">
+          <div class="widget-label">桌面 2×2 圆形小部件 (单击开关 / 长按设置)</div>
+          <div class="widget-2x2-circle active" id="desktopWidgetBtn" onclick="toggleMatrixPower()" onmousedown="startWidgetLongPress()" onmouseup="cancelWidgetLongPress()" onmouseleave="cancelWidgetLongPress()" ontouchstart="startWidgetLongPress()" ontouchend="cancelWidgetLongPress()">
+            <div class="widget-inner-ring">
+              <div class="widget-icon" id="widgetPowerIcon">⚡</div>
+              <div class="widget-status" id="widgetStatusText">点阵屏: 开启</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 控制中心 3 个快捷按钮 -->
+        <div class="control-center-preview">
+          <div class="widget-label">控制中心 3 快捷按钮 (Control Center Quick Tiles)</div>
+          <div class="cc-tiles-grid">
+            <!-- 按钮 1: 点阵屏开关 -->
+            <button class="cc-tile active" id="ccMatrixPowerBtn" onclick="toggleMatrixPower()">
+              <div class="cc-icon">⚡</div>
+              <div class="cc-name">点阵屏开关</div>
+              <div class="cc-sub" id="ccPowerSub">已开启</div>
+            </button>
+            
+            <!-- 按钮 2: 点阵屏手电筒 -->
+            <button class="cc-tile" id="ccMatrixTorchBtn" onclick="toggleMatrixTorch()">
+              <div class="cc-icon">🔦</div>
+              <div class="cc-name">点阵手电筒</div>
+              <div class="cc-sub" id="ccTorchSub">393灯全亮</div>
+            </button>
+
+            <!-- 按钮 3: 系统机身手电筒 -->
+            <button class="cc-tile" id="ccPhoneTorchBtn" onclick="togglePhoneTorch()">
+              <div class="cc-icon" id="ccPhoneTorchIcon">💡</div>
+              <div class="cc-name">机身手电筒</div>
+              <div class="cc-sub" id="ccPhoneTorchSub">独立硬件</div>
+            </button>
+          </div>
+
+          <!-- 机身闪光灯模拟指示条 -->
+          <div class="phone-flash-indicator" id="phoneFlashIndicator" style="display:none;background:rgba(239,68,68,0.15);border:1px dashed #ef4444;color:#fca5a5">
+            💡 <b>机身后置物理闪光灯：点亮中</b>（点阵屏完全不受干扰）
+          </div>
+          <div class="phone-flash-indicator" id="matrixTorchNotice" style="display:none;background:rgba(34,197,94,0.15);border:1px dashed #22c55e;color:#86efac">
+            🔦 <b>点阵手电筒已开启：393灯全亮</b>（手电筒图标亮起，机身物理闪光灯保持不亮）
+          </div>
         </div>
       </div>
 
@@ -2159,7 +2305,11 @@
       playSequence: false,
       time: 0,
       speed: 1.0,
-      view: 'dual'
+      view: 'dual',
+      matrixPower: true,
+      matrixTorch: false,
+      phoneTorch: false,
+      longPressTimer: null
     };
 
     /* 画布与容器 */
@@ -2539,7 +2689,66 @@
       let litCount = 0;
       const anim = state.currentAnim;
 
-      if (anim.isAvatar) {
+      // 1. 点阵屏关机休眠模式
+      if (!state.matrixPower) {
+        brightnessArray.fill(0);
+        // 右视窗展示休眠关机状态
+        if (normCtx && state.view !== 'matrix') {
+          const W = normalCanvas.width, H = normalCanvas.height;
+          normCtx.clearRect(0, 0, W, H);
+          normCtx.beginPath();
+          normCtx.arc(W/2, H/2, W/2 - 8, 0, Math.PI * 2);
+          normCtx.fillStyle = '#060a0e';
+          normCtx.fill();
+          normCtx.strokeStyle = '#1e2b38';
+          normCtx.lineWidth = 4;
+          normCtx.stroke();
+          normCtx.font = 'bold 32px system-ui';
+          normCtx.fillStyle = '#64748b';
+          normCtx.textAlign = 'center';
+          normCtx.textBaseline = 'middle';
+          normCtx.fillText('点阵屏已关闭 (休眠模式)', W/2, H/2);
+          normCtx.font = '20px system-ui';
+          normCtx.fillStyle = '#475569';
+          normCtx.fillText('点击小部件或控制中心开关开启', W/2, H/2 + 45);
+        }
+      }
+      // 2. 点阵屏手电筒模式：393 颗灯全亮！
+      else if (state.matrixTorch) {
+        brightnessArray.fill(1.0);
+        // 右视窗展示 100% 满功率白光手电筒照明
+        if (normCtx && state.view !== 'matrix') {
+          const W = normalCanvas.width, H = normalCanvas.height;
+          normCtx.clearRect(0, 0, W, H);
+          normCtx.beginPath();
+          normCtx.arc(W/2, H/2, W/2 - 8, 0, Math.PI * 2);
+          normCtx.fillStyle = '#060a0e';
+          normCtx.fill();
+          // 发光白光照明泛光圈
+          const floodGrad = normCtx.createRadialGradient(W/2, H/2, 20, W/2, H/2, W/2 - 18);
+          floodGrad.addColorStop(0, '#ffffff');
+          floodGrad.addColorStop(0.65, '#f8fafc');
+          floodGrad.addColorStop(0.9, '#e2e8f0');
+          floodGrad.addColorStop(1, '#94a3b8');
+          normCtx.beginPath();
+          normCtx.arc(W/2, H/2, W/2 - 18, 0, Math.PI * 2);
+          normCtx.fillStyle = floodGrad;
+          normCtx.shadowColor = '#ffffff';
+          normCtx.shadowBlur = 40;
+          normCtx.fill();
+          normCtx.shadowBlur = 0;
+          normCtx.font = 'bold 42px system-ui';
+          normCtx.fillStyle = '#0b1116';
+          normCtx.textAlign = 'center';
+          normCtx.textBaseline = 'middle';
+          normCtx.fillText('🔦 点阵手电筒', W/2, H/2 - 20);
+          normCtx.font = 'bold 24px system-ui';
+          normCtx.fillStyle = '#475569';
+          normCtx.fillText('393 / 393 满亮泛光照明', W/2, H/2 + 35);
+        }
+      }
+      // 3. 正常动画播放模式
+      else if (anim.isAvatar) {
         // AI 表情 3D 模型光线追踪采样
         const frameData = evaluateAvatarFrame(state.time, anim);
         PHYSICAL_POINTS.forEach((pt, idx) => {
@@ -4308,6 +4517,112 @@
       }
 
       requestAnimationFrame(loop);
+    }
+
+    /* ==========================================================================
+       桌面 2×2 小部件与控制中心 3 快捷按钮交互逻辑 (PRD v2.2.0)
+       ========================================================================== */
+
+    // 1. 点阵屏开关切换
+    function toggleMatrixPower() {
+      state.matrixPower = !state.matrixPower;
+      if (!state.matrixPower) {
+        state.matrixTorch = false; // 关屏时自动关闭手电筒
+      }
+      updateWidgetAndCCUI();
+    }
+
+    // 2. 点阵屏手电筒 (393灯全亮 + 手电筒图标亮 + 机身物理闪光灯不亮)
+    function toggleMatrixTorch() {
+      if (!state.matrixPower) {
+        state.matrixPower = true; // 若关屏状态则先唤醒开屏
+      }
+      state.matrixTorch = !state.matrixTorch;
+      updateWidgetAndCCUI();
+    }
+
+    // 3. 机身系统独立手电筒 (仅机身手电筒亮，与点阵屏完全无关)
+    function togglePhoneTorch() {
+      state.phoneTorch = !state.phoneTorch;
+      updateWidgetAndCCUI();
+    }
+
+    // 4. 小部件长按进入设置页逻辑 (长按 >= 500ms)
+    function startWidgetLongPress() {
+      state.longPressTimer = setTimeout(() => {
+        alert('📱 触发长按反馈！\n已成功调起并进入【点阵屏设置页】(可在左侧面板自由调节亮度、模式、算法与参数)');
+        // 视觉高亮左侧参数面板
+        const panel = document.querySelector('.sidebar.left');
+        if (panel) {
+          panel.style.boxShadow = 'inset 0 0 30px var(--accent-glow)';
+          setTimeout(() => { panel.style.boxShadow = ''; }, 1600);
+        }
+      }, 500);
+    }
+
+    function cancelWidgetLongPress() {
+      if (state.longPressTimer) {
+        clearTimeout(state.longPressTimer);
+        state.longPressTimer = null;
+      }
+    }
+
+    // 状态 UI 刷新
+    function updateWidgetAndCCUI() {
+      // 桌面 2x2 小部件更新
+      const widget = document.getElementById('desktopWidgetBtn');
+      const widgetStatus = document.getElementById('widgetStatusText');
+      const widgetIcon = document.getElementById('widgetPowerIcon');
+      if (widget) {
+        widget.classList.toggle('active', state.matrixPower);
+        if (widgetStatus) {
+          widgetStatus.textContent = state.matrixTorch ? '手电筒: 满亮' : (state.matrixPower ? '点阵屏: 开启' : '点阵屏: 休眠');
+          widgetStatus.style.color = state.matrixPower ? 'var(--accent)' : 'var(--muted)';
+        }
+        if (widgetIcon) {
+          widgetIcon.textContent = state.matrixTorch ? '🔦' : (state.matrixPower ? '⚡' : '⏾');
+        }
+      }
+
+      // 控制中心按钮 1: 点阵屏开关
+      const ccPowerBtn = document.getElementById('ccMatrixPowerBtn');
+      const ccPowerSub = document.getElementById('ccPowerSub');
+      if (ccPowerBtn) {
+        ccPowerBtn.classList.toggle('active', state.matrixPower);
+        if (ccPowerSub) ccPowerSub.textContent = state.matrixPower ? '已开启' : '已休眠';
+      }
+
+      // 控制中心按钮 2: 点阵屏手电筒
+      const ccTorchBtn = document.getElementById('ccMatrixTorchBtn');
+      const ccTorchSub = document.getElementById('ccTorchSub');
+      if (ccTorchBtn) {
+        ccTorchBtn.classList.toggle('active', state.matrixTorch);
+        if (ccTorchSub) ccTorchSub.textContent = state.matrixTorch ? '393灯全亮' : '全矩阵照明';
+      }
+
+      // 控制中心按钮 3: 系统机身手电筒
+      // 关键规则：打开点阵手电筒时，手电筒图标也要跟着一起亮，但物理手电筒本身不亮！
+      const ccPhoneTorchBtn = document.getElementById('ccPhoneTorchBtn');
+      const ccPhoneTorchSub = document.getElementById('ccPhoneTorchSub');
+      const isTorchIconLit = state.matrixTorch || state.phoneTorch;
+      if (ccPhoneTorchBtn) {
+        ccPhoneTorchBtn.classList.toggle('active', isTorchIconLit);
+        if (ccPhoneTorchSub) {
+          if (state.matrixTorch && !state.phoneTorch) ccPhoneTorchSub.textContent = '点阵屏提供';
+          else if (state.phoneTorch) ccPhoneTorchSub.textContent = '物理灯开启';
+          else ccPhoneTorchSub.textContent = '独立硬件';
+        }
+      }
+
+      // 闪光灯与点阵手电筒提示
+      const phoneFlash = document.getElementById('phoneFlashIndicator');
+      if (phoneFlash) {
+        phoneFlash.style.display = state.phoneTorch ? 'block' : 'none';
+      }
+      const torchNotice = document.getElementById('matrixTorchNotice');
+      if (torchNotice) {
+        torchNotice.style.display = state.matrixTorch ? 'block' : 'none';
+      }
     }
 
     // 启动系统
