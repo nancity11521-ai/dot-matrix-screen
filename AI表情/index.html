@@ -743,8 +743,27 @@
       z-index: 5;
     }
     .anim-card:hover .anim-card-actions,
-    .anim-card.active .anim-card-actions {
+    .anim-card.active .anim-card-actions,
+    .anim-card.has-pending .anim-card-actions {
       opacity: 1;
+    }
+    .anim-card.has-pending {
+      border-color: rgba(245, 158, 11, 0.45);
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, var(--card-bg) 100%);
+    }
+    .anim-card.has-pending.active {
+      border-color: #ffd45e;
+      background: rgba(255, 212, 94, 0.14);
+    }
+    .anim-card-no .anim-pending-flag {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+      padding: 0 3px;
+      border-radius: 3px;
+      font-size: 8px;
+      font-weight: 700;
+      margin-left: 2px;
+      display: inline-block;
     }
     .anim-action-btn {
       width: 22px;
@@ -766,10 +785,51 @@
       border-color: var(--accent);
       transform: scale(1.1);
     }
+    .anim-action-btn.pending {
+      font-size: 11px;
+    }
+    .anim-action-btn.pending.active {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: #f59e0b;
+      color: #f59e0b;
+    }
+    .anim-action-btn.pending:not(.active) {
+      opacity: 0.6;
+    }
+    .anim-action-btn.pending:not(.active):hover {
+      opacity: 1;
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.15);
+    }
     .anim-action-btn.del:hover {
       background: rgba(239, 68, 68, 0.2);
       border-color: #ef4444;
       color: #ef4444;
+    }
+    .pending-count-badge {
+      display: inline-block;
+      background: #f59e0b;
+      color: #0b1116;
+      font-size: 9px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 0 5px;
+      min-width: 14px;
+      line-height: 14px;
+      height: 14px;
+      text-align: center;
+      margin-left: 3px;
+      vertical-align: middle;
+    }
+    .subcat-pill.pending-pill {
+      color: #f59e0b;
+      border: 1px dashed rgba(245, 158, 11, 0.4);
+    }
+    .subcat-pill.pending-pill.active {
+      background: rgba(245, 158, 11, 0.22);
+      border-color: #f59e0b;
+      color: #ffd45e;
+      font-weight: 600;
     }
 
     /* 动画编辑器模态框 */
@@ -1254,6 +1314,7 @@
           <span style="color:var(--muted)">当前动画:</span>
           <b id="statusCurrentName">平静 · NEUTRAL</b>
           <button class="btn" style="padding:2px 8px;font-size:10px;margin-left:6px" onclick="openAnimationEditor(state.currentAnim.id)" title="编辑当前动画">✏️ 编辑</button>
+          <button class="btn" id="stagePendingBtn" style="padding:2px 8px;font-size:10px" onclick="togglePendingModify(state.currentAnim.id)" title="标记/取消待修改项">🏳️ 待修改</button>
           <button class="btn" style="padding:2px 7px;font-size:10px;color:#f87171" onclick="confirmDeleteAnimation(state.currentAnim.id)" title="删除当前动画">🗑️ 删除</button>
         </div>
         <div class="view-modes">
@@ -1324,6 +1385,7 @@
         <button class="main-tab-btn" data-cat="life" onclick="selectMainCategory('life')">☕ 生活</button>
         <button class="main-tab-btn" data-cat="game" onclick="selectMainCategory('game')">🎮 游戏</button>
         <button class="main-tab-btn" data-cat="ambience" onclick="selectMainCategory('ambience')">✨ 氛围</button>
+        <button class="main-tab-btn" data-cat="pending" id="mainTabPendingBtn" onclick="selectMainCategory('pending')" style="color:#f59e0b">🚩 待修改 <span class="pending-count-badge" id="pendingCountBadge">0</span></button>
         <button class="main-tab-btn" data-cat="export" onclick="selectMainCategory('export')">💾 导出</button>
       </div>
 
@@ -2953,6 +3015,69 @@
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
     const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1';
 
+    /* 待修改项本地存储与管理系统 */
+    const STORAGE_KEY_PENDING = 'DOT_MATRIX_PENDING_MODIFICATIONS_V1';
+    let pendingModifications = new Set();
+
+    function loadPendingStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_PENDING);
+        if (raw) {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) pendingModifications = new Set(arr);
+        }
+      } catch (e) {
+        console.warn('Failed to parse pending modifications:', e);
+      }
+    }
+
+    function savePendingStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(Array.from(pendingModifications)));
+      } catch (e) {
+        console.error('Failed to save pending modifications:', e);
+      }
+    }
+
+    function isPendingModify(id) {
+      return pendingModifications.has(id);
+    }
+
+    function togglePendingModify(id) {
+      if (!id) return;
+      if (pendingModifications.has(id)) {
+        pendingModifications.delete(id);
+        showToast('已取消待修改标记');
+      } else {
+        pendingModifications.add(id);
+        showToast('已加入待修改项 🚩');
+      }
+      savePendingStorage();
+      updatePendingUI();
+    }
+
+    function updatePendingUI() {
+      const count = pendingModifications.size;
+      const badge = document.getElementById('pendingCountBadge');
+      if (badge) {
+        badge.textContent = count;
+      }
+      if (state.currentAnim) {
+        const isPending = isPendingModify(state.currentAnim.id);
+        const pendingBtn = document.getElementById('stagePendingBtn');
+        if (pendingBtn) {
+          pendingBtn.className = 'btn' + (isPending ? ' active' : '');
+          pendingBtn.style.color = isPending ? '#f59e0b' : '';
+          pendingBtn.style.borderColor = isPending ? '#f59e0b' : '';
+          pendingBtn.style.background = isPending ? 'rgba(245, 158, 11, 0.18)' : '';
+          pendingBtn.innerHTML = isPending ? '🚩 已标记待改' : '🏳️ 待修改';
+          pendingBtn.title = isPending ? '点击取消待修改标记' : '标记此动画为待修改';
+        }
+      }
+      renderSubcatPills();
+      renderAnimationsList();
+    }
+
     /* 全局运行状态 */
     const state = {
       mode: 'face',          // 'face', 'blob', 'invert', 'contour'
@@ -2990,12 +3115,14 @@
     /* UI 初始化与渲染 */
     function initUI() {
       loadAnimationsFromStorage();
+      loadPendingStorage();
       if (!ALL_ANIMATIONS.some(a => a.id === state.currentAnim.id)) {
         state.currentAnim = ALL_ANIMATIONS[0] || DEFAULT_ANIMATIONS[0];
       }
       renderSubcatPills();
       renderAnimationsList();
       initEditorCanvas();
+      updatePendingUI();
     }
 
     function selectMainCategory(catId) {
@@ -3023,12 +3150,58 @@
     function renderSubcatPills() {
       const container = document.getElementById('subcatPillsBar');
       container.innerHTML = '';
+
+      // 待修改专用一级分类视图下的子胶囊
+      if (state.currentCat === 'pending') {
+        const totalPending = ALL_ANIMATIONS.filter(a => isPendingModify(a.id)).length;
+        const pills = [
+          { id: 'all', name: `全部待改 (${totalPending})` }
+        ];
+        CATEGORIES.forEach(c => {
+          const cnt = ALL_ANIMATIONS.filter(a => a.cat === c.id && isPendingModify(a.id)).length;
+          if (cnt > 0) {
+            pills.push({ id: c.id, name: `${c.icon} ${c.name} (${cnt})` });
+          }
+        });
+
+        pills.forEach(sub => {
+          const pill = document.createElement('div');
+          pill.className = 'subcat-pill' + (sub.id === state.currentSubcat ? ' active' : '');
+          pill.textContent = sub.name;
+          pill.onclick = () => {
+            state.currentSubcat = sub.id;
+            document.querySelectorAll('.subcat-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            renderAnimationsList();
+          };
+          container.appendChild(pill);
+        });
+        return;
+      }
+
+      // 常规一级分类下的子胶囊条
       const catDef = CATEGORIES.find(c => c.id === state.currentCat);
       if (!catDef) return;
 
-      catDef.subcats.forEach(sub => {
+      const pendingInThisCat = ALL_ANIMATIONS.filter(a => a.cat === state.currentCat && isPendingModify(a.id)).length;
+
+      const pillsToRender = [];
+      catDef.subcats.forEach((sub, idx) => {
+        pillsToRender.push(sub);
+        // 在“全部”胶囊之后紧接着插入“🚩 待修改”快捷分类胶囊
+        if (idx === 0) {
+          pillsToRender.push({
+            id: 'pending_in_cat',
+            name: `🚩 待修改` + (pendingInThisCat > 0 ? ` (${pendingInThisCat})` : ' (0)')
+          });
+        }
+      });
+
+      pillsToRender.forEach(sub => {
         const pill = document.createElement('div');
-        pill.className = 'subcat-pill' + (sub.id === state.currentSubcat ? ' active' : '');
+        const isActive = sub.id === state.currentSubcat;
+        const isPendingPill = sub.id === 'pending_in_cat';
+        pill.className = 'subcat-pill' + (isActive ? ' active' : '') + (isPendingPill ? ' pending-pill' : '');
         pill.textContent = sub.name;
         pill.onclick = () => {
           state.currentSubcat = sub.id;
@@ -3050,36 +3223,70 @@
       grid.innerHTML = '';
 
       let list = ALL_ANIMATIONS.filter(item => {
-        // 主分类
-        if (state.currentCat !== 'all' && item.cat !== state.currentCat) return false;
-        // 子分类
-        if (state.currentSubcat !== 'all' && item.subcat !== state.currentSubcat) return false;
+        const pending = isPendingModify(item.id);
+
+        if (state.currentCat === 'pending') {
+          if (!pending) return false;
+          if (state.currentSubcat !== 'all' && item.cat !== state.currentSubcat) return false;
+        } else {
+          // 常规一级分类筛选
+          if (state.currentCat !== 'all' && item.cat !== state.currentCat) return false;
+
+          // 二级子分类筛选
+          if (state.currentSubcat === 'pending_in_cat') {
+            if (!pending) return false;
+          } else if (state.currentSubcat !== 'all' && item.subcat !== state.currentSubcat) {
+            return false;
+          }
+        }
+
         // 搜索关键词
         if (state.searchKeyword) {
-          const matchName = item.name.toLowerCase().includes(state.searchKeyword);
-          const matchId = item.id.toLowerCase().includes(state.searchKeyword);
-          const matchNo = item.no ? item.no.toLowerCase().includes(state.searchKeyword) : false;
-          const matchNum = item.num ? item.num.toLowerCase().includes(state.searchKeyword) : false;
+          const kw = state.searchKeyword;
+          const matchName = item.name.toLowerCase().includes(kw);
+          const matchId = item.id.toLowerCase().includes(kw);
+          const matchNo = item.no ? item.no.toLowerCase().includes(kw) : false;
+          const matchNum = item.num ? item.num.toLowerCase().includes(kw) : false;
           if (!matchName && !matchId && !matchNo && !matchNum) return false;
         }
         return true;
       });
 
       if (list.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--muted);font-size:12px">暂无匹配的动画效果</div>';
+        if (state.currentCat === 'pending' || state.currentSubcat === 'pending_in_cat') {
+          grid.innerHTML = `
+            <div style="grid-column:1/-1;text-align:center;padding:45px 12px;color:var(--muted);font-size:12px;line-height:1.7">
+              <div style="font-size:26px;margin-bottom:8px">🚩</div>
+              <b style="color:var(--text);font-size:13px">暂无待修改动画</b>
+              <p style="font-size:11px;color:var(--dim);margin-top:4px">
+                在任意动画卡片右上角点击 <span style="display:inline-block;padding:1px 5px;background:rgba(255,255,255,0.06);border-radius:4px">🏳️</span> 即可标记为待修改项
+              </p>
+            </div>
+          `;
+        } else {
+          grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--muted);font-size:12px">暂无匹配的动画效果</div>';
+        }
         return;
       }
 
       list.forEach(item => {
+        const isPending = isPendingModify(item.id);
         const card = document.createElement('div');
         card.setAttribute('data-id', item.id);
-        card.className = 'anim-card' + (item.id === state.currentAnim.id ? ' active' : '');
+        card.className = 'anim-card' + (item.id === state.currentAnim.id ? ' active' : '') + (isPending ? ' has-pending' : '');
         card.onclick = () => selectAnimation(item);
 
         const subName = getSubcatName(item.cat, item.subcat);
         card.innerHTML = `
-          <div class="anim-card-no" title="动画编号: ${item.num} (${item.no})">${item.no}</div>
+          <div class="anim-card-no" title="动画编号: ${item.num} (${item.no})">
+            ${item.no}${isPending ? ' <span class="anim-pending-flag" title="待修改项">待改</span>' : ''}
+          </div>
           <div class="anim-card-actions">
+            <button class="anim-action-btn pending ${isPending ? 'active' : ''}" 
+                    title="${isPending ? '已标记为待修改（点击取消）' : '标记为待修改项'}" 
+                    onclick="event.stopPropagation();togglePendingModify('${item.id}')">
+              ${isPending ? '🚩' : '🏳️'}
+            </button>
             <button class="anim-action-btn" title="编辑此动画" onclick="event.stopPropagation();openAnimationEditor('${item.id}')">✏️</button>
             <button class="anim-action-btn del" title="删除此动画" onclick="event.stopPropagation();confirmDeleteAnimation('${item.id}')">🗑️</button>
           </div>
@@ -3109,6 +3316,17 @@
       const catDef = CATEGORIES.find(c => c.id === anim.cat);
       const catBadge = document.getElementById('categoryBadge');
       if (catBadge) catBadge.textContent = catDef ? catDef.name : anim.cat;
+
+      const isPending = isPendingModify(anim.id);
+      const pendingBtn = document.getElementById('stagePendingBtn');
+      if (pendingBtn) {
+        pendingBtn.className = 'btn' + (isPending ? ' active' : '');
+        pendingBtn.style.color = isPending ? '#f59e0b' : '';
+        pendingBtn.style.borderColor = isPending ? '#f59e0b' : '';
+        pendingBtn.style.background = isPending ? 'rgba(245, 158, 11, 0.18)' : '';
+        pendingBtn.innerHTML = isPending ? '🚩 已标记待改' : '🏳️ 待修改';
+        pendingBtn.title = isPending ? '点击取消待修改标记' : '标记此动画为待修改';
+      }
 
       document.querySelectorAll('.anim-card').forEach(c => {
         const isMatch = c.getAttribute('data-id') === anim.id;
@@ -5616,6 +5834,8 @@
         document.getElementById('editAnimCat').value = anim.cat || 'emotion';
         document.getElementById('editAnimIcon').value = anim.icon || '✨';
         document.getElementById('editAnimFps').value = anim.fps || 12;
+        const pendingCheck = document.getElementById('editAnimPending');
+        if (pendingCheck) pendingCheck.checked = isPendingModify(anim.id);
 
         const totalF = anim.customFrames ? anim.customFrames.length : (anim.frames || 16);
         editorState.framesData = [];
@@ -5639,9 +5859,11 @@
         document.getElementById('editAnimNum').value = nextNum;
         document.getElementById('editAnimNo').value = nextNo;
         document.getElementById('editAnimName').value = '新自定义动效';
-        document.getElementById('editAnimCat').value = state.currentCat === 'export' ? 'emotion' : state.currentCat;
+        document.getElementById('editAnimCat').value = (state.currentCat === 'export' || state.currentCat === 'pending') ? 'emotion' : state.currentCat;
         document.getElementById('editAnimIcon').value = '🎨';
         document.getElementById('editAnimFps').value = 12;
+        const pendingCheckNew = document.getElementById('editAnimPending');
+        if (pendingCheckNew) pendingCheckNew.checked = false;
 
         document.getElementById('editorDeleteBtn').style.display = 'none';
         const restoreBtn = document.getElementById('editorRestoreAlgorithmBtn');
@@ -6005,6 +6227,11 @@
           isCustom: true
         };
         ALL_ANIMATIONS.push(newAnim);
+        const pendingCheckNew = document.getElementById('editAnimPending');
+        if (pendingCheckNew && pendingCheckNew.checked) {
+          pendingModifications.add(newAnim.id);
+          savePendingStorage();
+        }
         saveAnimationsToStorage();
         closeAnimationEditor();
         initUI();
@@ -6033,6 +6260,16 @@
           } else if (anim.customFrames) {
             anim.frames = customFrames.length;
             anim.customFrames = customFrames;
+          }
+
+          const pendingCheck = document.getElementById('editAnimPending');
+          if (pendingCheck) {
+            if (pendingCheck.checked) {
+              pendingModifications.add(anim.id);
+            } else {
+              pendingModifications.delete(anim.id);
+            }
+            savePendingStorage();
           }
 
           saveAnimationsToStorage();
@@ -6084,6 +6321,11 @@
         isCustom: true
       };
       ALL_ANIMATIONS.push(newAnim);
+      const pendingCheck = document.getElementById('editAnimPending');
+      if (pendingCheck && pendingCheck.checked) {
+        pendingModifications.add(newAnim.id);
+        savePendingStorage();
+      }
       saveAnimationsToStorage();
       closeAnimationEditor();
       initUI();
@@ -6108,6 +6350,8 @@
         const idx = ALL_ANIMATIONS.findIndex(a => a.id === animId);
         if (idx !== -1) {
           ALL_ANIMATIONS.splice(idx, 1);
+          pendingModifications.delete(animId);
+          savePendingStorage();
           saveAnimationsToStorage();
           closeAnimationEditor();
 
@@ -6289,6 +6533,15 @@
               <label class="form-label">总帧数 (根据左侧帧管理自动更新)</label>
               <input type="number" class="form-input" id="editAnimTotalFrames" min="1" max="60" value="16" readonly style="opacity:0.7">
             </div>
+          </div>
+
+          <!-- 待修改项标记复选框 -->
+          <div class="form-field" style="margin-top:6px;background:rgba(245,158,11,0.06);border:1px dashed rgba(245,158,11,0.3);border-radius:8px;padding:8px 10px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text);cursor:pointer;user-select:none">
+              <input type="checkbox" id="editAnimPending" style="accent-color:#f59e0b;cursor:pointer;width:15px;height:15px">
+              <span style="font-weight:700;color:#f59e0b">🚩 标记为待修改项</span>
+              <span style="color:var(--muted);font-size:10px">(标记后可在分类中一键快速筛选定位)</span>
+            </label>
           </div>
 
           <!-- 小窗动态预览 -->
