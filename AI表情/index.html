@@ -1124,7 +1124,7 @@
       </div>
       <div class="brand-title">
         <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs · 23×23</span></h1>
-        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 游戏 / 氛围</p>
+        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (80 款动画)</p>
       </div>
     </div>
     <div class="top-actions">
@@ -1383,7 +1383,6 @@
         <button class="main-tab-btn" data-cat="system" onclick="selectMainCategory('system')">⚙️ 系统</button>
         <button class="main-tab-btn" data-cat="activity" onclick="selectMainCategory('activity')">🏃 活动</button>
         <button class="main-tab-btn" data-cat="life" onclick="selectMainCategory('life')">☕ 生活</button>
-        <button class="main-tab-btn" data-cat="game" onclick="selectMainCategory('game')">🎮 游戏</button>
         <button class="main-tab-btn" data-cat="ambience" onclick="selectMainCategory('ambience')">✨ 氛围</button>
         <button class="main-tab-btn" data-cat="pending" id="mainTabPendingBtn" onclick="selectMainCategory('pending')" style="color:#f59e0b">🚩 待修改 <span class="pending-count-badge" id="pendingCountBadge">0</span></button>
         <button class="main-tab-btn" data-cat="export" onclick="selectMainCategory('export')">💾 导出</button>
@@ -2559,121 +2558,6 @@
       put(17, 17); put(18, 17);
       break;
     }
-    case 'PACMAN': {
-      // 吃豆人开合大嘴与移动
-      const px = 5 + (t % 14);
-      circle(px, 11, 5, true);
-      // 开闭口
-      if (t % 6 < 3) {
-        line(px, 11, px + 5, 8, false);
-        line(px, 11, px + 5, 14, false);
-        for (let x = px + 1; x <= px + 5; x++) {
-          line(x, 11 - Math.round((x - px) * 0.7), x, 11 + Math.round((x - px) * 0.7), false);
-        }
-      }
-      // 前方能量豆
-      for (let dx = px + 6; dx <= 19; dx += 4) {
-        put(dx, 11);
-      }
-      break;
-    }
-    case 'INVADER': {
-      // 太空侵略者 8-bit 外星人
-      const frameAlt = (Math.floor(t / 4) % 2 === 0);
-      const bobY = Math.floor(t / 8) % 3;
-      if (frameAlt) {
-        mask('00100000100/00010001000/00111111100/01101110110/11111111111/10111111101/10100000101/00011011000', 6, 6 + bobY);
-      } else {
-        mask('00100000100/10010001001/10111111101/11101110111/01111111110/00111111100/00100000100/01000000010', 6, 6 + bobY);
-      }
-      break;
-    }
-    case 'SNAKE': {
-      // 贪吃蛇爬行身躯与红苹果
-      const path = [
-        [6, 15], [7, 15], [8, 15], [9, 15], [10, 15],
-        [10, 14], [10, 13], [10, 12], [11, 12], [12, 12],
-        [13, 12], [14, 12], [14, 11], [14, 10], [14, 9],
-        [15, 9], [16, 9]
-      ];
-      const headIdx = (t * 2) % (path.length - 4);
-      for (let i = 0; i < 5; i++) {
-        const pt = path[headIdx + i];
-        if (pt) put(pt[0], pt[1]);
-      }
-      // 目标苹果
-      put(17, 8); put(18, 8); put(17, 9); put(18, 9);
-      put(17, 7);
-      break;
-    }
-    case 'TETRIS': {
-      // 底部已堆叠方块
-      box(5, 18, 5, 2, true);
-      box(13, 18, 5, 2, true);
-      box(7, 16, 4, 2, true);
-      // 下落中的 T 型或 L 型俄罗斯方块
-      const fallY = 4 + (t % 11);
-      box(10, fallY, 4, 2, true);
-      box(11, fallY - 2, 2, 2, true);
-      break;
-    }
-    case 'PIXEL_HEART': {
-      // 像素心形 + 心电图波形
-      const pulseScale = (t % 12 < 4);
-      if (pulseScale) {
-        mask('011000110/111101111/111111111/111111111/011111110/001111100/000111000/000010000', 7, 7);
-      } else {
-        mask('0100010/1110111/1111111/0111110/0011100/0001000', 8, 8);
-      }
-      // 穿越心电跳动线
-      line(3, 12, 6, 12);
-      line(6, 12, 7, 10);
-      line(7, 10, 8, 14);
-      line(8, 14, 9, 12);
-      line(14, 12, 19, 12);
-      break;
-    }
-    case 'DICE': {
-      // 骰子立体轮廓
-      box(5, 5, 13, 13);
-      put(5, 5, false); put(17, 5, false); put(5, 17, false); put(17, 17, false);
-      // 翻滚点数 (1~6 循环滚动)
-      const pipMode = Math.floor(t / 4) % 6;
-      if (pipMode === 0) { // 1 点
-        box(10, 10, 3, 3, true);
-      } else if (pipMode === 1) { // 2 点
-        box(7, 7, 2, 2, true); box(14, 14, 2, 2, true);
-      } else if (pipMode === 2) { // 3 点
-        box(7, 7, 2, 2, true); box(11, 11, 2, 2, true); box(14, 14, 2, 2, true);
-      } else if (pipMode === 3) { // 4 点
-        box(7, 7, 2, 2, true); box(14, 7, 2, 2, true); box(7, 14, 2, 2, true); box(14, 14, 2, 2, true);
-      } else if (pipMode === 4) { // 5 点
-        box(7, 7, 2, 2, true); box(14, 7, 2, 2, true); box(11, 11, 2, 2, true); box(7, 14, 2, 2, true); box(14, 14, 2, 2, true);
-      } else { // 6 点
-        box(7, 6, 2, 2, true); box(7, 11, 2, 2, true); box(7, 15, 2, 2, true);
-        box(14, 6, 2, 2, true); box(14, 11, 2, 2, true); box(14, 15, 2, 2, true);
-      }
-      break;
-    }
-    case 'DIAMOND': {
-      // 钻石切面轮廓
-      line(7, 6, 15, 6);
-      line(7, 6, 4, 10);
-      line(15, 6, 18, 10);
-      line(4, 10, 18, 10);
-      line(4, 10, 11, 18);
-      line(18, 10, 11, 18);
-      // 内部折射棱线
-      line(7, 6, 11, 10);
-      line(15, 6, 11, 10);
-      line(11, 10, 11, 18);
-      // 闪烁高光星芒
-      const spark = t % 12;
-      if (spark < 6) {
-        put(18, 9); put(19, 9); put(18, 8); put(18, 10);
-      }
-      break;
-    }
     case 'FIREWORKS': {
       // 粒子烟花 (发射上升 -> 爆炸四散绽放)
       const stage = t % 24;
@@ -2870,16 +2754,6 @@
         ]
       },
       {
-        id: 'game',
-        name: '游戏',
-        icon: '🎮',
-        subcats: [
-          { id: 'all', name: '全部' },
-          { id: 'arcade', name: '复古街机' },
-          { id: 'pixel', name: '像素符号' }
-        ]
-      },
-      {
         id: 'ambience',
         name: '氛围',
         icon: '✨',
@@ -2987,28 +2861,17 @@
       { num: '#71', no: 'LIF-15', id: 'FISH', name: '游动金鱼', cat: 'life', subcat: 'companion', icon: '🐟', frames: 24 },
       { num: '#72', no: 'LIF-16', id: 'BIRD', name: '飞翔小鸟', cat: 'life', subcat: 'companion', icon: '🐦', frames: 24 },
 
-      /* --- 游戏 / 复古街机 --- */
-      { num: '#73', no: 'GAM-01', id: 'PACMAN', name: '吃豆人', cat: 'game', subcat: 'arcade', icon: 'ᗧ', frames: 24 },
-      { num: '#74', no: 'GAM-02', id: 'INVADER', name: '太空侵略者', cat: 'game', subcat: 'arcade', icon: '👾', frames: 24 },
-      { num: '#75', no: 'GAM-03', id: 'SNAKE', name: '经典贪吃蛇', cat: 'game', subcat: 'arcade', icon: '🐍', frames: 24 },
-      { num: '#76', no: 'GAM-04', id: 'TETRIS', name: '俄罗斯方块', cat: 'game', subcat: 'arcade', icon: '🧱', frames: 24 },
-
-      /* --- 游戏 / 像素符号 --- */
-      { num: '#77', no: 'GAM-05', id: 'PIXEL_HEART', name: '像素跳动心', cat: 'game', subcat: 'pixel', icon: '💖', frames: 24 },
-      { num: '#78', no: 'GAM-06', id: 'DICE', name: '幸运骰子', cat: 'game', subcat: 'pixel', icon: '🎲', frames: 24 },
-      { num: '#79', no: 'GAM-07', id: 'DIAMOND', name: '璀璨钻石', cat: 'game', subcat: 'pixel', icon: '💎', frames: 24 },
-
       /* --- 氛围 / 节日庆典 --- */
-      { num: '#80', no: 'AMB-01', id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
-      { num: '#81', no: 'AMB-02', id: 'CANDLE', name: '摇曳烛火', cat: 'ambience', subcat: 'festive', icon: '🕯️', frames: 24 },
-      { num: '#82', no: 'AMB-03', id: 'GIFT', name: '节日礼盒', cat: 'ambience', subcat: 'festive', icon: '🎁', frames: 24 },
+      { num: '#73', no: 'AMB-01', id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
+      { num: '#74', no: 'AMB-02', id: 'CANDLE', name: '摇曳烛火', cat: 'ambience', subcat: 'festive', icon: '🕯️', frames: 24 },
+      { num: '#75', no: 'AMB-03', id: 'GIFT', name: '节日礼盒', cat: 'ambience', subcat: 'festive', icon: '🎁', frames: 24 },
 
       /* --- 氛围 / 空间视效 --- */
-      { num: '#83', no: 'AMB-04', id: 'ORBIT', name: '星际轨道', cat: 'ambience', subcat: 'visual', icon: '🪐', frames: 24 },
-      { num: '#84', no: 'AMB-05', id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
-      { num: '#85', no: 'AMB-06', id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
-      { num: '#86', no: 'AMB-07', id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24 },
-      { num: '#87', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
+      { num: '#76', no: 'AMB-04', id: 'ORBIT', name: '星际轨道', cat: 'ambience', subcat: 'visual', icon: '🪐', frames: 24 },
+      { num: '#77', no: 'AMB-05', id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
+      { num: '#78', no: 'AMB-06', id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
+      { num: '#79', no: 'AMB-07', id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24 },
+      { num: '#80', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
     ];
 
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
@@ -3771,7 +3634,7 @@
           brightnessArray[idx] = gridSet.has(pt.gridId) ? 1.0 : 0.0;
         });
 
-        // 正常显示端同步渲染 (系统/活动/生活/游戏/氛围连续高保真动画)
+        // 正常显示端同步渲染 (系统/活动/生活/氛围连续高保真动画)
         renderNormalDisplay(anim, state.time, null, refinedOptions());
       }
 
@@ -3866,7 +3729,7 @@
         // AI 表情：连续 3D 拟真模型渲染
         drawNormalAvatar(normCtx, cx, cy, curTime, anim, frameData, themeCol);
       } else {
-        // 系统/活动/生活/游戏/氛围：连续高保真动画渲染
+        // 系统/活动/生活/氛围：连续高保真动画渲染
         drawNormalEffect(normCtx, cx, cy, curTime, curF, anim, opt, themeCol);
       }
 
@@ -4072,7 +3935,7 @@
       }
     }
 
-    /* 正常显示：全分类高保真平滑动画渲染 (系统/活动/生活/游戏/氛围) */
+    /* 正常显示：全分类高保真平滑动画渲染 (系统/活动/生活/氛围) */
     function drawNormalEffect(ctx, cx, cy, t, curF, anim, opt, col) {
       const id = anim.id;
 
@@ -4952,92 +4815,6 @@
           break;
         }
 
-        /* ================= 游戏：复古与像素 ================= */
-        case 'PACMAN': {
-          const mouth = Math.abs(Math.sin(t * 8)) * 0.45;
-          const posX = cx - 110 + ((t * 90) % 220);
-          ctx.beginPath();
-          ctx.arc(posX, cy, 60, mouth, Math.PI * 2 - mouth);
-          ctx.lineTo(posX, cy);
-          ctx.fillStyle = '#eab308';
-          ctx.shadowColor = '#eab308'; ctx.shadowBlur = 22;
-          ctx.fill();
-          for (let i = 0; i < 4; i++) {
-            const px = cx - 110 + i * 70;
-            if (px > posX + 28) {
-              ctx.beginPath();
-              ctx.arc(px, cy, 10, 0, Math.PI * 2);
-              ctx.fillStyle = '#ffffff';
-              ctx.fill();
-            }
-          }
-          break;
-        }
-
-        case 'INVADER': {
-          ctx.save();
-          ctx.translate(cx, cy + Math.sin(t * 3) * 10);
-          ctx.fillStyle = '#a855f7';
-          ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 24;
-          // 复古侵略者外形
-          const sz = 16;
-          const invaderGrid = [
-            '00100000100',
-            '00010001000',
-            '00111111100',
-            '01101110110',
-            '11111111111',
-            '10111111101',
-            '10100000101',
-            '00011011000'
-          ];
-          invaderGrid.forEach((row, ry) => {
-            [...row].forEach((c, rx) => {
-              if (c === '1') ctx.fillRect((rx - 5.5) * sz, (ry - 4) * sz, sz - 2, sz - 2);
-            });
-          });
-          ctx.restore();
-          break;
-        }
-
-        case 'SNAKE': {
-          ctx.save();
-          const segs = 7;
-          for (let i = 0; i < segs; i++) {
-            const sx = cx - i * 28 + Math.sin(t * 5 + i * 0.8) * 16;
-            const sy = cy + Math.cos(t * 5 + i * 0.8) * 16;
-            ctx.beginPath();
-            ctx.arc(sx, sy, 18 - i * 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = i === 0 ? '#10b981' : '#059669';
-            ctx.shadowColor = '#10b981'; ctx.shadowBlur = 14;
-            ctx.fill();
-          }
-          // 红色苹果
-          ctx.beginPath();
-          ctx.arc(cx + 100, cy, 18, 0, Math.PI * 2);
-          ctx.fillStyle = '#ef4444';
-          ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 18;
-          ctx.fill();
-          ctx.restore();
-          break;
-        }
-
-        case 'TETRIS': {
-          ctx.save();
-          ctx.translate(cx, cy);
-          const sz = 34;
-          // T 块 (紫色)
-          ctx.fillStyle = '#a855f7';
-          ctx.fillRect(-sz * 1.5, -sz, sz * 3, sz);
-          ctx.fillRect(-sz * 0.5, 0, sz, sz);
-          // I 块 (青色)
-          ctx.fillStyle = '#06b6d4';
-          ctx.fillRect(-sz * 2, sz * 1.2, sz * 4, sz);
-          ctx.restore();
-          break;
-        }
-
-        case 'PIXEL_HEART':
         case 'HEART': {
           ctx.save();
           ctx.translate(cx, cy + 22);
@@ -5110,46 +4887,6 @@
             ctx.stroke();
           }
 
-          ctx.restore();
-          break;
-        }
-
-        case 'DICE': {
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(t * 1.5);
-          ctx.beginPath();
-          ctx.roundRect(-85, -85, 170, 170, 24);
-          ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = col; ctx.shadowBlur = 24;
-          ctx.fill();
-          // 点数
-          ctx.fillStyle = '#ef4444';
-          ctx.beginPath(); ctx.arc(0, 0, 18, 0, Math.PI * 2); ctx.fill();
-          ctx.fillStyle = '#0b1116';
-          [[-45, -45], [45, 45], [-45, 45], [45, -45]].forEach(([dx, dy]) => {
-            ctx.beginPath(); ctx.arc(dx, dy, 12, 0, Math.PI * 2); ctx.fill();
-          });
-          ctx.restore();
-          break;
-        }
-
-        case 'DIAMOND': {
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(Math.sin(t * 2) * 0.2);
-          ctx.beginPath();
-          ctx.moveTo(0, -105); ctx.lineTo(105, 0); ctx.lineTo(0, 105); ctx.lineTo(-105, 0);
-          ctx.closePath();
-          ctx.fillStyle = '#38bdf8';
-          ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 30;
-          ctx.fill();
-          ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 4; ctx.stroke();
-          // 内部光芒棱镜
-          ctx.beginPath();
-          ctx.moveTo(-105, 0); ctx.lineTo(105, 0);
-          ctx.moveTo(0, -105); ctx.lineTo(0, 105);
-          ctx.stroke();
           ctx.restore();
           break;
         }
@@ -6615,7 +6352,6 @@
                 <option value="system">⚙️ 系统 (System)</option>
                 <option value="activity">🏃 活动 (Activity)</option>
                 <option value="life">☕ 生活 (Life)</option>
-                <option value="game">🎮 游戏 (Game)</option>
                 <option value="ambience">✨ 氛围 (Ambience)</option>
               </select>
             </div>
