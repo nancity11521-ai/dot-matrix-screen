@@ -2876,7 +2876,8 @@
 
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V2';
+    const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 待修改项本地存储与管理系统 */
     const STORAGE_KEY_PENDING = 'DOT_MATRIX_PENDING_MODIFICATIONS_V1';
@@ -5440,14 +5441,24 @@
        ========================================================================== */
     function loadAnimationsFromStorage() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY_ANIMATIONS);
+        let raw = localStorage.getItem(STORAGE_KEY_ANIMATIONS);
+        if (!raw) {
+          // 向上迁移：兼容旧版存储并主动过滤游戏分类
+          const oldV1 = localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
+          if (oldV1) raw = oldV1;
+        }
         if (!raw) {
           ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
           return;
         }
         const data = JSON.parse(raw);
         if (data && Array.isArray(data.animations) && data.animations.length > 0) {
-          ALL_ANIMATIONS = data.animations.map(item => {
+          const loaded = [];
+          for (const item of data.animations) {
+            // 彻底过滤已下线的全部游戏分类动画
+            if (item.cat === 'game' || (item.no && item.no.startsWith('GAM')) || RETIRED_GAME_IDS.has(item.id)) {
+              continue;
+            }
             const def = DEFAULT_ANIMATIONS.find(d => d.id === item.id);
             if (def) {
               // 自动修复：系统内置动画（尤其是 CLOCK 数字时间）若此前被误存为静态快照，自动清除以恢复原生动态实时算法
@@ -5456,12 +5467,16 @@
                 item.isCustom = false;
               }
               if (def.isAvatar && !item.customFrames) {
-                return { ...def, ...item, eyes: def.eyes, gaze: def.gaze };
+                loaded.push({ ...def, ...item, eyes: def.eyes, gaze: def.gaze });
+              } else {
+                loaded.push({ ...def, ...item });
               }
-              return { ...def, ...item };
+            } else if (item.isCustom) {
+              // 仅保留用户自主新建的自定义动画，杜绝旧版孤儿游戏动画混入
+              loaded.push(item);
             }
-            return item;
-          });
+          }
+          ALL_ANIMATIONS = loaded.length > 0 ? loaded : DEFAULT_ANIMATIONS.map(a => ({ ...a }));
         } else {
           ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
         }
@@ -5492,13 +5507,14 @@
     }
 
     function resetAnimationsToDefault() {
-      if (confirm('确定要恢复为官方默认动画库吗？\n所有自定义新增或修改的动画将被重置，官方全部 87 款动画将完整还原。')) {
+      if (confirm('确定要恢复为官方默认动画库吗？\n所有自定义新增或修改的动画将被重置，官方全部 80 款动画将完整还原。')) {
         localStorage.removeItem(STORAGE_KEY_ANIMATIONS);
+        localStorage.removeItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
         ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
         state.currentAnim = ALL_ANIMATIONS[0];
         initUI();
         selectAnimation(ALL_ANIMATIONS[0]);
-        showToast('已成功恢复为官方默认 87 款动画！');
+        showToast('已成功恢复为官方默认 80 款动画！');
       }
     }
 
@@ -6414,7 +6430,7 @@
                 🔄 恢复动态算法
               </button>
             </div>
-            <span style="font-size:10px;color:var(--muted)">支持随时恢复官方默认 87 款动画</span>
+            <span style="font-size:10px;color:var(--muted)">支持随时恢复官方默认 80 款动画</span>
           </div>
         </div>
       </div>
