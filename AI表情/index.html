@@ -5812,7 +5812,8 @@
       currentFrameIdx: 0,
       framesData: [], // Array of Set<gridId>
       previewPlaying: true,
-      previewTimer: null
+      previewTimer: null,
+      hoverGridId: null
     };
 
     function openAnimationEditor(animId) {
@@ -5820,6 +5821,10 @@
       editorState.hasPainted = false;
       const modal = document.getElementById('animEditorModal');
       if (!modal) return;
+
+      // 确保画布事件已绑定并默认激活画笔
+      initEditorCanvas();
+      setEditorTool('pen', false);
 
       if (animId) {
         const anim = ALL_ANIMATIONS.find(a => a.id === animId) || DEFAULT_ANIMATIONS.find(a => a.id === animId);
@@ -5892,10 +5897,19 @@
       if (modal) modal.style.display = 'none';
     }
 
-    function setEditorTool(tool) {
+    function setEditorTool(tool, notify = true) {
       editorState.tool = tool;
-      document.getElementById('toolPenBtn').classList.toggle('active', tool === 'pen');
-      document.getElementById('toolEraserBtn').classList.toggle('active', tool === 'eraser');
+      const penBtn = document.getElementById('toolPenBtn');
+      const eraserBtn = document.getElementById('toolEraserBtn');
+      if (penBtn) penBtn.classList.toggle('active', tool === 'pen');
+      if (eraserBtn) eraserBtn.classList.toggle('active', tool === 'eraser');
+      const eCanvas = document.getElementById('editorMatrixCanvas');
+      if (eCanvas) {
+        eCanvas.style.cursor = tool === 'eraser' ? 'cell' : 'crosshair';
+      }
+      if (notify) {
+        showToast(tool === 'eraser' ? '🧹 橡皮擦已激活 (点击/拖拽涂抹熄灭灯珠)' : '🖌️ 画笔已激活 (点击/拖拽涂抹点亮灯珠)');
+      }
     }
 
     function invertEditorFrame() {
@@ -6017,18 +6031,25 @@
     /* 点阵画板交互事件绑定 */
     var editorCanvasInited = false;
     function initEditorCanvas() {
-      if (editorCanvasInited) return;
       const eCanvas = document.getElementById('editorMatrixCanvas');
       if (!eCanvas) return;
+      if (editorCanvasInited) return;
       editorCanvasInited = true;
 
       function getCanvasPos(e) {
         const rect = eCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let clientX = e.clientX;
+        let clientY = e.clientY;
+        if (e.touches && e.touches.length > 0) {
+          clientX = e.touches[0].clientX;
+          clientY = e.touches[0].clientY;
+        } else if (e.changedTouches && e.changedTouches.length > 0) {
+          clientX = e.changedTouches[0].clientX;
+          clientY = e.changedTouches[0].clientY;
+        }
         return {
-          x: (clientX - rect.left) * (eCanvas.width / rect.width),
-          y: (clientY - rect.top) * (eCanvas.height / rect.height)
+          x: (clientX - rect.left) * (eCanvas.width / (rect.width || 1)),
+          y: (clientY - rect.top) * (eCanvas.height / (rect.height || 1))
         };
       }
 
@@ -6043,7 +6064,7 @@
           const px = cx + pt.x * scale;
           const py = cy + pt.y * scale;
           const dist = Math.hypot(pos.x - px, pos.y - py);
-          if (dist <= 11) {
+          if (dist <= 14) {
             if (editorState.tool === 'pen' && !curSet.has(pt.gridId)) {
               curSet.add(pt.gridId);
               changed = true;
@@ -6061,29 +6082,102 @@
         }
       }
 
-      eCanvas.addEventListener('mousedown', (e) => {
-        editorState.isPainting = true;
-        paintAtPos(getCanvasPos(e));
-      });
-      window.addEventListener('mousemove', (e) => {
-        if (editorState.isPainting && editorState.active) {
-          paintAtPos(getCanvasPos(e));
+      function paintLine(p1, p2) {
+        const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        const steps = Math.max(1, Math.ceil(dist / 4));
+        for (let i = 0; i <= steps; i++) {
+          const t = i / steps;
+          paintAtPos({
+            x: p1.x + (p2.x - p1.x) * t,
+            y: p1.y + (p2.y - p1.y) * t
+          });
         }
-      });
-      window.addEventListener('mouseup', () => { editorState.isPainting = false; });
+      }
 
-      eCanvas.addEventListener('touchstart', (e) => {
-        editorState.isPainting = true;
-        paintAtPos(getCanvasPos(e));
-        e.preventDefault();
-      }, { passive: false });
-      eCanvas.addEventListener('touchmove', (e) => {
-        if (editorState.isPainting && editorState.active) {
-          paintAtPos(getCanvasPos(e));
+      function updateHover(pos) {
+        const W = eCanvas.width, cx = W / 2, cy = W / 2;
+        const scale = 200;
+        let closest = null;
+        let minDist = 14;
+        PHYSICAL_POINTS.forEach(pt => {
+          const px = cx + pt.x * scale;
+          const py = cy + pt.y * scale;
+          const d = Math.hypot(pos.x - px, pos.y - py);
+          if (d < minDist) {
+            minDist = d;
+            closest = pt.gridId;
+          }
+        });
+        if (editorState.hoverGridId !== closest) {
+          editorState.hoverGridId = closest;
+          drawEditorCanvas();
         }
-        e.preventDefault();
-      }, { passive: false });
-      eCanvas.addEventListener('touchend', () => { editorState.isPainting = false; });
+      }
+
+      let lastPos = null;
+
+      function onPointerDown(e) {
+        editorState.isPainting = true;
+        try { if (eCanvas.setPointerCapture && e.pointerId) eCanvas.setPointerCapture(e.pointerId); } catch (_) {}
+        const pos = getCanvasPos(e);
+        lastPos = pos;
+        paintAtPos(pos);
+      }
+
+      function onPointerMove(e) {
+        const pos = getCanvasPos(e);
+        if (editorState.isPainting && editorState.active) {
+          if (lastPos) paintLine(lastPos, pos);
+          else paintAtPos(pos);
+          lastPos = pos;
+        } else if (editorState.active) {
+          updateHover(pos);
+        }
+      }
+
+      function onPointerUp(e) {
+        editorState.isPainting = false;
+        lastPos = null;
+        try { if (eCanvas.releasePointerCapture && e.pointerId) eCanvas.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+
+      if (window.PointerEvent) {
+        eCanvas.addEventListener('pointerdown', onPointerDown);
+        eCanvas.addEventListener('pointermove', onPointerMove);
+        eCanvas.addEventListener('pointerup', onPointerUp);
+        eCanvas.addEventListener('pointercancel', onPointerUp);
+        eCanvas.addEventListener('pointerleave', () => {
+          editorState.hoverGridId = null;
+          drawEditorCanvas();
+        });
+      } else {
+        eCanvas.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mousemove', (e) => {
+          if (editorState.isPainting && editorState.active) {
+            const pos = getCanvasPos(e);
+            if (lastPos) paintLine(lastPos, pos);
+            else paintAtPos(pos);
+            lastPos = pos;
+          } else if (editorState.active) {
+            updateHover(getCanvasPos(e));
+          }
+        });
+        window.addEventListener('mouseup', onPointerUp);
+        eCanvas.addEventListener('mouseleave', () => {
+          editorState.hoverGridId = null;
+          drawEditorCanvas();
+        });
+
+        eCanvas.addEventListener('touchstart', (e) => {
+          onPointerDown(e);
+          e.preventDefault();
+        }, { passive: false });
+        eCanvas.addEventListener('touchmove', (e) => {
+          onPointerMove(e);
+          e.preventDefault();
+        }, { passive: false });
+        eCanvas.addEventListener('touchend', onPointerUp);
+      }
     }
 
     function drawEditorCanvas() {
@@ -6136,6 +6230,23 @@
           eCtx.stroke();
         }
       });
+
+      // 绘制悬浮高亮指引光环
+      if (editorState.hoverGridId !== null) {
+        const hoverPt = PHYSICAL_POINTS.find(p => p.gridId === editorState.hoverGridId);
+        if (hoverPt) {
+          const px = cx + hoverPt.x * scale;
+          const py = cy + hoverPt.y * scale;
+          eCtx.beginPath();
+          eCtx.arc(px, py, 8.5, 0, Math.PI * 2);
+          eCtx.strokeStyle = editorState.tool === 'eraser' ? '#f87171' : '#ffffff';
+          eCtx.lineWidth = 1.6;
+          eCtx.shadowColor = editorState.tool === 'eraser' ? '#f87171' : '#ffffff';
+          eCtx.shadowBlur = 6;
+          eCtx.stroke();
+          eCtx.shadowBlur = 0;
+        }
+      }
 
       const pct = ((litCount / TOTAL_LEDS) * 100).toFixed(1);
       const litBadge = document.getElementById('editorLitBadge');
