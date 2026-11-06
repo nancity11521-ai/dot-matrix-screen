@@ -1447,14 +1447,16 @@
     let batteryLevel = 20, volumeLevel = 50, temperatureLevel = 37, compassBearing = 45, selectedDate = '2026-07-01';
 
     function refinedOptions() {
+      const now = new Date();
       return {
         date: selectedDate,
         battery: batteryLevel,
         temperature: temperatureLevel,
         volume: volumeLevel,
         bearing: compassBearing,
-        hour: new Date().getHours(),
-        minute: new Date().getMinutes()
+        hour: now.getHours(),
+        minute: now.getMinutes(),
+        now: now
       };
     }
 
@@ -1518,8 +1520,10 @@
         const parts = (opt.date || '2026-07-01').split('-');
         a = parts[1]; b = parts[2];
       } else {
-        a = String(d.getHours()).padStart(2, '0');
-        b = String(d.getMinutes()).padStart(2, '0');
+        const hh = (opt.hour !== undefined) ? opt.hour : d.getHours();
+        const mm = (opt.minute !== undefined) ? opt.minute : d.getMinutes();
+        a = String(hh).padStart(2, '0');
+        b = String(mm).padStart(2, '0');
       }
       text(a, 3);
       text(b, 14);
@@ -3536,7 +3540,7 @@
         const frameSet = new Set(frameData);
 
         PHYSICAL_POINTS.forEach((pt, idx) => {
-          brightnessArray[idx] = (frameSet.has(pt.gridId) || frameSet.has(pt.idx)) ? 1.0 : 0.0;
+          brightnessArray[idx] = frameSet.has(pt.gridId) ? 1.0 : 0.0;
         });
 
         // 正常显示端同步渲染 (呈现高保真连续矢量发光效果)
@@ -5437,7 +5441,7 @@
        自定义点阵画板矢量同步渲染 (右侧视窗)
        ========================================================================== */
     function drawNormalCustom(ctx, cx, cy, t, curF, anim, frameSet, col) {
-      const litPoints = PHYSICAL_POINTS.filter(pt => frameSet.has(pt.gridId) || frameSet.has(pt.idx));
+      const litPoints = PHYSICAL_POINTS.filter(pt => frameSet.has(pt.gridId));
       if (litPoints.length === 0) return;
 
       const scale = 210;
@@ -5483,8 +5487,16 @@
         if (data && Array.isArray(data.animations) && data.animations.length > 0) {
           ALL_ANIMATIONS = data.animations.map(item => {
             const def = DEFAULT_ANIMATIONS.find(d => d.id === item.id);
-            if (def && def.isAvatar && !item.customFrames) {
-              return { ...def, ...item, eyes: def.eyes, gaze: def.gaze };
+            if (def) {
+              // 自动修复：系统内置动画（尤其是 CLOCK 数字时间）若此前被误存为静态快照，自动清除以恢复原生动态实时算法
+              if (item.id === 'CLOCK' || (!item.hasUserDrawnPixels && !item.isCustomCreated)) {
+                delete item.customFrames;
+                item.isCustom = false;
+              }
+              if (def.isAvatar && !item.customFrames) {
+                return { ...def, ...item, eyes: def.eyes, gaze: def.gaze };
+              }
+              return { ...def, ...item };
             }
             return item;
           });
@@ -5571,6 +5583,7 @@
       editingAnimId: null,
       tool: 'pen',
       isPainting: false,
+      hasPainted: false,
       currentFrameIdx: 0,
       framesData: [], // Array of Set<gridId>
       previewPlaying: true,
@@ -5579,6 +5592,7 @@
 
     function openAnimationEditor(animId) {
       editorState.active = true;
+      editorState.hasPainted = false;
       const modal = document.getElementById('animEditorModal');
       if (!modal) return;
 
@@ -5603,6 +5617,9 @@
         }
 
         document.getElementById('editorDeleteBtn').style.display = 'inline-block';
+        const restoreBtn = document.getElementById('editorRestoreAlgorithmBtn');
+        const isBuiltIn = DEFAULT_ANIMATIONS.some(d => d.id === anim.id);
+        if (restoreBtn) restoreBtn.style.display = isBuiltIn ? 'inline-block' : 'none';
       } else {
         // 新建动画
         editorState.isNew = true;
@@ -5618,6 +5635,10 @@
         document.getElementById('editAnimCat').value = state.currentCat === 'export' ? 'emotion' : state.currentCat;
         document.getElementById('editAnimIcon').value = '🎨';
         document.getElementById('editAnimFps').value = 12;
+
+        document.getElementById('editorDeleteBtn').style.display = 'none';
+        const restoreBtn = document.getElementById('editorRestoreAlgorithmBtn');
+        if (restoreBtn) restoreBtn.style.display = 'none';
 
         // 默认初始化 8 帧空白画板
         editorState.framesData = [new Set(), new Set(), new Set(), new Set(), new Set(), new Set(), new Set(), new Set()];
@@ -5686,6 +5707,7 @@
     }
 
     function editorAddFrame() {
+      editorState.hasPainted = true;
       editorState.framesData.push(new Set());
       editorState.currentFrameIdx = editorState.framesData.length - 1;
       updateEditorTotalFramesBadge();
@@ -5695,6 +5717,7 @@
     }
 
     function editorCopyFrame() {
+      editorState.hasPainted = true;
       const curSet = editorState.framesData[editorState.currentFrameIdx] || new Set();
       const cloned = new Set(curSet);
       editorState.framesData.splice(editorState.currentFrameIdx + 1, 0, cloned);
@@ -5711,6 +5734,7 @@
         showToast('至少需要保留 1 帧！');
         return;
       }
+      editorState.hasPainted = true;
       editorState.framesData.splice(editorState.currentFrameIdx, 1);
       if (editorState.currentFrameIdx >= editorState.framesData.length) {
         editorState.currentFrameIdx = editorState.framesData.length - 1;
@@ -5802,6 +5826,7 @@
         });
 
         if (changed) {
+          editorState.hasPainted = true;
           drawEditorCanvas();
           drawEditorMiniPreview();
         }
@@ -5981,15 +6006,28 @@
       } else {
         const anim = ALL_ANIMATIONS.find(a => a.id === editorState.editingAnimId);
         if (anim) {
+          const isBuiltIn = DEFAULT_ANIMATIONS.some(d => d.id === anim.id);
           anim.num = num;
           anim.no = no;
           anim.name = name;
           anim.cat = cat;
           anim.icon = icon;
           anim.fps = fps;
-          anim.frames = customFrames.length;
-          anim.customFrames = customFrames;
-          anim.isCustom = true;
+
+          if (editorState.hasPainted) {
+            anim.frames = customFrames.length;
+            anim.customFrames = customFrames;
+            anim.isCustom = true;
+            anim.hasUserDrawnPixels = true;
+          } else if (isBuiltIn && !anim.hasUserDrawnPixels) {
+            // 用户仅修改参数/名称，保持官方内置动态渲染算法
+            delete anim.customFrames;
+            anim.isCustom = false;
+          } else if (anim.customFrames) {
+            anim.frames = customFrames.length;
+            anim.customFrames = customFrames;
+          }
+
           saveAnimationsToStorage();
           closeAnimationEditor();
           initUI();
@@ -5997,6 +6035,24 @@
           showToast(`已成功保存对动画【${anim.name}】的修改！`);
         }
       }
+    }
+
+    function onEditorRestoreAlgorithmClick() {
+      const anim = ALL_ANIMATIONS.find(a => a.id === editorState.editingAnimId);
+      if (!anim) return;
+      delete anim.customFrames;
+      delete anim.hasUserDrawnPixels;
+      anim.isCustom = false;
+      const def = DEFAULT_ANIMATIONS.find(d => d.id === anim.id);
+      if (def) {
+        anim.fps = def.fps || 12;
+        anim.frames = def.frames;
+      }
+      saveAnimationsToStorage();
+      closeAnimationEditor();
+      initUI();
+      selectAnimation(anim);
+      showToast(`已成功恢复动画【${anim.name}】的官方实时动态算法！`);
     }
 
     function saveAsNewAnimation() {
@@ -6241,11 +6297,16 @@
             </div>
           </div>
 
-          <!-- 危险操作：删除此动画 -->
-          <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--panel-border);display:flex;justify-content:space-between;align-items:center">
-            <button class="btn" id="editorDeleteBtn" onclick="onEditorDeleteClick()" style="color:#f87171;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);padding:4px 10px;font-size:11px">
-              🗑️ 删除此动画
-            </button>
+          <!-- 快捷操作：删除此动画 / 恢复动态算法 -->
+          <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--panel-border);display:flex;justify-content:space-between;align-items:center;gap:8px">
+            <div style="display:flex;gap:6px">
+              <button class="btn" id="editorDeleteBtn" onclick="onEditorDeleteClick()" style="color:#f87171;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);padding:4px 10px;font-size:11px">
+                🗑️ 删除此动画
+              </button>
+              <button class="btn" id="editorRestoreAlgorithmBtn" onclick="onEditorRestoreAlgorithmClick()" style="color:#38bdf8;border-color:rgba(56,189,248,0.3);background:rgba(56,189,248,0.08);padding:4px 10px;font-size:11px;display:none" title="移除画板自定义覆盖，恢复官方实时动态算法与高清矢量刻度盘">
+                🔄 恢复动态算法
+              </button>
+            </div>
             <span style="font-size:10px;color:var(--muted)">支持随时恢复官方默认 87 款动画</span>
           </div>
         </div>
