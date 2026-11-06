@@ -1486,16 +1486,16 @@
     }
   };
   const digits = [
-    '1111/1001/1001/1001/1001/1111',
-    '0110/0010/0010/0010/0010/1111',
-    '1111/0001/1111/1000/1000/1111',
-    '1111/0001/0111/0001/0001/1111',
-    '1001/1001/1111/0001/0001/0001',
-    '1111/1000/1111/0001/0001/1111',
-    '1111/1000/1111/1001/1001/1111',
-    '1111/0001/0010/0100/0100/0100',
-    '1111/1001/1111/1001/1001/1111',
-    '1111/1001/1111/0001/0001/1111'
+    '1111/1001/1001/1001/1001/1001/1111', // 0: 4x7
+    '0110/0010/0010/0010/0010/0010/1111', // 1: 4x7 (精巧带基座)
+    '1111/0001/0001/1111/1000/1000/1111', // 2: 4x7
+    '1111/0001/0001/1111/0001/0001/1111', // 3: 4x7
+    '1001/1001/1001/1111/0001/0001/0001', // 4: 4x7
+    '1111/1000/1000/1111/0001/0001/1111', // 5: 4x7
+    '1111/1000/1000/1111/1001/1001/1111', // 6: 4x7
+    '1111/0001/0001/0010/0010/0100/0100', // 7: 4x7
+    '1111/1001/1001/1111/1001/1001/1111', // 8: 4x7
+    '1111/1001/1001/1111/0001/0001/1111'  // 9: 4x7
   ];
   const text = (s, y) => {
     let total = s.length * 5 - 1, x = Math.floor((23 - total) / 2);
@@ -1526,11 +1526,8 @@
         b = String(mm).padStart(2, '0');
       }
       text(a, 3);
-      text(b, 14);
-      if(kind === 'DATE' || d.getMilliseconds() < 500) {
-        put(11, 10); put(11, 12);
-        if(kind === 'DATE') { line(8, 11, 14, 11); }
-      }
+      line(8, 11, 14, 11);
+      text(b, 13);
       break;
     }
     case 'WEEKDAY': {
@@ -3932,7 +3929,7 @@
             ctx.lineWidth = i % 5 === 0 ? 3.5 : 1.5;
             ctx.stroke();
           }
-          // 上下大数字时钟 (极简科幻表盘排版)
+          // 上下大数字时钟 (极简科幻表盘排版，分段 4x7 对应高保真矢量排版)
           ctx.font = 'bold 96px system-ui, -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -3940,12 +3937,22 @@
           ctx.shadowColor = col;
           ctx.shadowBlur = 18;
           ctx.fillText(hh, cx, cy - 65);
-          if (Math.sin(t * 4) > 0) {
-            ctx.beginPath();
-            ctx.arc(cx, cy, 7, 0, Math.PI * 2);
-            ctx.fillStyle = col;
-            ctx.fill();
-          }
+
+          // 中间横向高光分割线 (与左侧点阵屏 7 颗灯珠横线 100% 同步呼应)
+          ctx.beginPath();
+          ctx.moveTo(cx - 72, cy);
+          ctx.lineTo(cx + 72, cy);
+          ctx.strokeStyle = col;
+          ctx.lineWidth = 5;
+          ctx.lineCap = 'round';
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 12;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 18;
+          ctx.fillStyle = '#ffffff';
           ctx.fillText(mm, cx, cy + 65);
           ctx.font = '600 22px system-ui';
           ctx.fillStyle = col;
