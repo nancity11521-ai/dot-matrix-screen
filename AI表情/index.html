@@ -1584,17 +1584,17 @@
       break;
     }
     case 'HEART': {
-      // EMO-35 心意爱心：纯粹饱满爱心常驻呼吸微动（去除外圈）
-      mask(heart, 5, 6);
+      // EMO-35 心意爱心：纯粹饱满爱心常驻呼吸微动（重心算法对齐：(5, 7) 实现 11.00, 10.98 完美视觉居中）
+      mask(heart, 5, 7);
       break;
     }
     case 'HEARTBEAT': {
-      // EMO-36 心跳回响：一闪一闪（扑通扑通双重瞬间闪烁，纯粹爱心瞬间亮灭，无外圈）
+      // EMO-36 心跳回响：一闪一闪（扑通扑通双重瞬间闪烁，纯粹爱心瞬间亮灭，完美视觉居中，无外圈）
       const phase = t % 16;
       const isBeat1 = (phase >= 0 && phase <= 2);
       const isBeat2 = (phase >= 5 && phase <= 7);
       if (isBeat1 || isBeat2) {
-        mask(heart, 5, 6); // 纯粹爱心瞬间全亮，无外圈！
+        mask(heart, 5, 7); // 纯粹爱心瞬间全亮，完美视觉居中，无外圈！
       }
       // 其它帧数全灭，产生极具节奏感的一闪一闪效果
       break;
@@ -4811,7 +4811,7 @@
         case 'PIXEL_HEART':
         case 'HEART': {
           ctx.save();
-          ctx.translate(cx, cy);
+          ctx.translate(cx, cy + 22);
           const pulse = 1.0 + 0.18 * Math.sin(t * 7) + (Math.sin(t * 14) > 0.8 ? 0.12 : 0);
           ctx.scale(pulse, pulse);
           ctx.beginPath();
@@ -4841,7 +4841,7 @@
           const isLit = isBeat1 || isBeat2;
 
           ctx.save();
-          ctx.translate(cx, cy);
+          ctx.translate(cx, cy + 22);
 
           if (isLit) {
             const beatScale = isBeat2 ? 1.14 : 1.08;
