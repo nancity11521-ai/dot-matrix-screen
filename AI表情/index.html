@@ -708,6 +708,346 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #23323e; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #354a5c; }
+
+    /* 动画管理操作条与卡片快捷按钮 */
+    .anim-mgmt-bar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .anim-mgmt-btn {
+      flex: 1;
+      min-width: 60px;
+      padding: 5px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .anim-card-actions {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      display: flex;
+      gap: 3px;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 5;
+    }
+    .anim-card:hover .anim-card-actions,
+    .anim-card.active .anim-card-actions {
+      opacity: 1;
+    }
+    .anim-action-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      border: 1px solid var(--panel-border);
+      background: rgba(13, 20, 26, 0.92);
+      font-size: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      transition: all 0.15s;
+      padding: 0;
+    }
+    .anim-action-btn:hover {
+      background: #1e2c38;
+      border-color: var(--accent);
+      transform: scale(1.1);
+    }
+    .anim-action-btn.del:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    /* 动画编辑器模态框 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 6, 9, 0.86);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-dialog {
+      background: #0d151c;
+      border: 1px solid #1f2f3d;
+      border-radius: 16px;
+      box-shadow: 0 25px 70px rgba(0,0,0,0.85);
+      width: min(940px, 96vw);
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalPopIn {
+      from { opacity: 0; transform: scale(0.96) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-header {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--panel-border);
+      background: #080d12;
+    }
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s;
+    }
+    .modal-close-btn:hover { background: #1a2530; color: #fff; }
+    .modal-body {
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 20px;
+      overflow-y: auto;
+    }
+    @media (max-width: 860px) {
+      .modal-body { grid-template-columns: 1fr; }
+    }
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--panel-border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #080d12;
+    }
+
+    /* 编辑器左列：画板与时间轴 */
+    .editor-left-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .editor-pane-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .editor-lit-badge {
+      background: rgba(255, 212, 94, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+    .editor-tools-bar {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .editor-tool-btn {
+      padding: 5px 9px;
+      border-radius: 6px;
+      border: 1px solid var(--panel-border);
+      background: #111a22;
+      color: var(--text);
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .editor-tool-btn:hover { background: #1a2734; border-color: #3b5062; }
+    .editor-tool-btn.active {
+      background: rgba(255, 212, 94, 0.15);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .editor-tool-btn.primary {
+      background: #1e3a5f;
+      border-color: #3b82f6;
+      color: #93c5fd;
+    }
+    .editor-canvas-container {
+      width: 440px;
+      height: 440px;
+      background: #04070a;
+      border: 1px solid #1a2734;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 35px rgba(0,0,0,0.85);
+      position: relative;
+      user-select: none;
+      touch-action: none;
+    }
+    #editorMatrixCanvas {
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      display: block;
+      cursor: crosshair;
+    }
+
+    /* 时间轴与帧胶囊 */
+    .editor-timeline-section {
+      width: 100%;
+      background: #090e13;
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .editor-frames-strip {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding: 4px 0;
+      max-width: 440px;
+    }
+    .frame-pill {
+      min-width: 26px;
+      height: 24px;
+      border-radius: 5px;
+      border: 1px solid var(--panel-border);
+      background: #131c24;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .frame-pill:hover { background: #1c2a36; color: var(--text); }
+    .frame-pill.active {
+      background: var(--accent);
+      color: #0b1116;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* 编辑器右列：参数表单 */
+    .editor-right-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .editor-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-label {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .form-input, .form-select {
+      background: #090e13;
+      border: 1px solid var(--panel-border);
+      border-radius: 7px;
+      padding: 6px 9px;
+      font-size: 11px;
+      color: var(--text);
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--accent); }
+    .emoji-quick-picker {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .emoji-btn {
+      background: #111a22;
+      border: 1px solid var(--panel-border);
+      border-radius: 5px;
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      color: var(--text);
+    }
+    .emoji-btn:hover { background: #1a2734; border-color: var(--accent); }
+    .editor-preview-card {
+      background: #090e13;
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    #editorMiniPreviewCanvas {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: #04070a;
+      border: 1px solid #1a2734;
+      flex-shrink: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -913,6 +1253,8 @@
           <span id="categoryBadge" class="anim-tag" style="background:var(--accent);color:#0b1116;font-weight:700">表情</span>
           <span style="color:var(--muted)">当前动画:</span>
           <b id="statusCurrentName">平静 · NEUTRAL</b>
+          <button class="btn" style="padding:2px 8px;font-size:10px;margin-left:6px" onclick="openAnimationEditor(state.currentAnim.id)" title="编辑当前动画">✏️ 编辑</button>
+          <button class="btn" style="padding:2px 7px;font-size:10px;color:#f87171" onclick="confirmDeleteAnimation(state.currentAnim.id)" title="删除当前动画">🗑️ 删除</button>
         </div>
         <div class="view-modes">
           <button class="view-btn active" id="viewDualBtn" onclick="setViewMode('dual')">双模并列对比</button>
@@ -2494,7 +2836,7 @@
     ];
 
     /* 全量动画清单 */
-    const ALL_ANIMATIONS = [
+    const DEFAULT_ANIMATIONS = [
       /* --- 表情 / 情绪表情 (16种) --- */
       { num: '#01', no: 'EMO-01', id: 'neutre', name: '平静 · 平常', cat: 'emotion', subcat: 'emotions', icon: '🙂', isAvatar: true, gaze: { ...REST_GAZE }, split: EYE_SPLIT, eyes: [eyeCfg(EYE_W, EYE_H), eyeCfg(EYE_W, EYE_H)], duration: 3.0 },
       { num: '#02', no: 'EMO-02', id: 'attentif', name: '专注 · 凝视', cat: 'emotion', subcat: 'emotions', icon: '🧐', isAvatar: true, gaze: { yaw: 4, pitch: 5, roll: -4 }, split: 16, eyes: pair(0.21, 0.44), duration: 3.0 },
@@ -2613,6 +2955,10 @@
       { num: '#87', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
     ];
 
+    /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
+    let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1';
+
     /* 全局运行状态 */
     const state = {
       mode: 'face',          // 'face', 'blob', 'invert', 'contour'
@@ -2649,8 +2995,13 @@
 
     /* UI 初始化与渲染 */
     function initUI() {
+      loadAnimationsFromStorage();
+      if (!ALL_ANIMATIONS.some(a => a.id === state.currentAnim.id)) {
+        state.currentAnim = ALL_ANIMATIONS[0] || DEFAULT_ANIMATIONS[0];
+      }
       renderSubcatPills();
       renderAnimationsList();
+      initEditorCanvas();
     }
 
     function selectMainCategory(catId) {
@@ -2727,12 +3078,17 @@
 
       list.forEach(item => {
         const card = document.createElement('div');
+        card.setAttribute('data-id', item.id);
         card.className = 'anim-card' + (item.id === state.currentAnim.id ? ' active' : '');
         card.onclick = () => selectAnimation(item);
 
         const subName = getSubcatName(item.cat, item.subcat);
         card.innerHTML = `
           <div class="anim-card-no" title="动画编号: ${item.num} (${item.no})">${item.no}</div>
+          <div class="anim-card-actions">
+            <button class="anim-action-btn" title="编辑此动画" onclick="event.stopPropagation();openAnimationEditor('${item.id}')">✏️</button>
+            <button class="anim-action-btn del" title="删除此动画" onclick="event.stopPropagation();confirmDeleteAnimation('${item.id}')">🗑️</button>
+          </div>
           <div class="anim-card-icon">${item.icon}</div>
           <div class="anim-card-name">${item.name}</div>
           <div class="anim-card-sub"><span class="anim-tag">${subName}</span> ${item.frames ? item.frames + '帧' : item.duration + 's'}</div>
@@ -2749,19 +3105,24 @@
     }
 
     function selectAnimation(anim) {
+      if (!anim) return;
       state.currentAnim = anim;
       state.time = 0;
 
       // 更新顶部与卡片状态
-      document.getElementById('statusCurrentName').textContent = (anim.no ? '[' + anim.no + '] ' : '') + anim.name.toUpperCase();
+      const statusEl = document.getElementById('statusCurrentName');
+      if (statusEl) statusEl.textContent = (anim.no ? '[' + anim.no + '] ' : '') + anim.name.toUpperCase();
       const catDef = CATEGORIES.find(c => c.id === anim.cat);
-      document.getElementById('categoryBadge').textContent = catDef ? catDef.name : anim.cat;
+      const catBadge = document.getElementById('categoryBadge');
+      if (catBadge) catBadge.textContent = catDef ? catDef.name : anim.cat;
 
-      document.querySelectorAll('.anim-card').forEach(c => c.classList.remove('active'));
-      event?.currentTarget?.classList.add('active');
+      document.querySelectorAll('.anim-card').forEach(c => {
+        const isMatch = c.getAttribute('data-id') === anim.id;
+        c.classList.toggle('active', isMatch);
+      });
 
       const scrubber = document.getElementById('timeScrubber');
-      scrubber.max = anim.isAvatar ? (anim.duration || 3.0) : (anim.frames || 24);
+      if (scrubber) scrubber.max = anim.isAvatar ? (anim.duration || 3.0) : (anim.frames || 24);
     }
 
     /* 播放控制 */
@@ -3174,6 +3535,20 @@
         // 正常显示端同步渲染 (AI表情连续高保真)
         renderNormalDisplay(anim, state.time, frameData, refinedOptions());
 
+      } else if (anim.customFrames && anim.customFrames.length > 0) {
+        // 用户自定义 / 逐帧涂抹编辑的点阵动画
+        const totalF = anim.customFrames.length;
+        const curF = Math.floor(state.time) % totalF;
+        const frameData = anim.customFrames[curF] || [];
+        const frameSet = new Set(frameData);
+
+        PHYSICAL_POINTS.forEach((pt, idx) => {
+          brightnessArray[idx] = (frameSet.has(pt.gridId) || frameSet.has(pt.idx)) ? 1.0 : 0.0;
+        });
+
+        // 正常显示端同步渲染 (呈现高保真连续矢量发光效果)
+        renderNormalDisplay(anim, state.time, null, refinedOptions(), frameSet);
+
       } else {
         // 栅格动画直接使用 23×23 精准绘制
         const totalF = anim.frames || 24;
@@ -3234,7 +3609,7 @@
        正常连续高清画面渲染系统 (右侧视窗：与左侧 393 点阵屏实时帧同步)
        ========================================================================== */
 
-    function renderNormalDisplay(anim, curTime, frameData, opt) {
+    function renderNormalDisplay(anim, curTime, frameData, opt, customFrameSet) {
       if (!normCtx || state.view === 'matrix') return;
       const W = normalCanvas.width, H = normalCanvas.height;
       const cx = W / 2, cy = H / 2;
@@ -3272,7 +3647,10 @@
       const totalF = anim.frames || 24;
       const curF = Math.floor(curTime) % totalF;
 
-      if (anim.isAvatar && frameData) {
+      if (customFrameSet) {
+        // 自定义点阵逐帧：高保真超清矢量发光同步呈现
+        drawNormalCustom(normCtx, cx, cy, curTime, curF, anim, customFrameSet, themeCol);
+      } else if (anim.isAvatar && frameData) {
         // AI 表情：连续 3D 拟真模型渲染
         drawNormalAvatar(normCtx, cx, cy, curTime, anim, frameData, themeCol);
       } else {
@@ -5072,6 +5450,832 @@
     initUI();
     setupInteractions();
     requestAnimationFrame(loop);
+
+    /* ==========================================================================
+       自定义点阵画板矢量同步渲染 (右侧视窗)
+       ========================================================================== */
+    function drawNormalCustom(ctx, cx, cy, t, curF, anim, frameSet, col) {
+      const litPoints = PHYSICAL_POINTS.filter(pt => frameSet.has(pt.gridId) || frameSet.has(pt.idx));
+      if (litPoints.length === 0) return;
+
+      const scale = 210;
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      // 1. 柔和扩散光晕
+      ctx.shadowColor = col;
+      ctx.shadowBlur = 18;
+      litPoints.forEach(pt => {
+        const px = pt.x * scale, py = pt.y * scale;
+        ctx.beginPath();
+        ctx.arc(px, py, 7.5, 0, Math.PI * 2);
+        ctx.fillStyle = col;
+        ctx.fill();
+      });
+
+      // 2. 核心白亮灯芯 (高反差 OLED 质感)
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = '#ffffff';
+      litPoints.forEach(pt => {
+        const px = pt.x * scale, py = pt.y * scale;
+        ctx.beginPath();
+        ctx.arc(px, py, 3.6, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+      });
+
+      ctx.restore();
+    }
+
+    /* ==========================================================================
+       动画管理系统：本地存储、持久化与恢复默认
+       ========================================================================== */
+    function loadAnimationsFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_ANIMATIONS);
+        if (!raw) {
+          ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+          return;
+        }
+        const data = JSON.parse(raw);
+        if (data && Array.isArray(data.animations) && data.animations.length > 0) {
+          ALL_ANIMATIONS = data.animations.map(item => {
+            const def = DEFAULT_ANIMATIONS.find(d => d.id === item.id);
+            if (def && def.isAvatar && !item.customFrames) {
+              return { ...def, ...item, eyes: def.eyes, gaze: def.gaze };
+            }
+            return item;
+          });
+        } else {
+          ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+        }
+      } catch (e) {
+        console.warn('Failed to parse animations from localStorage:', e);
+        ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+      }
+    }
+
+    function saveAnimationsToStorage() {
+      try {
+        const serialized = ALL_ANIMATIONS.map(item => {
+          const copy = { ...item };
+          if (copy.isAvatar && !copy.customFrames) {
+            delete copy.eyes;
+            delete copy.gaze;
+          }
+          return copy;
+        });
+        localStorage.setItem(STORAGE_KEY_ANIMATIONS, JSON.stringify({
+          version: '2.5.0',
+          updatedAt: new Date().toISOString(),
+          animations: serialized
+        }));
+      } catch (e) {
+        console.error('Failed to save animations to localStorage:', e);
+      }
+    }
+
+    function resetAnimationsToDefault() {
+      if (confirm('确定要恢复为官方默认动画库吗？\n所有自定义新增或修改的动画将被重置，官方全部 87 款动画将完整还原。')) {
+        localStorage.removeItem(STORAGE_KEY_ANIMATIONS);
+        ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+        state.currentAnim = ALL_ANIMATIONS[0];
+        initUI();
+        selectAnimation(ALL_ANIMATIONS[0]);
+        showToast('已成功恢复为官方默认 87 款动画！');
+      }
+    }
+
+    /* 获取任意动画在指定帧的点亮灯珠集合 */
+    function getFrameLitPoints(anim, frameIdx) {
+      if (!anim) return new Set();
+      if (anim.customFrames && anim.customFrames[frameIdx]) {
+        return new Set(anim.customFrames[frameIdx]);
+      }
+      if (anim.isAvatar) {
+        const duration = anim.duration || 3.0;
+        const totalF = anim.frames || 16;
+        const t = (frameIdx / totalF) * duration;
+        const frameData = evaluateAvatarFrame(t, anim);
+        const set = new Set();
+        PHYSICAL_POINTS.forEach((pt) => {
+          let maxVal = 0.0;
+          const px = pt.x, py = pt.y;
+          for (const eye of frameData.eyes) {
+            const dx = px - eye.center.x, dy = py - eye.center.y;
+            const det = eye.ax * eye.cy - eye.ay * eye.cx;
+            if (Math.abs(det) > 1e-5) {
+              const lx = (dx * eye.cy - dy * eye.cx) / det;
+              const ly = (-dx * eye.ay + dy * eye.ax) / det;
+              const d = distToCapsule(lx, ly, eye.w, eye.h);
+              if (d < 0.06) maxVal = Math.max(maxVal, clamp((0.06 - d) / 0.06) * eye.alpha);
+            }
+          }
+          if (maxVal >= 0.35) set.add(pt.gridId);
+        });
+        return set;
+      } else {
+        const gridSet = refinedFrame(anim.id, frameIdx, refinedOptions());
+        return new Set(gridSet);
+      }
+    }
+
+    /* ==========================================================================
+       动画编辑器系统：逐帧画板、参数编辑、多帧时间轴
+       ========================================================================== */
+    const editorState = {
+      active: false,
+      isNew: false,
+      editingAnimId: null,
+      tool: 'pen',
+      isPainting: false,
+      currentFrameIdx: 0,
+      framesData: [], // Array of Set<gridId>
+      previewPlaying: true,
+      previewTimer: null
+    };
+
+    function openAnimationEditor(animId) {
+      editorState.active = true;
+      const modal = document.getElementById('animEditorModal');
+      if (!modal) return;
+
+      if (animId) {
+        const anim = ALL_ANIMATIONS.find(a => a.id === animId) || DEFAULT_ANIMATIONS.find(a => a.id === animId);
+        if (!anim) return;
+        editorState.isNew = false;
+        editorState.editingAnimId = anim.id;
+
+        document.getElementById('editorModalTitle').textContent = `✏️ 动画编辑器 · [${anim.no || ''}] ${anim.name}`;
+        document.getElementById('editAnimNum').value = anim.num || '';
+        document.getElementById('editAnimNo').value = anim.no || '';
+        document.getElementById('editAnimName').value = anim.name || '';
+        document.getElementById('editAnimCat').value = anim.cat || 'emotion';
+        document.getElementById('editAnimIcon').value = anim.icon || '✨';
+        document.getElementById('editAnimFps').value = anim.fps || 12;
+
+        const totalF = anim.customFrames ? anim.customFrames.length : (anim.frames || 16);
+        editorState.framesData = [];
+        for (let f = 0; f < totalF; f++) {
+          editorState.framesData.push(getFrameLitPoints(anim, f));
+        }
+
+        document.getElementById('editorDeleteBtn').style.display = 'inline-block';
+      } else {
+        // 新建动画
+        editorState.isNew = true;
+        editorState.editingAnimId = null;
+
+        const nextNum = '#' + String(ALL_ANIMATIONS.length + 1).padStart(2, '0');
+        const nextNo = 'USR-' + String(ALL_ANIMATIONS.length + 1).padStart(2, '0');
+
+        document.getElementById('editorModalTitle').textContent = '➕ 新建自定义点阵动画';
+        document.getElementById('editAnimNum').value = nextNum;
+        document.getElementById('editAnimNo').value = nextNo;
+        document.getElementById('editAnimName').value = '新自定义动效';
+        document.getElementById('editAnimCat').value = state.currentCat === 'export' ? 'emotion' : state.currentCat;
+        document.getElementById('editAnimIcon').value = '🎨';
+        document.getElementById('editAnimFps').value = 12;
+
+        // 默认初始化 8 帧空白画板
+        editorState.framesData = [new Set(), new Set(), new Set(), new Set(), new Set(), new Set(), new Set(), new Set()];
+        document.getElementById('editorDeleteBtn').style.display = 'none';
+      }
+
+      editorState.currentFrameIdx = 0;
+      updateEditorTotalFramesBadge();
+      renderEditorFramesStrip();
+      drawEditorCanvas();
+      startEditorPreview();
+
+      modal.style.display = 'flex';
+      state.playing = false;
+      document.getElementById('playBtn').textContent = '▶ 播放';
+    }
+
+    function closeAnimationEditor() {
+      editorState.active = false;
+      stopEditorPreview();
+      const modal = document.getElementById('animEditorModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function setEditorTool(tool) {
+      editorState.tool = tool;
+      document.getElementById('toolPenBtn').classList.toggle('active', tool === 'pen');
+      document.getElementById('toolEraserBtn').classList.toggle('active', tool === 'eraser');
+    }
+
+    function invertEditorFrame() {
+      const curSet = editorState.framesData[editorState.currentFrameIdx];
+      if (!curSet) return;
+      PHYSICAL_POINTS.forEach(pt => {
+        if (curSet.has(pt.gridId)) curSet.delete(pt.gridId);
+        else curSet.add(pt.gridId);
+      });
+      drawEditorCanvas();
+      drawEditorMiniPreview();
+    }
+
+    function fillAllEditorFrame() {
+      const curSet = editorState.framesData[editorState.currentFrameIdx];
+      if (!curSet) return;
+      PHYSICAL_POINTS.forEach(pt => curSet.add(pt.gridId));
+      drawEditorCanvas();
+      drawEditorMiniPreview();
+    }
+
+    function clearEditorFrame() {
+      const curSet = editorState.framesData[editorState.currentFrameIdx];
+      if (!curSet) return;
+      curSet.clear();
+      drawEditorCanvas();
+      drawEditorMiniPreview();
+    }
+
+    function importAlgorithmCurrentFrame() {
+      const anim = ALL_ANIMATIONS.find(a => a.id === editorState.editingAnimId) || state.currentAnim;
+      if (!anim) return;
+      const pts = getFrameLitPoints(anim, editorState.currentFrameIdx);
+      editorState.framesData[editorState.currentFrameIdx] = new Set(pts);
+      drawEditorCanvas();
+      drawEditorMiniPreview();
+      showToast(`已抓取第 ${editorState.currentFrameIdx + 1} 帧算法图案到画板！`);
+    }
+
+    function editorAddFrame() {
+      editorState.framesData.push(new Set());
+      editorState.currentFrameIdx = editorState.framesData.length - 1;
+      updateEditorTotalFramesBadge();
+      renderEditorFramesStrip();
+      drawEditorCanvas();
+      drawEditorMiniPreview();
+    }
+
+    function editorCopyFrame() {
+      const curSet = editorState.framesData[editorState.currentFrameIdx] || new Set();
+      const cloned = new Set(curSet);
+      editorState.framesData.splice(editorState.currentFrameIdx + 1, 0, cloned);
+      editorState.currentFrameIdx++;
+      updateEditorTotalFramesBadge();
+      renderEditorFramesStrip();
+      drawEditorCanvas();
+      drawEditorMiniPreview();
+      showToast(`已复制当前帧为第 ${editorState.currentFrameIdx + 1} 帧！`);
+    }
+
+    function editorDeleteFrame() {
+      if (editorState.framesData.length <= 1) {
+        showToast('至少需要保留 1 帧！');
+        return;
+      }
+      editorState.framesData.splice(editorState.currentFrameIdx, 1);
+      if (editorState.currentFrameIdx >= editorState.framesData.length) {
+        editorState.currentFrameIdx = editorState.framesData.length - 1;
+      }
+      updateEditorTotalFramesBadge();
+      renderEditorFramesStrip();
+      drawEditorCanvas();
+      drawEditorMiniPreview();
+    }
+
+    function editorSelectFrame(idx) {
+      if (idx < 0 || idx >= editorState.framesData.length) return;
+      editorState.currentFrameIdx = idx;
+      renderEditorFramesStrip();
+      drawEditorCanvas();
+    }
+
+    function editorStepFrame(dir) {
+      const total = editorState.framesData.length;
+      if (total <= 0) return;
+      editorSelectFrame((editorState.currentFrameIdx + dir + total) % total);
+    }
+
+    function updateEditorTotalFramesBadge() {
+      const total = editorState.framesData.length;
+      const totalInput = document.getElementById('editAnimTotalFrames');
+      if (totalInput) totalInput.value = total;
+      const ind = document.getElementById('editorFrameIndicator');
+      if (ind) ind.textContent = `第 ${editorState.currentFrameIdx + 1} / ${total} 帧`;
+    }
+
+    function renderEditorFramesStrip() {
+      const container = document.getElementById('editorFramesStrip');
+      if (!container) return;
+      container.innerHTML = '';
+      updateEditorTotalFramesBadge();
+
+      editorState.framesData.forEach((fSet, idx) => {
+        const pill = document.createElement('div');
+        pill.className = 'frame-pill' + (idx === editorState.currentFrameIdx ? ' active' : '');
+        pill.textContent = idx + 1;
+        pill.onclick = () => editorSelectFrame(idx);
+        container.appendChild(pill);
+      });
+    }
+
+    function onEditorCatChange(cat) {
+      // Subcat could auto-adjust
+    }
+
+    /* 点阵画板交互事件绑定 */
+    var editorCanvasInited = false;
+    function initEditorCanvas() {
+      if (editorCanvasInited) return;
+      const eCanvas = document.getElementById('editorMatrixCanvas');
+      if (!eCanvas) return;
+      editorCanvasInited = true;
+
+      function getCanvasPos(e) {
+        const rect = eCanvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: (clientX - rect.left) * (eCanvas.width / rect.width),
+          y: (clientY - rect.top) * (eCanvas.height / rect.height)
+        };
+      }
+
+      function paintAtPos(pos) {
+        const curSet = editorState.framesData[editorState.currentFrameIdx];
+        if (!curSet) return;
+        const W = eCanvas.width, cx = W / 2, cy = W / 2;
+        const scale = 200;
+
+        let changed = false;
+        PHYSICAL_POINTS.forEach(pt => {
+          const px = cx + pt.x * scale;
+          const py = cy + pt.y * scale;
+          const dist = Math.hypot(pos.x - px, pos.y - py);
+          if (dist <= 11) {
+            if (editorState.tool === 'pen' && !curSet.has(pt.gridId)) {
+              curSet.add(pt.gridId);
+              changed = true;
+            } else if (editorState.tool === 'eraser' && curSet.has(pt.gridId)) {
+              curSet.delete(pt.gridId);
+              changed = true;
+            }
+          }
+        });
+
+        if (changed) {
+          drawEditorCanvas();
+          drawEditorMiniPreview();
+        }
+      }
+
+      eCanvas.addEventListener('mousedown', (e) => {
+        editorState.isPainting = true;
+        paintAtPos(getCanvasPos(e));
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (editorState.isPainting && editorState.active) {
+          paintAtPos(getCanvasPos(e));
+        }
+      });
+      window.addEventListener('mouseup', () => { editorState.isPainting = false; });
+
+      eCanvas.addEventListener('touchstart', (e) => {
+        editorState.isPainting = true;
+        paintAtPos(getCanvasPos(e));
+        e.preventDefault();
+      }, { passive: false });
+      eCanvas.addEventListener('touchmove', (e) => {
+        if (editorState.isPainting && editorState.active) {
+          paintAtPos(getCanvasPos(e));
+        }
+        e.preventDefault();
+      }, { passive: false });
+      eCanvas.addEventListener('touchend', () => { editorState.isPainting = false; });
+    }
+
+    function drawEditorCanvas() {
+      const eCanvas = document.getElementById('editorMatrixCanvas');
+      if (!eCanvas) return;
+      const eCtx = eCanvas.getContext('2d');
+      const W = eCanvas.width, cx = W / 2, cy = W / 2;
+      const scale = 200;
+
+      eCtx.clearRect(0, 0, W, W);
+
+      eCtx.fillStyle = '#05080c';
+      eCtx.beginPath();
+      eCtx.arc(cx, cy, cx - 4, 0, Math.PI * 2);
+      eCtx.fill();
+      eCtx.strokeStyle = '#182430';
+      eCtx.lineWidth = 2;
+      eCtx.stroke();
+
+      const curSet = editorState.framesData[editorState.currentFrameIdx] || new Set();
+      let litCount = 0;
+
+      PHYSICAL_POINTS.forEach(pt => {
+        const px = cx + pt.x * scale;
+        const py = cy + pt.y * scale;
+        const isLit = curSet.has(pt.gridId);
+
+        if (isLit) {
+          litCount++;
+          eCtx.beginPath();
+          eCtx.arc(px, py, 6.5, 0, Math.PI * 2);
+          eCtx.fillStyle = state.color || '#ffd45e';
+          eCtx.shadowColor = state.color || '#ffd45e';
+          eCtx.shadowBlur = 8;
+          eCtx.fill();
+
+          eCtx.beginPath();
+          eCtx.arc(px, py, 3.2, 0, Math.PI * 2);
+          eCtx.fillStyle = '#ffffff';
+          eCtx.shadowBlur = 0;
+          eCtx.fill();
+        } else {
+          eCtx.beginPath();
+          eCtx.arc(px, py, 4.5, 0, Math.PI * 2);
+          eCtx.fillStyle = '#101720';
+          eCtx.shadowBlur = 0;
+          eCtx.fill();
+          eCtx.strokeStyle = '#1b2836';
+          eCtx.lineWidth = 1;
+          eCtx.stroke();
+        }
+      });
+
+      const pct = ((litCount / TOTAL_LEDS) * 100).toFixed(1);
+      const litBadge = document.getElementById('editorLitBadge');
+      if (litBadge) litBadge.textContent = `${litCount} / 393 亮起 (${pct}%)`;
+    }
+
+    let miniPreviewFrame = 0;
+    function startEditorPreview() {
+      stopEditorPreview();
+      miniPreviewFrame = 0;
+      const fps = parseInt(document.getElementById('editAnimFps').value) || 12;
+      const interval = Math.max(30, 1000 / fps);
+      editorState.previewTimer = setInterval(() => {
+        if (!editorState.active || !editorState.previewPlaying) return;
+        const total = editorState.framesData.length;
+        if (total === 0) return;
+        miniPreviewFrame = (miniPreviewFrame + 1) % total;
+        drawEditorMiniPreview(miniPreviewFrame);
+      }, interval);
+    }
+
+    function stopEditorPreview() {
+      if (editorState.previewTimer) {
+        clearInterval(editorState.previewTimer);
+        editorState.previewTimer = null;
+      }
+    }
+
+    function updateEditorPreviewSpeed() {
+      if (editorState.previewPlaying) {
+        startEditorPreview();
+      }
+    }
+
+    function toggleEditorPreviewPlay() {
+      editorState.previewPlaying = !editorState.previewPlaying;
+      document.getElementById('editorPreviewPlayBtn').textContent = editorState.previewPlaying ? '⏸ 暂停' : '▶ 播放';
+      if (editorState.previewPlaying) startEditorPreview();
+      else stopEditorPreview();
+    }
+
+    function drawEditorMiniPreview(frameIdx = editorState.currentFrameIdx) {
+      const pCanvas = document.getElementById('editorMiniPreviewCanvas');
+      if (!pCanvas) return;
+      const pCtx = pCanvas.getContext('2d');
+      const W = pCanvas.width, cx = W / 2, cy = W / 2;
+      const scale = 78;
+
+      pCtx.clearRect(0, 0, W, W);
+      pCtx.fillStyle = '#060a0f';
+      pCtx.beginPath();
+      pCtx.arc(cx, cy, cx - 2, 0, Math.PI * 2);
+      pCtx.fill();
+
+      const fSet = editorState.framesData[frameIdx] || new Set();
+      const col = state.color || '#ffd45e';
+
+      PHYSICAL_POINTS.forEach(pt => {
+        const px = cx + pt.x * scale;
+        const py = cy + pt.y * scale;
+        if (fSet.has(pt.gridId)) {
+          pCtx.beginPath();
+          pCtx.arc(px, py, 2.6, 0, Math.PI * 2);
+          pCtx.fillStyle = col;
+          pCtx.fill();
+        }
+      });
+    }
+
+    function saveAnimationEdit() {
+      const name = document.getElementById('editAnimName').value.trim() || '未命名动画';
+      const num = document.getElementById('editAnimNum').value.trim() || ('#' + (ALL_ANIMATIONS.length + 1));
+      const no = document.getElementById('editAnimNo').value.trim() || ('USR-' + (ALL_ANIMATIONS.length + 1));
+      const cat = document.getElementById('editAnimCat').value;
+      const icon = document.getElementById('editAnimIcon').value.trim() || '✨';
+      const fps = parseInt(document.getElementById('editAnimFps').value) || 12;
+      const customFrames = editorState.framesData.map(s => Array.from(s));
+
+      if (editorState.isNew) {
+        const newAnim = {
+          num, no,
+          id: 'CUSTOM_' + Date.now(),
+          name, cat,
+          subcat: 'custom',
+          icon,
+          frames: customFrames.length,
+          fps,
+          customFrames,
+          isCustom: true
+        };
+        ALL_ANIMATIONS.push(newAnim);
+        saveAnimationsToStorage();
+        closeAnimationEditor();
+        initUI();
+        selectAnimation(newAnim);
+        showToast(`已成功创建并保存新动画【${newAnim.name}】！`);
+      } else {
+        const anim = ALL_ANIMATIONS.find(a => a.id === editorState.editingAnimId);
+        if (anim) {
+          anim.num = num;
+          anim.no = no;
+          anim.name = name;
+          anim.cat = cat;
+          anim.icon = icon;
+          anim.fps = fps;
+          anim.frames = customFrames.length;
+          anim.customFrames = customFrames;
+          anim.isCustom = true;
+          saveAnimationsToStorage();
+          closeAnimationEditor();
+          initUI();
+          selectAnimation(anim);
+          showToast(`已成功保存对动画【${anim.name}】的修改！`);
+        }
+      }
+    }
+
+    function saveAsNewAnimation() {
+      const name = (document.getElementById('editAnimName').value.trim() || '未命名动画') + ' (副本)';
+      const nextIdx = ALL_ANIMATIONS.length + 1;
+      const num = '#' + String(nextIdx).padStart(2, '0');
+      const no = 'USR-' + String(nextIdx).padStart(2, '0');
+      const cat = document.getElementById('editAnimCat').value;
+      const icon = document.getElementById('editAnimIcon').value.trim() || '✨';
+      const fps = parseInt(document.getElementById('editAnimFps').value) || 12;
+      const customFrames = editorState.framesData.map(s => Array.from(s));
+
+      const newAnim = {
+        num, no,
+        id: 'CUSTOM_' + Date.now(),
+        name, cat,
+        subcat: 'custom',
+        icon,
+        frames: customFrames.length,
+        fps,
+        customFrames,
+        isCustom: true
+      };
+      ALL_ANIMATIONS.push(newAnim);
+      saveAnimationsToStorage();
+      closeAnimationEditor();
+      initUI();
+      selectAnimation(newAnim);
+      showToast(`已成功另存为新动画【${newAnim.name}】！`);
+    }
+
+    function onEditorDeleteClick() {
+      if (!editorState.editingAnimId) return;
+      confirmDeleteAnimation(editorState.editingAnimId);
+    }
+
+    function confirmDeleteAnimation(animId) {
+      const anim = ALL_ANIMATIONS.find(a => a.id === animId);
+      if (!anim) return;
+      const isBuiltin = DEFAULT_ANIMATIONS.some(d => d.id === anim.id);
+      const promptMsg = isBuiltin
+        ? `确定要删除动画【${anim.num || ''} ${anim.name}】吗？\n（注：删除后若需要恢复，随时可点击右上角「恢复预设」一键找回）`
+        : `确定要删除自定义动画【${anim.num || ''} ${anim.name}】吗？此操作不可逆。`;
+
+      if (confirm(promptMsg)) {
+        const idx = ALL_ANIMATIONS.findIndex(a => a.id === animId);
+        if (idx !== -1) {
+          ALL_ANIMATIONS.splice(idx, 1);
+          saveAnimationsToStorage();
+          closeAnimationEditor();
+
+          if (ALL_ANIMATIONS.length === 0) {
+            ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+          }
+
+          if (state.currentAnim.id === animId) {
+            state.currentAnim = ALL_ANIMATIONS[Math.min(idx, ALL_ANIMATIONS.length - 1)];
+          }
+
+          initUI();
+          selectAnimation(state.currentAnim);
+          showToast(`已成功删除动画【${anim.name}】！`);
+        }
+      }
+    }
+
+    function exportCustomBackupJson() {
+      const data = {
+        version: '2.5.0',
+        exportTime: new Date().toISOString(),
+        total: ALL_ANIMATIONS.length,
+        animations: ALL_ANIMATIONS.map(item => {
+          const copy = { ...item };
+          if (copy.isAvatar && !copy.customFrames) {
+            delete copy.eyes;
+            delete copy.gaze;
+          }
+          return copy;
+        })
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `dot-matrix-animations-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('动画配置文件已成功导出！');
+    }
+
+    function handleBackupFileSelect(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data && Array.isArray(data.animations)) {
+            ALL_ANIMATIONS = data.animations.map(item => {
+              const def = DEFAULT_ANIMATIONS.find(d => d.id === item.id);
+              if (def && def.isAvatar && !item.customFrames) {
+                return { ...def, ...item, eyes: def.eyes, gaze: def.gaze };
+              }
+              return item;
+            });
+            saveAnimationsToStorage();
+            initUI();
+            selectAnimation(ALL_ANIMATIONS[0]);
+            showToast(`已成功导入 ${ALL_ANIMATIONS.length} 款动画！`);
+          } else {
+            alert('导入失败：无效的动画 JSON 格式。');
+          }
+        } catch (err) {
+          alert('导入失败：JSON 解析错误 - ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
   </script>
+
+  <!-- 动画编辑器模态框 (可编辑 · 逐帧画板 · 可保存 · 可删除) -->
+  <div class="modal-backdrop" id="animEditorModal" style="display:none" onclick="if(event.target===this)closeAnimationEditor()">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title" id="editorModalTitle">✏️ 动画编辑器</div>
+        <button class="modal-close-btn" onclick="closeAnimationEditor()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- 左列：393 物理点阵交互画板 (支持鼠标直接涂抹绘制) -->
+        <div class="editor-left-pane">
+          <div class="editor-pane-header">
+            <span>🎨 393 点阵画板 (鼠标点击/拖拽涂抹)</span>
+            <span class="editor-lit-badge" id="editorLitBadge">0 / 393 亮起</span>
+          </div>
+
+          <!-- 工具栏 -->
+          <div class="editor-tools-bar">
+            <button class="editor-tool-btn active" id="toolPenBtn" onclick="setEditorTool('pen')" title="画笔：点击或拖拽点亮灯珠">🖌️ 画笔</button>
+            <button class="editor-tool-btn" id="toolEraserBtn" onclick="setEditorTool('eraser')" title="橡皮擦：点击或拖拽熄灭灯珠">🧹 橡皮擦</button>
+            <button class="editor-tool-btn" onclick="invertEditorFrame()" title="反转当前帧">🌓 反转</button>
+            <button class="editor-tool-btn" onclick="fillAllEditorFrame()" title="点亮所有 393 颗灯珠">💡 全亮</button>
+            <button class="editor-tool-btn" onclick="clearEditorFrame()" title="熄灭当前帧所有灯珠">🗑️ 清空</button>
+            <button class="editor-tool-btn primary" onclick="importAlgorithmCurrentFrame()" title="将原算法在该帧的灯珠图案抓取到底图">📥 抓取原图</button>
+          </div>
+
+          <!-- 点阵画板画布 -->
+          <div class="editor-canvas-container">
+            <canvas id="editorMatrixCanvas" width="460" height="460"></canvas>
+          </div>
+
+          <!-- 时间轴与帧管理 -->
+          <div class="editor-timeline-section">
+            <div class="timeline-header">
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="btn" style="padding:2px 7px;font-size:11px" onclick="editorStepFrame(-1)">⏮</button>
+                <span id="editorFrameIndicator" style="font-size:11px;font-weight:700;color:var(--accent)">第 1 / 16 帧</span>
+                <button class="btn" style="padding:2px 7px;font-size:11px" onclick="editorStepFrame(1)">⏭</button>
+              </div>
+              <div style="display:flex;gap:4px">
+                <button class="btn" style="padding:2px 7px;font-size:10px" onclick="editorCopyFrame()" title="复制当前帧到下一帧">📋 复制帧</button>
+                <button class="btn" style="padding:2px 7px;font-size:10px" onclick="editorAddFrame()" title="在末尾新增空白帧">➕ 加帧</button>
+                <button class="btn" style="padding:2px 7px;font-size:10px;color:#f87171" onclick="editorDeleteFrame()" title="删除当前帧">🗑️ 删帧</button>
+              </div>
+            </div>
+            <!-- 帧小胶囊条 -->
+            <div class="editor-frames-strip" id="editorFramesStrip"></div>
+          </div>
+        </div>
+
+        <!-- 右列：参数表单与实时预览 -->
+        <div class="editor-right-pane">
+          <div class="editor-section-title">⚙️ 动画属性与参数</div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">全局编号 (Num)</label>
+              <input type="text" class="form-input" id="editAnimNum" placeholder="#88">
+            </div>
+            <div class="form-field">
+              <label class="form-label">分类代号 (No)</label>
+              <input type="text" class="form-input" id="editAnimNo" placeholder="USR-01">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">动画名称 (Name)</label>
+            <input type="text" class="form-input" id="editAnimName" placeholder="例如：脉动之光">
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">所属主分类 (Category)</label>
+              <select class="form-select" id="editAnimCat" onchange="onEditorCatChange(this.value)">
+                <option value="emotion">🤖 表情 (Emotion)</option>
+                <option value="system">⚙️ 系统 (System)</option>
+                <option value="activity">🏃 活动 (Activity)</option>
+                <option value="life">☕ 生活 (Life)</option>
+                <option value="game">🎮 游戏 (Game)</option>
+                <option value="ambience">✨ 氛围 (Ambience)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">图标 Emoji</label>
+              <div style="display:flex;gap:4px">
+                <input type="text" class="form-input" id="editAnimIcon" style="width:48px;text-align:center" placeholder="✨">
+                <div class="emoji-quick-picker" id="emojiQuickPicker">
+                  <button type="button" class="emoji-btn" onclick="document.getElementById('editAnimIcon').value='💓'">💓</button>
+                  <button type="button" class="emoji-btn" onclick="document.getElementById('editAnimIcon').value='⚡'">⚡</button>
+                  <button type="button" class="emoji-btn" onclick="document.getElementById('editAnimIcon').value='🌟'">🌟</button>
+                  <button type="button" class="emoji-btn" onclick="document.getElementById('editAnimIcon').value='🎮'">🎮</button>
+                  <button type="button" class="emoji-btn" onclick="document.getElementById('editAnimIcon').value='☕'">☕</button>
+                  <button type="button" class="emoji-btn" onclick="document.getElementById('editAnimIcon').value='🤖'">🤖</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">播放帧率 (FPS: 1~30)</label>
+              <input type="number" class="form-input" id="editAnimFps" min="1" max="30" value="12" oninput="updateEditorPreviewSpeed()">
+            </div>
+            <div class="form-field">
+              <label class="form-label">总帧数 (根据左侧帧管理自动更新)</label>
+              <input type="number" class="form-input" id="editAnimTotalFrames" min="1" max="60" value="16" readonly style="opacity:0.7">
+            </div>
+          </div>
+
+          <!-- 小窗动态预览 -->
+          <div class="editor-section-title" style="margin-top:10px">
+            <span>👀 循环播放动效预览</span>
+            <button class="btn" style="padding:2px 8px;font-size:10px" id="editorPreviewPlayBtn" onclick="toggleEditorPreviewPlay()">⏸ 暂停</button>
+          </div>
+          <div class="editor-preview-card">
+            <canvas id="editorMiniPreviewCanvas" width="180" height="180"></canvas>
+            <div style="font-size:11px;color:var(--muted);line-height:1.6">
+              在左侧画板涂抹或增删帧时，此预览窗口会<b>即时呈现循环动画播放效果</b>。<br>
+              编辑完成后，点击下方「保存修改」即可立即生效并持久保存至浏览器。
+            </div>
+          </div>
+
+          <!-- 危险操作：删除此动画 -->
+          <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--panel-border);display:flex;justify-content:space-between;align-items:center">
+            <button class="btn" id="editorDeleteBtn" onclick="onEditorDeleteClick()" style="color:#f87171;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);padding:4px 10px;font-size:11px">
+              🗑️ 删除此动画
+            </button>
+            <span style="font-size:10px;color:var(--muted)">支持随时恢复官方默认 87 款动画</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="closeAnimationEditor()">取消</button>
+        <button class="btn" onclick="saveAsNewAnimation()" id="editorSaveAsNewBtn">📋 另存为新动画</button>
+        <button class="btn primary" onclick="saveAnimationEdit()">💾 保存修改并应用</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
