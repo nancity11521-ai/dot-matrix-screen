@@ -1584,24 +1584,17 @@
       break;
     }
     case 'HEART': {
-      // 心意爱心：完整饱满爱心常驻，伴随呼吸脉动
+      // EMO-35 心意爱心：纯粹饱满爱心常驻呼吸微动（去除外圈）
       mask(heart, 5, 6);
-      if (t % 16 < 8) {
-        circle(11, 11, 9);
-      }
       break;
     }
     case 'HEARTBEAT': {
-      // EMO-36 心跳回响：一闪一闪（扑通扑通双重瞬间闪烁，全心瞬间亮灭，绝对不从下往上逐个亮起）
+      // EMO-36 心跳回响：一闪一闪（扑通扑通双重瞬间闪烁，纯粹爱心瞬间亮灭，无外圈）
       const phase = t % 16;
       const isBeat1 = (phase >= 0 && phase <= 2);
       const isBeat2 = (phase >= 5 && phase <= 7);
       if (isBeat1 || isBeat2) {
-        mask(heart, 5, 6); // 完整爱心瞬间全亮！
-        if (isBeat2) {
-          // 第二下强心跳伴随心跳回响震波环
-          circle(11, 11, 9);
-        }
+        mask(heart, 5, 6); // 纯粹爱心瞬间全亮，无外圈！
       }
       // 其它帧数全灭，产生极具节奏感的一闪一闪效果
       break;
@@ -4874,18 +4867,7 @@
             ctx.lineTo(35, 0); ctx.lineTo(120, 0);
             ctx.stroke();
 
-            // 3. 第二声重击伴随扩散回响震波环（与左侧 circle(11, 11, 9) 100% 同步）
-            if (isBeat2) {
-              const ringR = 125 + (phase - 5) * 12;
-              const alpha = Math.max(0.2, 0.85 - (phase - 5) * 0.25);
-              ctx.beginPath();
-              ctx.arc(0, -15, ringR, 0, Math.PI * 2);
-              ctx.strokeStyle = `rgba(255, 46, 85, ${alpha})`;
-              ctx.lineWidth = 4;
-              ctx.shadowColor = '#ff2e55';
-              ctx.shadowBlur = 18;
-              ctx.stroke();
-            }
+
           } else {
             // 灭灯休止间隙：极淡的暗底轮廓，形成强烈鲜明的“一闪一闪”反差
             ctx.beginPath();
