@@ -1124,7 +1124,7 @@
       </div>
       <div class="brand-title">
         <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs · 23×23</span></h1>
-        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (80 款动画)</p>
+        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (83 款动画)</p>
       </div>
     </div>
     <div class="top-actions">
@@ -2588,6 +2588,100 @@
       put(flameX, 4);
       break;
     }
+    case 'SUN_HORIZON': {
+      // 昼夜晨昏交替 (24帧平滑大循环: 0-11 白昼日升日落, 12-23 静谧星夜月相)
+      const phaseT = t % 24;
+      line(3, 12, 19, 12); // 中央地平线
+      
+      if (phaseT < 12) {
+        // 白昼太阳：从地平线左侧升起 -> 苍穹顶点 -> 右侧地平线落下
+        const prog = phaseT / 11;
+        const sunX = Math.round(5 + prog * 12);
+        const sunY = Math.round(12 - 7 * Math.sin(prog * Math.PI));
+        // 饱满发光太阳
+        circle(sunX, sunY, 2.4, true);
+        // 日光耀斑/光芒
+        if (sunY <= 7) {
+          put(sunX - 3, sunY); put(sunX + 3, sunY);
+          put(sunX, sunY - 3);
+        }
+        // 水面金波倒影
+        line(sunX - 2, 14, sunX + 2, 14);
+        if (phaseT % 2 === 0) line(sunX - 4, 16, sunX + 4, 16);
+        line(sunX - 1, 18, sunX + 1, 18);
+      } else {
+        // 静谧星夜月相：弯月滑过夜空与闪烁星群
+        const prog = (phaseT - 12) / 11;
+        const moonX = Math.round(6 + prog * 10);
+        const moonY = Math.round(11 - 6 * Math.sin(prog * Math.PI));
+        // 优美月牙弯月
+        circle(moonX, moonY, 2.5, true);
+        circle(moonX + 1, moonY - 1, 2.0, false);
+        // 夜空闪烁繁星 (y <= 10)
+        const stars = [[4, 4], [18, 5], [8, 6], [15, 3], [6, 9], [17, 9]];
+        stars.forEach(([sx, sy], sIdx) => {
+          if ((phaseT + sIdx) % 3 !== 0) put(sx, sy);
+        });
+        // 夜晚水面静谧微波倒影
+        line(moonX - 1, 14, moonX + 1, 14);
+        line(7, 17, 15, 17);
+        line(9, 19, 13, 19);
+      }
+      break;
+    }
+
+    case 'STROBE': {
+      // 骑行/夜跑警示尾灯 (16帧双重强警示模式: 0-7 旋转双光柱, 8-15 警示三角与爆闪)
+      const st = t % 16;
+      if (st < 8) {
+        // 模式 1: 旋转双重雷达高光柱 + 核心发光灯芯
+        circle(11, 11, 2, true);
+        const ang = (st / 8) * Math.PI * 2;
+        for (let r = 3; r <= 9; r += 2) {
+          const x1 = Math.round(11 + Math.cos(ang) * r);
+          const y1 = Math.round(11 + Math.sin(ang) * r);
+          const x2 = Math.round(11 - Math.cos(ang) * r);
+          const y2 = Math.round(11 - Math.sin(ang) * r);
+          put(x1, y1); put(x2, y2);
+        }
+        // 外围四角定位示廓灯
+        put(11, 2); put(11, 20); put(2, 11); put(20, 11);
+      } else {
+        // 模式 2: 危险警示三角 (▲) 与强对比交替爆闪
+        if (st % 2 === 0) {
+          // 锐利醒目的危险三角轮廓
+          line(4, 17, 18, 17); // 底边
+          line(4, 17, 11, 4);  // 左腰
+          line(18, 17, 11, 4); // 右腰
+          // 内部加粗感叹号 (!)
+          line(11, 8, 11, 12);
+          put(11, 15);
+        } else {
+          // 强对比外圈瞬间爆闪光环 (防追尾视觉穿透)
+          circle(11, 11, 9);
+          circle(11, 11, 10);
+          put(11, 11); put(10, 11); put(12, 11); put(11, 10); put(11, 12);
+        }
+      }
+      break;
+    }
+
+    case 'TURN_ARROW': {
+      // 动态流光转向指示 (16帧平滑连续级联折线流水光矢 >>>)
+      const at = t % 16;
+      const drawChevron = (cx) => {
+        line(cx, 11, cx - 4, 7);
+        line(cx, 11, cx - 4, 15);
+        line(cx - 1, 11, cx - 5, 7);
+        line(cx - 1, 11, cx - 5, 15);
+      };
+      // 3道流水光矢在圆屏中连续向右推移
+      for (let c = 0; c < 3; c++) {
+        const cx = Math.round(((at + c * 5) % 16) / 15 * 18 + 2);
+        drawChevron(cx);
+      }
+      break;
+    }
     case 'GIFT': {
       // 礼盒盒身
       box(6, 11, 11, 8, true);
@@ -2738,7 +2832,8 @@
         subcats: [
           { id: 'all', name: '全部' },
           { id: 'fitness', name: '运动健康' },
-          { id: 'efficiency', name: '专注效率' }
+          { id: 'efficiency', name: '专注效率' },
+          { id: 'safety', name: '户外安全' }
         ]
       },
       {
@@ -2839,44 +2934,49 @@
       { num: '#55', no: 'ACT-08', id: 'SUCCESS', name: '完成确认', cat: 'activity', subcat: 'efficiency', icon: '✅', frames: 20 },
       { num: '#56', no: 'ACT-09', id: 'MAIL', name: '邮件到达', cat: 'activity', subcat: 'efficiency', icon: '✉️', frames: 20 },
 
+      /* --- 活动 / 户外安全 --- */
+      { num: '#57', no: 'ACT-10', id: 'STROBE', name: '骑行/夜跑警示尾灯', cat: 'activity', subcat: 'safety', icon: '🚨', frames: 16 },
+      { num: '#58', no: 'ACT-11', id: 'TURN_ARROW', name: '动态流光转向指示', cat: 'activity', subcat: 'safety', icon: '⏩', frames: 16 },
+
       /* --- 生活 / 气象万千 --- */
-      { num: '#57', no: 'LIF-01', id: 'SUNNY', name: '阳光晴天', cat: 'life', subcat: 'weather', icon: '☀️', frames: 24 },
-      { num: '#58', no: 'LIF-02', id: 'CLOUDY', name: '浮云飘拂', cat: 'life', subcat: 'weather', icon: '☁️', frames: 24 },
-      { num: '#59', no: 'LIF-03', id: 'RAINY', name: '雨滴涟漪', cat: 'life', subcat: 'weather', icon: '🌧️', frames: 24 },
-      { num: '#60', no: 'LIF-04', id: 'RAIN', name: '像素落雨', cat: 'life', subcat: 'weather', icon: '☔', frames: 16 },
-      { num: '#61', no: 'LIF-05', id: 'SNOW', name: '冬日落雪', cat: 'life', subcat: 'weather', icon: '❄️', frames: 24 },
-      { num: '#62', no: 'LIF-06', id: 'STORM', name: '闪电雷暴', cat: 'life', subcat: 'weather', icon: '⛈️', frames: 24 },
+      { num: '#59', no: 'LIF-01', id: 'SUNNY', name: '阳光晴天', cat: 'life', subcat: 'weather', icon: '☀️', frames: 24 },
+      { num: '#60', no: 'LIF-02', id: 'CLOUDY', name: '浮云飘拂', cat: 'life', subcat: 'weather', icon: '☁️', frames: 24 },
+      { num: '#61', no: 'LIF-03', id: 'RAINY', name: '雨滴涟漪', cat: 'life', subcat: 'weather', icon: '🌧️', frames: 24 },
+      { num: '#62', no: 'LIF-04', id: 'RAIN', name: '像素落雨', cat: 'life', subcat: 'weather', icon: '☔', frames: 16 },
+      { num: '#63', no: 'LIF-05', id: 'SNOW', name: '冬日落雪', cat: 'life', subcat: 'weather', icon: '❄️', frames: 24 },
+      { num: '#64', no: 'LIF-06', id: 'STORM', name: '闪电雷暴', cat: 'life', subcat: 'weather', icon: '⛈️', frames: 24 },
 
       /* --- 生活 / 影音与日常 --- */
-      { num: '#63', no: 'LIF-07', id: 'WAVE', name: '跳动声波', cat: 'life', subcat: 'audio', icon: '〰️', frames: 16 },
-      { num: '#64', no: 'LIF-08', id: 'SPECTRUM', name: '音频频谱', cat: 'life', subcat: 'audio', icon: '📶', frames: 24 },
-      { num: '#65', no: 'LIF-09', id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24 },
-      { num: '#66', no: 'LIF-10', id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 24 },
-      { num: '#67', no: 'LIF-11', id: 'COFFEE', name: '咖啡小憩', cat: 'life', subcat: 'daily', icon: '☕', frames: 24 },
-      { num: '#68', no: 'LIF-12', id: 'WATER', name: '喝水打卡', cat: 'life', subcat: 'daily', icon: '💧', frames: 24 },
+      { num: '#65', no: 'LIF-07', id: 'WAVE', name: '跳动声波', cat: 'life', subcat: 'audio', icon: '〰️', frames: 16 },
+      { num: '#66', no: 'LIF-08', id: 'SPECTRUM', name: '音频频谱', cat: 'life', subcat: 'audio', icon: '📶', frames: 24 },
+      { num: '#67', no: 'LIF-09', id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24 },
+      { num: '#68', no: 'LIF-10', id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 24 },
+      { num: '#69', no: 'LIF-11', id: 'COFFEE', name: '咖啡小憩', cat: 'life', subcat: 'daily', icon: '☕', frames: 24 },
+      { num: '#70', no: 'LIF-12', id: 'WATER', name: '喝水打卡', cat: 'life', subcat: 'daily', icon: '💧', frames: 24 },
 
       /* --- 生活 / 萌宠生灵 --- */
-      { num: '#69', no: 'LIF-13', id: 'CAT', name: '像素小猫', cat: 'life', subcat: 'companion', icon: '🐱', frames: 24 },
-      { num: '#70', no: 'LIF-14', id: 'DOG', name: '灵动小狗', cat: 'life', subcat: 'companion', icon: '🐶', frames: 24 },
-      { num: '#71', no: 'LIF-15', id: 'FISH', name: '游动金鱼', cat: 'life', subcat: 'companion', icon: '🐟', frames: 24 },
-      { num: '#72', no: 'LIF-16', id: 'BIRD', name: '飞翔小鸟', cat: 'life', subcat: 'companion', icon: '🐦', frames: 24 },
+      { num: '#71', no: 'LIF-13', id: 'CAT', name: '像素小猫', cat: 'life', subcat: 'companion', icon: '🐱', frames: 24 },
+      { num: '#72', no: 'LIF-14', id: 'DOG', name: '灵动小狗', cat: 'life', subcat: 'companion', icon: '🐶', frames: 24 },
+      { num: '#73', no: 'LIF-15', id: 'FISH', name: '游动金鱼', cat: 'life', subcat: 'companion', icon: '🐟', frames: 24 },
+      { num: '#74', no: 'LIF-16', id: 'BIRD', name: '飞翔小鸟', cat: 'life', subcat: 'companion', icon: '🐦', frames: 24 },
+      { num: '#75', no: 'LIF-17', id: 'SUN_HORIZON', name: '昼夜晨昏交替', cat: 'life', subcat: 'weather', icon: '🌅', frames: 24 },
 
       /* --- 氛围 / 节日庆典 --- */
-      { num: '#73', no: 'AMB-01', id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
-      { num: '#74', no: 'AMB-02', id: 'CANDLE', name: '摇曳烛火', cat: 'ambience', subcat: 'festive', icon: '🕯️', frames: 24 },
-      { num: '#75', no: 'AMB-03', id: 'GIFT', name: '节日礼盒', cat: 'ambience', subcat: 'festive', icon: '🎁', frames: 24 },
+      { num: '#76', no: 'AMB-01', id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
+      { num: '#77', no: 'AMB-02', id: 'CANDLE', name: '摇曳烛火', cat: 'ambience', subcat: 'festive', icon: '🕯️', frames: 24 },
+      { num: '#78', no: 'AMB-03', id: 'GIFT', name: '节日礼盒', cat: 'ambience', subcat: 'festive', icon: '🎁', frames: 24 },
 
       /* --- 氛围 / 空间视效 --- */
-      { num: '#76', no: 'AMB-04', id: 'ORBIT', name: '星际轨道', cat: 'ambience', subcat: 'visual', icon: '🪐', frames: 24 },
-      { num: '#77', no: 'AMB-05', id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
-      { num: '#78', no: 'AMB-06', id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
-      { num: '#79', no: 'AMB-07', id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24 },
-      { num: '#80', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
+      { num: '#79', no: 'AMB-04', id: 'ORBIT', name: '星际轨道', cat: 'ambience', subcat: 'visual', icon: '🪐', frames: 24 },
+      { num: '#80', no: 'AMB-05', id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
+      { num: '#81', no: 'AMB-06', id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
+      { num: '#82', no: 'AMB-07', id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24 },
+      { num: '#83', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
     ];
 
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V2';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V3';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 待修改项本地存储与管理系统 */
@@ -4816,6 +4916,168 @@
           break;
         }
 
+        case 'SUN_HORIZON': {
+          // 昼夜晨昏交替 (高清大屏自然天空与日月同辉)
+          const prog = (t % 24) / 24;
+          const isDay = prog < 0.5;
+          const cyLocal = cy + 10;
+          
+          if (isDay) {
+            const dayProg = prog * 2; // 0 to 1
+            const sunX = cx - 110 + dayProg * 220;
+            const sunY = cyLocal - 100 * Math.sin(dayProg * Math.PI);
+            
+            // 天空暖光晕
+            const grad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 160);
+            grad.addColorStop(0, 'rgba(251, 146, 60, 0.45)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(cx - 190, cy - 190, 380, 380);
+
+            // 发光太阳
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, 34, 0, Math.PI * 2);
+            ctx.fillStyle = '#fbbf24';
+            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 35;
+            ctx.fill();
+
+            // 水面/地面反射
+            ctx.beginPath();
+            ctx.ellipse(sunX, cyLocal + 40, 60, 12, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.25)';
+            ctx.fill();
+          } else {
+            const nightProg = (prog - 0.5) * 2; // 0 to 1
+            const moonX = cx - 100 + nightProg * 200;
+            const moonY = cyLocal - 90 * Math.sin(nightProg * Math.PI);
+
+            // 闪烁繁星
+            for (let i = 0; i < 14; i++) {
+              const sx = cx + Math.sin(i * 9.3) * 140;
+              const sy = cyLocal - 30 - Math.abs(Math.cos(i * 7.7)) * 120;
+              const sa = 0.4 + 0.6 * Math.abs(Math.sin(t * 3 + i));
+              ctx.beginPath();
+              ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
+              ctx.fillStyle = '#ffffff';
+              ctx.globalAlpha = sa;
+              ctx.fill();
+            }
+            ctx.globalAlpha = 1.0;
+
+            // 月相月牙
+            ctx.save();
+            ctx.translate(moonX, moonY);
+            ctx.beginPath();
+            ctx.arc(0, 0, 30, -Math.PI / 2, Math.PI / 2);
+            ctx.bezierCurveTo(15, 20, 15, -20, 0, -30);
+            ctx.fillStyle = '#fef08a';
+            ctx.shadowColor = '#fde047'; ctx.shadowBlur = 28;
+            ctx.fill();
+            ctx.restore();
+          }
+
+          // 地平线分割线
+          ctx.beginPath();
+          ctx.moveTo(cx - 150, cyLocal);
+          ctx.lineTo(cx + 150, cyLocal);
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          break;
+        }
+
+        case 'STROBE': {
+          // 骑行/夜跑警示尾灯
+          const st = Math.floor(t * 8) % 16;
+          if (st < 8) {
+            // 旋转强警示光柱
+            const ang = (st / 8) * Math.PI * 2;
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(ang);
+            ctx.beginPath();
+            ctx.rect(-120, -14, 240, 28);
+            ctx.fillStyle = '#ef4444';
+            ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 32;
+            ctx.fill();
+            ctx.restore();
+
+            // 中心双色高光圆心
+            ctx.beginPath();
+            ctx.arc(cx, cy, 38, 0, Math.PI * 2);
+            ctx.fillStyle = '#f59e0b';
+            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 24;
+            ctx.fill();
+          } else {
+            if (st % 2 === 0) {
+              // 警示三角 ▲
+              ctx.save();
+              ctx.translate(cx, cy);
+              ctx.beginPath();
+              ctx.moveTo(0, -90);
+              ctx.lineTo(85, 70);
+              ctx.lineTo(-85, 70);
+              ctx.closePath();
+              ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 14;
+              ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 35;
+              ctx.stroke();
+
+              // 感叹号
+              ctx.beginPath();
+              ctx.rect(-6, -40, 12, 60);
+              ctx.arc(0, 45, 8, 0, Math.PI * 2);
+              ctx.fillStyle = '#ffffff';
+              ctx.fill();
+              ctx.restore();
+            } else {
+              // 全盘大爆闪警示光环
+              ctx.beginPath();
+              ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+              ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 16;
+              ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 40;
+              ctx.stroke();
+            }
+          }
+          break;
+        }
+
+        case 'TURN_ARROW': {
+          // 动态流光转向指示 (豪车级流水转向箭头)
+          const at = Math.floor(t * 8) % 16;
+          const drawHDChevron = (offsetX, alpha) => {
+            ctx.save();
+            ctx.translate(cx + offsetX, cy);
+            ctx.beginPath();
+            ctx.moveTo(-35, -75);
+            ctx.lineTo(25, 0);
+            ctx.lineTo(-35, 75);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 16;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 28;
+            ctx.globalAlpha = alpha;
+            ctx.stroke();
+            ctx.restore();
+          };
+
+          if (at < 3) {
+            drawHDChevron(-70, 1.0);
+          } else if (at < 6) {
+            drawHDChevron(-70, 0.7);
+            drawHDChevron(0, 1.0);
+          } else if (at < 11) {
+            drawHDChevron(-70, 0.5);
+            drawHDChevron(0, 0.8);
+            drawHDChevron(70, 1.0);
+          } else if (at < 14) {
+            drawHDChevron(-70, 1.0);
+            drawHDChevron(0, 1.0);
+            drawHDChevron(70, 1.0);
+          }
+          ctx.globalAlpha = 1.0;
+          break;
+        }
         case 'HEART': {
           ctx.save();
           ctx.translate(cx, cy + 22);
@@ -4941,7 +5203,101 @@
           break;
         }
 
-        case 'GIFT': {
+        case 'SUN_HORIZON': {
+      // 昼夜晨昏交替 (24帧平滑大循环: 0-11 白昼日升日落, 12-23 静谧星夜月相)
+      const phaseT = t % 24;
+      line(3, 12, 19, 12); // 中央地平线
+      
+      if (phaseT < 12) {
+        // 白昼太阳：从地平线左侧升起 -> 苍穹顶点 -> 右侧地平线落下
+        const prog = phaseT / 11;
+        const sunX = Math.round(5 + prog * 12);
+        const sunY = Math.round(12 - 7 * Math.sin(prog * Math.PI));
+        // 饱满发光太阳
+        circle(sunX, sunY, 2.4, true);
+        // 日光耀斑/光芒
+        if (sunY <= 7) {
+          put(sunX - 3, sunY); put(sunX + 3, sunY);
+          put(sunX, sunY - 3);
+        }
+        // 水面金波倒影
+        line(sunX - 2, 14, sunX + 2, 14);
+        if (phaseT % 2 === 0) line(sunX - 4, 16, sunX + 4, 16);
+        line(sunX - 1, 18, sunX + 1, 18);
+      } else {
+        // 静谧星夜月相：弯月滑过夜空与闪烁星群
+        const prog = (phaseT - 12) / 11;
+        const moonX = Math.round(6 + prog * 10);
+        const moonY = Math.round(11 - 6 * Math.sin(prog * Math.PI));
+        // 优美月牙弯月
+        circle(moonX, moonY, 2.5, true);
+        circle(moonX + 1, moonY - 1, 2.0, false);
+        // 夜空闪烁繁星 (y <= 10)
+        const stars = [[4, 4], [18, 5], [8, 6], [15, 3], [6, 9], [17, 9]];
+        stars.forEach(([sx, sy], sIdx) => {
+          if ((phaseT + sIdx) % 3 !== 0) put(sx, sy);
+        });
+        // 夜晚水面静谧微波倒影
+        line(moonX - 1, 14, moonX + 1, 14);
+        line(7, 17, 15, 17);
+        line(9, 19, 13, 19);
+      }
+      break;
+    }
+
+    case 'STROBE': {
+      // 骑行/夜跑警示尾灯 (16帧双重强警示模式: 0-7 旋转双光柱, 8-15 警示三角与爆闪)
+      const st = t % 16;
+      if (st < 8) {
+        // 模式 1: 旋转双重雷达高光柱 + 核心发光灯芯
+        circle(11, 11, 2, true);
+        const ang = (st / 8) * Math.PI * 2;
+        for (let r = 3; r <= 9; r += 2) {
+          const x1 = Math.round(11 + Math.cos(ang) * r);
+          const y1 = Math.round(11 + Math.sin(ang) * r);
+          const x2 = Math.round(11 - Math.cos(ang) * r);
+          const y2 = Math.round(11 - Math.sin(ang) * r);
+          put(x1, y1); put(x2, y2);
+        }
+        // 外围四角定位示廓灯
+        put(11, 2); put(11, 20); put(2, 11); put(20, 11);
+      } else {
+        // 模式 2: 危险警示三角 (▲) 与强对比交替爆闪
+        if (st % 2 === 0) {
+          // 锐利醒目的危险三角轮廓
+          line(4, 17, 18, 17); // 底边
+          line(4, 17, 11, 4);  // 左腰
+          line(18, 17, 11, 4); // 右腰
+          // 内部加粗感叹号 (!)
+          line(11, 8, 11, 12);
+          put(11, 15);
+        } else {
+          // 强对比外圈瞬间爆闪光环 (防追尾视觉穿透)
+          circle(11, 11, 9);
+          circle(11, 11, 10);
+          put(11, 11); put(10, 11); put(12, 11); put(11, 10); put(11, 12);
+        }
+      }
+      break;
+    }
+
+    case 'TURN_ARROW': {
+      // 动态流光转向指示 (16帧平滑连续级联折线流水光矢 >>>)
+      const at = t % 16;
+      const drawChevron = (cx) => {
+        line(cx, 11, cx - 4, 7);
+        line(cx, 11, cx - 4, 15);
+        line(cx - 1, 11, cx - 5, 7);
+        line(cx - 1, 11, cx - 5, 15);
+      };
+      // 3道流水光矢在圆屏中连续向右推移
+      for (let c = 0; c < 3; c++) {
+        const cx = Math.round(((at + c * 5) % 16) / 15 * 18 + 2);
+        drawChevron(cx);
+      }
+      break;
+    }
+    case 'GIFT': {
           ctx.save();
           ctx.translate(cx, cy + Math.sin(t * 6) * 8);
           // 礼盒底
@@ -5444,8 +5800,8 @@
         let raw = localStorage.getItem(STORAGE_KEY_ANIMATIONS);
         if (!raw) {
           // 向上迁移：兼容旧版存储并主动过滤游戏分类
-          const oldV1 = localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
-          if (oldV1) raw = oldV1;
+          const oldV2 = localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V2') || localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
+          if (oldV2) raw = oldV2;
         }
         if (!raw) {
           ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
@@ -5507,14 +5863,14 @@
     }
 
     function resetAnimationsToDefault() {
-      if (confirm('确定要恢复为官方默认动画库吗？\n所有自定义新增或修改的动画将被重置，官方全部 80 款动画将完整还原。')) {
+      if (confirm('确定要恢复为官方默认动画库吗？\n所有自定义新增或修改的动画将被重置，官方全部 83 款动画将完整还原。')) {
         localStorage.removeItem(STORAGE_KEY_ANIMATIONS);
         localStorage.removeItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
         ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
         state.currentAnim = ALL_ANIMATIONS[0];
         initUI();
         selectAnimation(ALL_ANIMATIONS[0]);
-        showToast('已成功恢复为官方默认 80 款动画！');
+        showToast('已成功恢复为官方默认 83 款动画！');
       }
     }
 
@@ -6430,7 +6786,7 @@
                 🔄 恢复动态算法
               </button>
             </div>
-            <span style="font-size:10px;color:var(--muted)">支持随时恢复官方默认 80 款动画</span>
+            <span style="font-size:10px;color:var(--muted)">支持随时恢复官方默认 83 款动画</span>
           </div>
         </div>
       </div>
