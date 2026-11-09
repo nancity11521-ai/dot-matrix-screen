@@ -1583,11 +1583,30 @@
     '1111/1001/1001/1111/1001/1001/1111', // 8: 4x7
     '1111/1001/1001/1111/0001/0001/1111'  // 9: 4x7
   ];
+  const digits5x8 = [
+    '11111/10001/10001/10001/10001/10001/10001/11111', // 0: 5x8
+    '00100/01100/00100/00100/00100/00100/00100/11111', // 1: 5x8 (居中立柱与厚重基座)
+    '11111/00001/00001/11111/10000/10000/10000/11111', // 2: 5x8
+    '11111/00001/00001/11111/00001/00001/00001/11111', // 3: 5x8
+    '10001/10001/10001/11111/00001/00001/00001/00001', // 4: 5x8
+    '11111/10000/10000/11111/00001/00001/00001/11111', // 5: 5x8
+    '11111/10000/10000/11111/10001/10001/10001/11111', // 6: 5x8
+    '11111/00001/00001/00010/00010/00100/00100/00100', // 7: 5x8 (居中稳健立柱)
+    '11111/10001/10001/11111/10001/10001/10001/11111', // 8: 5x8
+    '11111/10001/10001/10001/11111/00001/00001/11111'  // 9: 5x8 (与6呈180°旋转完美对称)
+  ];
   const text = (s, y) => {
     let total = s.length * 5 - 1, x = Math.floor((23 - total) / 2);
     [...s].forEach(c => {
       if(digits[+c]) mask(digits[+c], x, y);
       x += 5;
+    });
+  };
+  const text5x8 = (s, y) => {
+    let total = s.length * 6 - 1, x = Math.floor((23 - total) / 2);
+    [...s].forEach(c => {
+      if(digits5x8[+c]) mask(digits5x8[+c], x, y);
+      x += 6;
     });
   };
   const t = frame, phase = Math.floor(t / 3), bob = [0, -1, 0, 0][phase % 4];
@@ -1599,21 +1618,32 @@
   const head = (x = 11, y = 4) => circle(x, y, 2.2, true);
 
   switch(kind) {
-    case 'CLOCK': case 'DATE': {
+    case 'CLOCK': {
       const d = opt.now ? new Date(opt.now) : new Date();
-      let a, b;
-      if(kind === 'DATE') {
-        const parts = (opt.date || '2026-07-01').split('-');
-        a = parts[1]; b = parts[2];
-      } else {
-        const hh = (opt.hour !== undefined) ? opt.hour : d.getHours();
-        const mm = (opt.minute !== undefined) ? opt.minute : d.getMinutes();
-        a = String(hh).padStart(2, '0');
-        b = String(mm).padStart(2, '0');
+      const hh = String((opt.hour !== undefined) ? opt.hour : d.getHours()).padStart(2, '0');
+      const mm = String((opt.minute !== undefined) ? opt.minute : d.getMinutes()).padStart(2, '0');
+      
+      // 5x8 大字体渲染数字时间，垂直完美对称排版 (y=2~9: 小时, y=10: 空行, y=11: 4点分割, y=12: 空行, y=13~20: 分钟)
+      text5x8(hh, 2);
+
+      // 中间 4 个点，1 秒闪一次 (500ms 亮 / 500ms 灭，支持实时走时与逐帧步进同频)
+      const nowMs = (opt.now ? opt.now.getTime() : Date.now()) % 1000;
+      const isBlinkOn = (typeof state !== 'undefined' && !state.playing)
+        ? ((frame % 12) < 6)
+        : (nowMs < 500);
+
+      if (isBlinkOn) {
+        [9, 10, 11, 12].forEach(x => put(x, 11));
       }
-      text(a, 3);
+
+      text5x8(mm, 13);
+      break;
+    }
+    case 'DATE': {
+      const parts = (opt.date || '2026-07-01').split('-');
+      text(parts[1], 3);
       line(8, 11, 14, 11);
-      text(b, 13);
+      text(parts[2], 13);
       break;
     }
     case 'WEEKDAY': {
@@ -4371,7 +4401,7 @@
 
         /* ================= 系统：时间与日历 ================= */
         case 'CLOCK': {
-          const now = new Date();
+          const now = opt.now || new Date();
           const hh = String(opt.hour ?? now.getHours()).padStart(2, '0');
           const mm = String(opt.minute ?? now.getMinutes()).padStart(2, '0');
           const ss = now.getSeconds();
@@ -4386,31 +4416,48 @@
             ctx.lineWidth = i % 5 === 0 ? 3.5 : 1.5;
             ctx.stroke();
           }
-          // 上下大数字时钟 (极简科幻表盘排版，分段 4x7 对应高保真矢量排版)
-          ctx.font = 'bold 96px system-ui, -apple-system, sans-serif';
+          // 上下大数字时钟 (加大字号至 112px，高保真矢量排版呼应 5x8 点阵大字模)
+          ctx.font = 'bold 112px system-ui, -apple-system, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillStyle = '#ffffff';
           ctx.shadowColor = col;
           ctx.shadowBlur = 18;
-          ctx.fillText(hh, cx, cy - 65);
+          ctx.fillText(hh, cx, cy - 68);
 
-          // 中间横向高光分割线 (与左侧点阵屏 7 颗灯珠横线 100% 同步呼应)
-          ctx.beginPath();
-          ctx.moveTo(cx - 72, cy);
-          ctx.lineTo(cx + 72, cy);
-          ctx.strokeStyle = col;
-          ctx.lineWidth = 5;
-          ctx.lineCap = 'round';
-          ctx.shadowColor = col;
-          ctx.shadowBlur = 12;
-          ctx.stroke();
+          // 中间 4 颗高光发光圆点分割器 (与左侧点阵屏 4 颗物理灯珠 100% 同频 1 秒闪烁)
+          const nowMs = (opt.now ? opt.now.getTime() : Date.now()) % 1000;
+          const isBlinkOn = (typeof state !== 'undefined' && !state.playing)
+            ? ((Math.floor(t * 12) % 12) < 6)
+            : (nowMs < 500);
+
+          const dotOffsets = [-42, -14, 14, 42];
+          dotOffsets.forEach(dx => {
+            ctx.beginPath();
+            ctx.arc(cx + dx, cy, 6, 0, Math.PI * 2);
+            if (isBlinkOn) {
+              ctx.fillStyle = '#ffffff';
+              ctx.shadowColor = col;
+              ctx.shadowBlur = 16;
+              ctx.fill();
+              ctx.strokeStyle = col;
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            } else {
+              ctx.fillStyle = 'rgba(255,255,255,0.12)';
+              ctx.shadowBlur = 0;
+              ctx.fill();
+            }
+          });
           ctx.shadowBlur = 0;
 
+          ctx.font = 'bold 112px system-ui, -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
           ctx.shadowColor = col;
           ctx.shadowBlur = 18;
           ctx.fillStyle = '#ffffff';
-          ctx.fillText(mm, cx, cy + 65);
+          ctx.fillText(mm, cx, cy + 68);
           ctx.font = '600 22px system-ui';
           ctx.fillStyle = col;
           ctx.shadowBlur = 0;
