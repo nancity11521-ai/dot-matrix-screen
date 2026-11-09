@@ -1623,17 +1623,17 @@
       const hh = String((opt.hour !== undefined) ? opt.hour : d.getHours()).padStart(2, '0');
       const mm = String((opt.minute !== undefined) ? opt.minute : d.getMinutes()).padStart(2, '0');
       
-      // 5x8 大字体渲染数字时间，垂直完美对称排版 (y=2~9: 小时, y=10: 空行, y=11: 4点分割, y=12: 空行, y=13~20: 分钟)
+      // 5x8 大字体渲染数字时间，垂直完美对称排版 (y=2~9: 小时, y=10: 空行, y=11: 5点居中分割, y=12: 空行, y=13~20: 分钟)
       text5x8(hh, 2);
 
-      // 中间 4 个点，1 秒闪一次 (500ms 亮 / 500ms 灭，支持实时走时与逐帧步进同频)
+      // 中间 5 个点，严格居中分布 (x=9~13, 中心为 x=11)，1 秒闪一次 (500ms 亮 / 500ms 灭，支持实时走时与逐帧步进同频)
       const nowMs = (opt.now ? opt.now.getTime() : Date.now()) % 1000;
       const isBlinkOn = (typeof state !== 'undefined' && !state.playing)
         ? ((frame % 12) < 6)
         : (nowMs < 500);
 
       if (isBlinkOn) {
-        [9, 10, 11, 12].forEach(x => put(x, 11));
+        [9, 10, 11, 12, 13].forEach(x => put(x, 11));
       }
 
       text5x8(mm, 13);
@@ -4440,13 +4440,13 @@
           ctx.shadowBlur = 18;
           ctx.fillText(hh, cx, cy - 68);
 
-          // 中间 4 颗高光发光圆点分割器 (与左侧点阵屏 4 颗物理灯珠 100% 同频 1 秒闪烁)
+          // 中间 5 颗高光发光圆点分割器，完美居中 (与左侧点阵屏 5 颗物理灯珠 100% 同频 1 秒闪烁)
           const nowMs = (opt.now ? opt.now.getTime() : Date.now()) % 1000;
           const isBlinkOn = (typeof state !== 'undefined' && !state.playing)
             ? ((Math.floor(t * 12) % 12) < 6)
             : (nowMs < 500);
 
-          const dotOffsets = [-42, -14, 14, 42];
+          const dotOffsets = [-44, -22, 0, 22, 44];
           dotOffsets.forEach(dx => {
             ctx.beginPath();
             ctx.arc(cx + dx, cy, 6, 0, Math.PI * 2);
