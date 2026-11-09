@@ -1393,6 +1393,20 @@
         <!-- 动态生成二级子分类 -->
       </div>
 
+      <!-- 待修改同步管理工具条 (在「待修改」分类下自动激活) -->
+      <div id="pendingSyncBar" style="display:none;align-items:center;justify-content:space-between;gap:6px;padding:8px 10px;margin-bottom:8px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;font-size:11px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:5px;color:#f59e0b;font-weight:600">
+          <span>🌐 线上实时同步已生效</span>
+          <span style="font-size:10px;color:var(--text);font-weight:normal">(已标记 <b id="pendingSyncBarCount" style="color:#f59e0b">0</b> 项 · 刷新永不丢失)</span>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <button class="btn" style="padding:2px 7px;font-size:10px;border-color:rgba(245,158,11,0.4)" onclick="copyPendingShareLink()" title="复制带当前待改标记的分享链接">🔗 分享链接</button>
+          <button class="btn" style="padding:2px 7px;font-size:10px;border-color:rgba(245,158,11,0.4)" onclick="copyPendingCodeConfig()" title="复制可提交到代码的待改清单数组">📋 导出配置</button>
+          <button class="btn" style="padding:2px 7px;font-size:10px" onclick="resetPendingToDefaults()" title="恢复线上默认待修改项">🔄 恢复线上默认</button>
+          <button class="btn" style="padding:2px 7px;font-size:10px;color:var(--dim)" onclick="clearAllPending()" title="清空全部待修改标记">🗑️ 清空</button>
+        </div>
+      </div>
+
       <!-- 搜索框 -->
       <div class="search-input-wrap" id="searchWrap">
         <span class="search-icon">🔍</span>
@@ -1406,6 +1420,17 @@
 
       <!-- 代码导出专区面板 (当点击“导出”时显示) -->
       <div id="exportSectionPanel" style="display:none">
+        <div class="panel-section" style="margin-bottom:12px;background:rgba(245,158,11,0.06);border:1px dashed rgba(245,158,11,0.3)">
+          <div class="section-title">
+            <span style="color:#f59e0b">🚩 待修改清单线上配置 (DEFAULT_PENDING_IDS)</span>
+            <button class="btn" style="padding:2px 7px;font-size:10px" onclick="copyPendingCodeConfig()">📋 复制配置</button>
+          </div>
+          <p style="font-size:10px;color:var(--muted)">
+            当前所有标记待修改动画的编号与 ID 数组，支持直接复制更新至工程代码，确保全端部署开箱即见。
+          </p>
+          <div class="code-preview" id="codePendingBox" style="max-height:100px">正在读取...</div>
+        </div>
+
         <div class="panel-section" style="margin-bottom:12px">
           <div class="section-title">
             <span>50 字节 C 语言位图数组</span>
@@ -2983,7 +3008,7 @@
       { num: '#36', no: 'EMO-36', id: 'HEARTBEAT', name: '心跳回响', cat: 'emotion', subcat: 'faces', icon: '💓', frames: 16 },
 
       /* --- 系统 / 时间日历 --- */
-      { num: '#37', no: 'SYS-01', id: 'CLOCK', name: '数字时间', cat: 'system', subcat: 'time', icon: '🕒', frames: 24 },
+      { num: '#37', no: 'SYS-01', id: 'CLOCK', name: '数字时间', cat: 'system', subcat: 'time', icon: '🕒', frames: 24, isPending: true },
       { num: '#38', no: 'SYS-02', id: 'DATE', name: '双层日期', cat: 'system', subcat: 'time', icon: '📅', frames: 24 },
       { num: '#39', no: 'SYS-03', id: 'WEEKDAY', name: '星期显示', cat: 'system', subcat: 'time', icon: '🗓️', frames: 24 },
 
@@ -3013,9 +3038,9 @@
       { num: '#56', no: 'ACT-09', id: 'MAIL', name: '邮件到达', cat: 'activity', subcat: 'efficiency', icon: '✉️', frames: 20 },
 
       /* --- 活动 / 户外安全 --- */
-      { num: '#57', no: 'ACT-10', id: 'STROBE', name: '骑行/夜跑警示尾灯', cat: 'activity', subcat: 'safety', icon: '🚨', frames: 12 },
-      { num: '#58', no: 'ACT-11', id: 'TURN_LEFT', name: '动态流光左转向', cat: 'activity', subcat: 'safety', icon: '⏪', frames: 16 },
-      { num: '#59', no: 'ACT-12', id: 'TURN_RIGHT', name: '动态流光右转向', cat: 'activity', subcat: 'safety', icon: '⏩', frames: 16 },
+      { num: '#57', no: 'ACT-10', id: 'STROBE', name: '骑行/夜跑警示尾灯', cat: 'activity', subcat: 'safety', icon: '🚨', frames: 12, isPending: true },
+      { num: '#58', no: 'ACT-11', id: 'TURN_LEFT', name: '动态流光左转向', cat: 'activity', subcat: 'safety', icon: '⏪', frames: 16, isPending: true },
+      { num: '#59', no: 'ACT-12', id: 'TURN_RIGHT', name: '动态流光右转向', cat: 'activity', subcat: 'safety', icon: '⏩', frames: 16, isPending: true },
 
       /* --- 生活 / 气象万千 --- */
       { num: '#60', no: 'LIF-01', id: 'SUNNY', name: '阳光晴天', cat: 'life', subcat: 'weather', icon: '☀️', frames: 24 },
@@ -3026,7 +3051,7 @@
       { num: '#65', no: 'LIF-06', id: 'STORM', name: '闪电雷暴', cat: 'life', subcat: 'weather', icon: '⛈️', frames: 24 },
 
       /* --- 生活 / 影音与日常 --- */
-      { num: '#66', no: 'LIF-07', id: 'WAVE', name: '跳动声波', cat: 'life', subcat: 'audio', icon: '〰️', frames: 16 },
+      { num: '#66', no: 'LIF-07', id: 'WAVE', name: '跳动声波', cat: 'life', subcat: 'audio', icon: '〰️', frames: 16, isPending: true },
       { num: '#67', no: 'LIF-08', id: 'SPECTRUM', name: '音频频谱', cat: 'life', subcat: 'audio', icon: '📶', frames: 24 },
       { num: '#68', no: 'LIF-09', id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24 },
       { num: '#69', no: 'LIF-10', id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 24 },
@@ -3038,7 +3063,7 @@
       { num: '#73', no: 'LIF-14', id: 'DOG', name: '灵动小狗', cat: 'life', subcat: 'companion', icon: '🐶', frames: 24 },
       { num: '#74', no: 'LIF-15', id: 'FISH', name: '游动金鱼', cat: 'life', subcat: 'companion', icon: '🐟', frames: 24 },
       { num: '#75', no: 'LIF-16', id: 'BIRD', name: '飞翔小鸟', cat: 'life', subcat: 'companion', icon: '🐦', frames: 24 },
-      { num: '#76', no: 'LIF-17', id: 'SUN_HORIZON', name: '昼夜晨昏交替', cat: 'life', subcat: 'weather', icon: '🌅', frames: 48 },
+      { num: '#76', no: 'LIF-17', id: 'SUN_HORIZON', name: '昼夜晨昏交替', cat: 'life', subcat: 'weather', icon: '🌅', frames: 48, isPending: true },
 
       /* --- 氛围 / 节日庆典 --- */
       { num: '#77', no: 'AMB-01', id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
@@ -3058,45 +3083,207 @@
     const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V7';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
-    /* 待修改项本地存储与管理系统 */
-    const STORAGE_KEY_PENDING = 'DOT_MATRIX_PENDING_MODIFICATIONS_V1';
-    let pendingModifications = new Set();
+    /* 官方线上基准待修改动画清单 (内置代码库，保障全网部署、移动端无缓存与初次加载 100% 永久在线可见) */
+    const DEFAULT_PENDING_IDS = [
+      'SUN_HORIZON', // #76 · LIF-17 昼夜晨昏交替 (太阳与月牙造型微调审阅)
+      'STROBE',      // #57 · ACT-10 骑行/夜跑警示尾灯 (1秒1闪纯粹警示三角)
+      'TURN_LEFT',   // #58 · ACT-11 动态流光左转向 (车规级4箭头流光)
+      'TURN_RIGHT',  // #59 · ACT-12 动态流光右转向 (车规级4箭头流光)
+      'CLOCK',       // #37 · SYS-01 数字时间 (实时动态走时算法)
+      'WAVE'         // #66 · LIF-07 跳动声波 (动态音频跳动脉冲)
+    ];
+
+    /* 待修改项本地存储、URL状态流转与线上基准同步系统 */
+    const STORAGE_KEY_PENDING = 'DOT_MATRIX_PENDING_MODIFICATIONS_V2';
+    const STORAGE_KEY_PENDING_REMOVED = 'DOT_MATRIX_PENDING_REMOVED_V1';
+    let pendingModifications = new Set(DEFAULT_PENDING_IDS);
+    let removedPendingIds = new Set();
+
+    function resolveAnimId(idOrNo) {
+      if (!idOrNo) return '';
+      const anim = ALL_ANIMATIONS.find(a => a.id === idOrNo || a.no === idOrNo || a.num === idOrNo);
+      return anim ? anim.id : idOrNo;
+    }
 
     function loadPendingStorage() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY_PENDING);
+        // 1. 载入用户主动移除的清单（确保用户手动取消某项后，不会在刷新时被默认值强行恢复）
+        const rawRemoved = localStorage.getItem(STORAGE_KEY_PENDING_REMOVED) || sessionStorage.getItem(STORAGE_KEY_PENDING_REMOVED);
+        if (rawRemoved) {
+          const arrRem = JSON.parse(rawRemoved);
+          if (Array.isArray(arrRem)) removedPendingIds = new Set(arrRem.map(resolveAnimId));
+        }
+
+        // 2. 以官方默认待修改清单为基准 (剔除用户主动取消的)
+        pendingModifications.clear();
+        DEFAULT_PENDING_IDS.forEach(id => {
+          if (!removedPendingIds.has(id)) pendingModifications.add(id);
+        });
+
+        // 3. 从 localStorage 与 sessionStorage 恢复新增标记（兼容 V1 与 V2）
+        const raw = localStorage.getItem(STORAGE_KEY_PENDING) || 
+                    localStorage.getItem('DOT_MATRIX_PENDING_MODIFICATIONS_V1') || 
+                    sessionStorage.getItem(STORAGE_KEY_PENDING);
         if (raw) {
           const arr = JSON.parse(raw);
-          if (Array.isArray(arr)) pendingModifications = new Set(arr);
+          if (Array.isArray(arr)) {
+            arr.forEach(rawId => {
+              const id = resolveAnimId(rawId);
+              if (id && !removedPendingIds.has(id)) pendingModifications.add(id);
+            });
+          }
         }
+
+        // 4. 从 URL hash 或 query 参数同步（如 ?pending=LIF-17,ACT-10 或 #pending=LIF-17,ACT-10）
+        // 核心保障：移动端 Webview、无痕模式、跨设备分享链接下一刷新绝不丢失！
+        parsePendingFromUrl();
+
+        // 5. 同步至当前动画对象属性
+        ALL_ANIMATIONS.forEach(anim => {
+          if (anim.isPending && !removedPendingIds.has(anim.id)) pendingModifications.add(anim.id);
+        });
       } catch (e) {
         console.warn('Failed to parse pending modifications:', e);
+        pendingModifications.clear();
+        DEFAULT_PENDING_IDS.forEach(id => pendingModifications.add(id));
+      }
+    }
+
+    function parsePendingFromUrl() {
+      try {
+        const hash = window.location.hash || '';
+        const search = window.location.search || '';
+        let urlIds = [];
+        if (hash.includes('pending=')) {
+          const seg = hash.split('pending=')[1].split('&')[0];
+          if (seg) {
+            decodeURIComponent(seg).split(',').map(s => s.trim()).filter(Boolean).forEach(id => urlIds.push(id));
+          }
+        }
+        if (search.includes('pending=')) {
+          const seg = search.split('pending=')[1].split('&')[0];
+          if (seg) {
+            decodeURIComponent(seg).split(',').map(s => s.trim()).filter(Boolean).forEach(id => urlIds.push(id));
+          }
+        }
+        urlIds.map(resolveAnimId).filter(Boolean).forEach(id => {
+          pendingModifications.add(id);
+          removedPendingIds.delete(id);
+        });
+      } catch (e) {
+        console.warn('Failed to parse pending from URL:', e);
+      }
+    }
+
+    function syncPendingToUrl() {
+      try {
+        const ids = Array.from(pendingModifications).map(id => {
+          const anim = ALL_ANIMATIONS.find(a => a.id === id);
+          return anim && anim.no ? anim.no : id;
+        });
+        if (window.history && window.history.replaceState) {
+          const hashVal = ids.length > 0 ? `#pending=${ids.join(',')}` : '';
+          const newUrl = window.location.pathname + window.location.search + hashVal;
+          window.history.replaceState(null, '', newUrl);
+        }
+      } catch (e) {
+        // 静默捕获非同源或嵌入 iframe 限制
       }
     }
 
     function savePendingStorage() {
       try {
-        localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(Array.from(pendingModifications)));
+        const arr = Array.from(pendingModifications);
+        const remArr = Array.from(removedPendingIds);
+        localStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(arr));
+        sessionStorage.setItem(STORAGE_KEY_PENDING, JSON.stringify(arr));
+        localStorage.setItem(STORAGE_KEY_PENDING_REMOVED, JSON.stringify(remArr));
+        sessionStorage.setItem(STORAGE_KEY_PENDING_REMOVED, JSON.stringify(remArr));
+
+        // 同步至各个动画对象的 isPending 属性
+        ALL_ANIMATIONS.forEach(anim => {
+          anim.isPending = pendingModifications.has(anim.id);
+        });
+        saveAnimationsToStorage();
+
+        // 实时同步至 URL hash，实现刷新防丢与一键分享
+        syncPendingToUrl();
       } catch (e) {
         console.error('Failed to save pending modifications:', e);
       }
     }
 
-    function isPendingModify(id) {
+    function isPendingModify(rawId) {
+      if (!rawId) return false;
+      const id = resolveAnimId(rawId);
       return pendingModifications.has(id);
     }
 
-    function togglePendingModify(id) {
-      if (!id) return;
+    function togglePendingModify(rawId) {
+      if (!rawId) return;
+      const id = resolveAnimId(rawId);
       if (pendingModifications.has(id)) {
         pendingModifications.delete(id);
-        showToast('已取消待修改标记');
+        removedPendingIds.add(id);
+        showToast('已取消待修改标记 🏳️');
       } else {
         pendingModifications.add(id);
-        showToast('已加入待修改项 🚩');
+        removedPendingIds.delete(id);
+        showToast('已加入待修改项 🚩 (已实时同步存储与分享链接)');
       }
       savePendingStorage();
       updatePendingUI();
+    }
+
+    function resetPendingToDefaults() {
+      removedPendingIds.clear();
+      pendingModifications.clear();
+      DEFAULT_PENDING_IDS.forEach(id => pendingModifications.add(id));
+      savePendingStorage();
+      updatePendingUI();
+      showToast('已恢复线上基准待修改清单 (共 ' + DEFAULT_PENDING_IDS.length + ' 项)！');
+    }
+
+    function clearAllPending() {
+      if (confirm('确定要清空全部待修改标记吗？\n（随时可点击「恢复线上默认」重新找回）')) {
+        DEFAULT_PENDING_IDS.forEach(id => removedPendingIds.add(id));
+        pendingModifications.forEach(id => removedPendingIds.add(id));
+        pendingModifications.clear();
+        savePendingStorage();
+        updatePendingUI();
+        showToast('已清空全部待修改标记');
+      }
+    }
+
+    function copyPendingShareLink() {
+      const ids = Array.from(pendingModifications).map(id => {
+        const anim = ALL_ANIMATIONS.find(a => a.id === id);
+        return anim && anim.no ? anim.no : id;
+      }).join(',');
+      const fullUrl = window.location.origin + window.location.pathname + (ids.length > 0 ? '#pending=' + ids : '');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(fullUrl).then(() => {
+          showToast('已复制带待修改标记的分享链接！🔗 (跨设备打开直接还原)');
+        }).catch(() => {
+          prompt('请复制以下带标记的分享链接：', fullUrl);
+        });
+      } else {
+        prompt('请复制以下带标记的分享链接：', fullUrl);
+      }
+    }
+
+    function copyPendingCodeConfig() {
+      const ids = Array.from(pendingModifications);
+      const codeSnippet = `const DEFAULT_PENDING_IDS = ${JSON.stringify(ids, null, 2)};`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codeSnippet).then(() => {
+          showToast('已复制待修改清单代码，可直接用于代码提交！📋');
+        }).catch(() => {
+          prompt('请复制以下待修改配置代码：', codeSnippet);
+        });
+      } else {
+        prompt('请复制以下待修改配置代码：', codeSnippet);
+      }
     }
 
     function updatePendingUI() {
@@ -3104,6 +3291,10 @@
       const badge = document.getElementById('pendingCountBadge');
       if (badge) {
         badge.textContent = count;
+      }
+      const syncBarCount = document.getElementById('pendingSyncBarCount');
+      if (syncBarCount) {
+        syncBarCount.textContent = count;
       }
       if (state.currentAnim) {
         const isPending = isPendingModify(state.currentAnim.id);
@@ -3166,6 +3357,7 @@
       renderAnimationsList();
       initEditorCanvas();
       updatePendingUI();
+      syncPendingToUrl();
     }
 
     function selectMainCategory(catId) {
@@ -3177,10 +3369,14 @@
       });
 
       const isExport = catId === 'export';
+      const isPending = catId === 'pending';
       document.getElementById('searchWrap').style.display = isExport ? 'none' : 'block';
       document.getElementById('subcatPillsBar').style.display = isExport ? 'none' : 'flex';
       document.getElementById('animationsGrid').style.display = isExport ? 'none' : 'grid';
       document.getElementById('exportSectionPanel').style.display = isExport ? 'block' : 'none';
+
+      const syncBar = document.getElementById('pendingSyncBar');
+      if (syncBar) syncBar.style.display = isPending ? 'flex' : 'none';
 
       if (!isExport) {
         renderSubcatPills();
@@ -5588,6 +5784,14 @@
       }
       rowStr += '};';
       document.getElementById('codeRowsBox').textContent = rowStr;
+
+      const pendingBox = document.getElementById('codePendingBox');
+      if (pendingBox) {
+        const ids = Array.from(pendingModifications);
+        let pendingStr = '// 官方线上基准待修改动画清单 (内置代码库，当前共 ' + ids.length + ' 项)\n';
+        pendingStr += 'const DEFAULT_PENDING_IDS = ' + JSON.stringify(ids, null, 2) + ';';
+        pendingBox.textContent = pendingStr;
+      }
     }
 
     function showToast(msg) {
@@ -6506,6 +6710,8 @@
         const pendingCheckNew = document.getElementById('editAnimPending');
         if (pendingCheckNew && pendingCheckNew.checked) {
           pendingModifications.add(newAnim.id);
+          removedPendingIds.delete(newAnim.id);
+          newAnim.isPending = true;
           savePendingStorage();
         }
         saveAnimationsToStorage();
@@ -6542,8 +6748,12 @@
           if (pendingCheck) {
             if (pendingCheck.checked) {
               pendingModifications.add(anim.id);
+              removedPendingIds.delete(anim.id);
+              anim.isPending = true;
             } else {
               pendingModifications.delete(anim.id);
+              removedPendingIds.add(anim.id);
+              anim.isPending = false;
             }
             savePendingStorage();
           }
@@ -6600,6 +6810,8 @@
       const pendingCheck = document.getElementById('editAnimPending');
       if (pendingCheck && pendingCheck.checked) {
         pendingModifications.add(newAnim.id);
+        removedPendingIds.delete(newAnim.id);
+        newAnim.isPending = true;
         savePendingStorage();
       }
       saveAnimationsToStorage();
@@ -6627,6 +6839,7 @@
         if (idx !== -1) {
           ALL_ANIMATIONS.splice(idx, 1);
           pendingModifications.delete(animId);
+          removedPendingIds.add(animId);
           savePendingStorage();
           saveAnimationsToStorage();
           closeAnimationEditor();
