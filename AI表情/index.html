@@ -2647,50 +2647,62 @@
     }
 
     case 'TURN_LEFT': {
-      // 动态流光左转向 (豪车级流水级联折线光矢 <<< 向左推进 · 16帧平滑循环)
+      // 动态流光左转向 (豪车级流水 4 级联折线光矢 <<<< 向左推进 · 16帧平滑循环)
       const at = Math.floor(t) % 16;
       const drawChevronL = (cx) => {
-        // 顶点在左 (cx, 11)，向右张开双翼至 (cx + 4, 7) 和 (cx + 4, 15)
-        line(cx, 11, cx + 4, 7);
-        line(cx, 11, cx + 4, 15);
-        line(cx + 1, 11, cx + 5, 7);
-        line(cx + 1, 11, cx + 5, 15);
+        // 顶点在左 (cx, 11)，向右张开双翼至 (cx + 3, 7) 和 (cx + 3, 15)
+        line(cx, 11, cx + 3, 7);
+        line(cx, 11, cx + 3, 15);
+        line(cx + 1, 11, cx + 4, 7);
+        line(cx + 1, 11, cx + 4, 15);
       };
-      // 3道流水光矢：第1道(起点 x=15) -> 第2道(居中 x=10) -> 第3道(终点 x=5)
-      if (at < 3) {
+      // 4道流水光矢：第1道(起点 x=15) -> 第2道(x=11) -> 第3道(x=7) -> 第4道(终点 x=3)
+      // 0-1帧: 第1道; 2-3帧: 第1+2道; 4-5帧: 前3道; 6-12帧: 4道齐亮; 13-15帧: 熄灭间歇
+      if (at < 2) {
         drawChevronL(15);
+      } else if (at < 4) {
+        drawChevronL(15);
+        drawChevronL(11);
       } else if (at < 6) {
         drawChevronL(15);
-        drawChevronL(10);
-      } else if (at < 14) {
+        drawChevronL(11);
+        drawChevronL(7);
+      } else if (at < 13) {
         drawChevronL(15);
-        drawChevronL(10);
-        drawChevronL(5);
+        drawChevronL(11);
+        drawChevronL(7);
+        drawChevronL(3);
       }
       break;
     }
 
     case 'TURN_ARROW': // 保持历史 ID 兼容
     case 'TURN_RIGHT': {
-      // 动态流光右转向 (豪车级流水级联折线光矢 >>> 向右推进 · 16帧平滑循环)
+      // 动态流光右转向 (豪车级流水 4 级联折线光矢 >>>> 向右推进 · 16帧平滑循环)
       const at = Math.floor(t) % 16;
       const drawChevronR = (cx) => {
-        // 顶点在右 (cx, 11)，向左张开双翼至 (cx - 4, 7) 和 (cx - 4, 15)
-        line(cx, 11, cx - 4, 7);
-        line(cx, 11, cx - 4, 15);
-        line(cx - 1, 11, cx - 5, 7);
-        line(cx - 1, 11, cx - 5, 15);
+        // 顶点在右 (cx, 11)，向左张开双翼至 (cx - 3, 7) 和 (cx - 3, 15)
+        line(cx, 11, cx - 3, 7);
+        line(cx, 11, cx - 3, 15);
+        line(cx - 1, 11, cx - 4, 7);
+        line(cx - 1, 11, cx - 4, 15);
       };
-      // 3道流水光矢：第1道(起点 x=7) -> 第2道(居中 x=12) -> 第3道(终点 x=17)
-      if (at < 3) {
+      // 4道流水光矢：第1道(起点 x=7) -> 第2道(x=11) -> 第3道(x=15) -> 第4道(终点 x=19)
+      // 0-1帧: 第1道; 2-3帧: 第1+2道; 4-5帧: 前3道; 6-12帧: 4道齐亮; 13-15帧: 熄灭间歇
+      if (at < 2) {
         drawChevronR(7);
+      } else if (at < 4) {
+        drawChevronR(7);
+        drawChevronR(11);
       } else if (at < 6) {
         drawChevronR(7);
-        drawChevronR(12);
-      } else if (at < 14) {
+        drawChevronR(11);
+        drawChevronR(15);
+      } else if (at < 13) {
         drawChevronR(7);
-        drawChevronR(12);
-        drawChevronR(17);
+        drawChevronR(11);
+        drawChevronR(15);
+        drawChevronR(19);
       }
       break;
     }
@@ -2989,7 +3001,7 @@
 
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V5';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V6';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 待修改项本地存储与管理系统 */
@@ -5045,39 +5057,43 @@
         }
 
         case 'TURN_LEFT': {
-          // 动态流光左转向 (豪车级流水级联折线光矢 <<< 向左推进)
+          // 动态流光左转向 (豪车级流水 4 级联折线光矢 <<<< 向左推进)
           const at = Math.floor(t) % 16;
+          const offsetsL = [75, 25, -25, -75];
           const drawHDChevronL = (offsetX, alpha) => {
             ctx.save();
             ctx.translate(cx + offsetX, cy);
             ctx.beginPath();
-            ctx.moveTo(30, -75);
-            ctx.lineTo(-25, 0);
-            ctx.lineTo(30, 75);
+            ctx.moveTo(24, -65);
+            ctx.lineTo(-20, 0);
+            ctx.lineTo(24, 65);
             ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 16;
+            ctx.lineWidth = 14;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 28;
+            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 24;
             ctx.globalAlpha = alpha;
             ctx.stroke();
             ctx.restore();
           };
 
-          if (at < 3) {
-            drawHDChevronL(65, 1.0);
+          if (at < 2) {
+            drawHDChevronL(offsetsL[0], 1.0);
+          } else if (at < 4) {
+            drawHDChevronL(offsetsL[0], 0.7);
+            drawHDChevronL(offsetsL[1], 1.0);
           } else if (at < 6) {
-            drawHDChevronL(65, 0.7);
-            drawHDChevronL(0, 1.0);
-          } else if (at < 14) {
-            drawHDChevronL(65, 0.6);
-            drawHDChevronL(0, 0.85);
-            drawHDChevronL(-65, 1.0);
+            drawHDChevronL(offsetsL[0], 0.5);
+            drawHDChevronL(offsetsL[1], 0.8);
+            drawHDChevronL(offsetsL[2], 1.0);
+          } else if (at < 13) {
+            drawHDChevronL(offsetsL[0], 0.5);
+            drawHDChevronL(offsetsL[1], 0.7);
+            drawHDChevronL(offsetsL[2], 0.85);
+            drawHDChevronL(offsetsL[3], 1.0);
           } else {
             // 熄灭间歇期保留幽灵底影
-            drawHDChevronL(65, 0.08);
-            drawHDChevronL(0, 0.08);
-            drawHDChevronL(-65, 0.08);
+            for (let i = 0; i < 4; i++) drawHDChevronL(offsetsL[i], 0.08);
           }
           ctx.globalAlpha = 1.0;
           break;
@@ -5085,39 +5101,43 @@
 
         case 'TURN_ARROW': // 保持历史 ID 兼容
         case 'TURN_RIGHT': {
-          // 动态流光右转向 (豪车级流水级联折线光矢 >>> 向右推进)
+          // 动态流光右转向 (豪车级流水 4 级联折线光矢 >>>> 向右推进)
           const at = Math.floor(t) % 16;
+          const offsetsR = [-75, -25, 25, 75];
           const drawHDChevronR = (offsetX, alpha) => {
             ctx.save();
             ctx.translate(cx + offsetX, cy);
             ctx.beginPath();
-            ctx.moveTo(-30, -75);
-            ctx.lineTo(25, 0);
-            ctx.lineTo(-30, 75);
+            ctx.moveTo(-24, -65);
+            ctx.lineTo(20, 0);
+            ctx.lineTo(-24, 65);
             ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 16;
+            ctx.lineWidth = 14;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 28;
+            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 24;
             ctx.globalAlpha = alpha;
             ctx.stroke();
             ctx.restore();
           };
 
-          if (at < 3) {
-            drawHDChevronR(-65, 1.0);
+          if (at < 2) {
+            drawHDChevronR(offsetsR[0], 1.0);
+          } else if (at < 4) {
+            drawHDChevronR(offsetsR[0], 0.7);
+            drawHDChevronR(offsetsR[1], 1.0);
           } else if (at < 6) {
-            drawHDChevronR(-65, 0.7);
-            drawHDChevronR(0, 1.0);
-          } else if (at < 14) {
-            drawHDChevronR(-65, 0.6);
-            drawHDChevronR(0, 0.85);
-            drawHDChevronR(65, 1.0);
+            drawHDChevronR(offsetsR[0], 0.5);
+            drawHDChevronR(offsetsR[1], 0.8);
+            drawHDChevronR(offsetsR[2], 1.0);
+          } else if (at < 13) {
+            drawHDChevronR(offsetsR[0], 0.5);
+            drawHDChevronR(offsetsR[1], 0.7);
+            drawHDChevronR(offsetsR[2], 0.85);
+            drawHDChevronR(offsetsR[3], 1.0);
           } else {
             // 熄灭间歇期保留幽灵底影
-            drawHDChevronR(-65, 0.08);
-            drawHDChevronR(0, 0.08);
-            drawHDChevronR(65, 0.08);
+            for (let i = 0; i < 4; i++) drawHDChevronR(offsetsR[i], 0.08);
           }
           ctx.globalAlpha = 1.0;
           break;
