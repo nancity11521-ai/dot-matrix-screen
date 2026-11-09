@@ -1124,7 +1124,7 @@
       </div>
       <div class="brand-title">
         <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs · 23×23</span></h1>
-        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (83 款动画)</p>
+        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (84 款动画)</p>
       </div>
     </div>
     <div class="top-actions">
@@ -2646,19 +2646,51 @@
       break;
     }
 
-    case 'TURN_ARROW': {
-      // 动态流光转向指示 (16帧平滑连续级联折线流水光矢 >>>)
-      const at = t % 16;
-      const drawChevron = (cx) => {
+    case 'TURN_LEFT': {
+      // 动态流光左转向 (豪车级流水级联折线光矢 <<< 向左推进 · 16帧平滑循环)
+      const at = Math.floor(t) % 16;
+      const drawChevronL = (cx) => {
+        // 顶点在左 (cx, 11)，向右张开双翼至 (cx + 4, 7) 和 (cx + 4, 15)
+        line(cx, 11, cx + 4, 7);
+        line(cx, 11, cx + 4, 15);
+        line(cx + 1, 11, cx + 5, 7);
+        line(cx + 1, 11, cx + 5, 15);
+      };
+      // 3道流水光矢：第1道(起点 x=15) -> 第2道(居中 x=10) -> 第3道(终点 x=5)
+      if (at < 3) {
+        drawChevronL(15);
+      } else if (at < 6) {
+        drawChevronL(15);
+        drawChevronL(10);
+      } else if (at < 14) {
+        drawChevronL(15);
+        drawChevronL(10);
+        drawChevronL(5);
+      }
+      break;
+    }
+
+    case 'TURN_ARROW': // 保持历史 ID 兼容
+    case 'TURN_RIGHT': {
+      // 动态流光右转向 (豪车级流水级联折线光矢 >>> 向右推进 · 16帧平滑循环)
+      const at = Math.floor(t) % 16;
+      const drawChevronR = (cx) => {
+        // 顶点在右 (cx, 11)，向左张开双翼至 (cx - 4, 7) 和 (cx - 4, 15)
         line(cx, 11, cx - 4, 7);
         line(cx, 11, cx - 4, 15);
         line(cx - 1, 11, cx - 5, 7);
         line(cx - 1, 11, cx - 5, 15);
       };
-      // 3道流水光矢在圆屏中连续向右推移
-      for (let c = 0; c < 3; c++) {
-        const cx = Math.round(((at + c * 5) % 16) / 15 * 18 + 2);
-        drawChevron(cx);
+      // 3道流水光矢：第1道(起点 x=7) -> 第2道(居中 x=12) -> 第3道(终点 x=17)
+      if (at < 3) {
+        drawChevronR(7);
+      } else if (at < 6) {
+        drawChevronR(7);
+        drawChevronR(12);
+      } else if (at < 14) {
+        drawChevronR(7);
+        drawChevronR(12);
+        drawChevronR(17);
       }
       break;
     }
@@ -2916,47 +2948,48 @@
 
       /* --- 活动 / 户外安全 --- */
       { num: '#57', no: 'ACT-10', id: 'STROBE', name: '骑行/夜跑警示尾灯', cat: 'activity', subcat: 'safety', icon: '🚨', frames: 12 },
-      { num: '#58', no: 'ACT-11', id: 'TURN_ARROW', name: '动态流光转向指示', cat: 'activity', subcat: 'safety', icon: '⏩', frames: 16 },
+      { num: '#58', no: 'ACT-11', id: 'TURN_LEFT', name: '动态流光左转向', cat: 'activity', subcat: 'safety', icon: '⏪', frames: 16 },
+      { num: '#59', no: 'ACT-12', id: 'TURN_RIGHT', name: '动态流光右转向', cat: 'activity', subcat: 'safety', icon: '⏩', frames: 16 },
 
       /* --- 生活 / 气象万千 --- */
-      { num: '#59', no: 'LIF-01', id: 'SUNNY', name: '阳光晴天', cat: 'life', subcat: 'weather', icon: '☀️', frames: 24 },
-      { num: '#60', no: 'LIF-02', id: 'CLOUDY', name: '浮云飘拂', cat: 'life', subcat: 'weather', icon: '☁️', frames: 24 },
-      { num: '#61', no: 'LIF-03', id: 'RAINY', name: '雨滴涟漪', cat: 'life', subcat: 'weather', icon: '🌧️', frames: 24 },
-      { num: '#62', no: 'LIF-04', id: 'RAIN', name: '像素落雨', cat: 'life', subcat: 'weather', icon: '☔', frames: 16 },
-      { num: '#63', no: 'LIF-05', id: 'SNOW', name: '冬日落雪', cat: 'life', subcat: 'weather', icon: '❄️', frames: 24 },
-      { num: '#64', no: 'LIF-06', id: 'STORM', name: '闪电雷暴', cat: 'life', subcat: 'weather', icon: '⛈️', frames: 24 },
+      { num: '#60', no: 'LIF-01', id: 'SUNNY', name: '阳光晴天', cat: 'life', subcat: 'weather', icon: '☀️', frames: 24 },
+      { num: '#61', no: 'LIF-02', id: 'CLOUDY', name: '浮云飘拂', cat: 'life', subcat: 'weather', icon: '☁️', frames: 24 },
+      { num: '#62', no: 'LIF-03', id: 'RAINY', name: '雨滴涟漪', cat: 'life', subcat: 'weather', icon: '🌧️', frames: 24 },
+      { num: '#63', no: 'LIF-04', id: 'RAIN', name: '像素落雨', cat: 'life', subcat: 'weather', icon: '☔', frames: 16 },
+      { num: '#64', no: 'LIF-05', id: 'SNOW', name: '冬日落雪', cat: 'life', subcat: 'weather', icon: '❄️', frames: 24 },
+      { num: '#65', no: 'LIF-06', id: 'STORM', name: '闪电雷暴', cat: 'life', subcat: 'weather', icon: '⛈️', frames: 24 },
 
       /* --- 生活 / 影音与日常 --- */
-      { num: '#65', no: 'LIF-07', id: 'WAVE', name: '跳动声波', cat: 'life', subcat: 'audio', icon: '〰️', frames: 16 },
-      { num: '#66', no: 'LIF-08', id: 'SPECTRUM', name: '音频频谱', cat: 'life', subcat: 'audio', icon: '📶', frames: 24 },
-      { num: '#67', no: 'LIF-09', id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24 },
-      { num: '#68', no: 'LIF-10', id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 24 },
-      { num: '#69', no: 'LIF-11', id: 'COFFEE', name: '咖啡小憩', cat: 'life', subcat: 'daily', icon: '☕', frames: 24 },
-      { num: '#70', no: 'LIF-12', id: 'WATER', name: '喝水打卡', cat: 'life', subcat: 'daily', icon: '💧', frames: 24 },
+      { num: '#66', no: 'LIF-07', id: 'WAVE', name: '跳动声波', cat: 'life', subcat: 'audio', icon: '〰️', frames: 16 },
+      { num: '#67', no: 'LIF-08', id: 'SPECTRUM', name: '音频频谱', cat: 'life', subcat: 'audio', icon: '📶', frames: 24 },
+      { num: '#68', no: 'LIF-09', id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24 },
+      { num: '#69', no: 'LIF-10', id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 24 },
+      { num: '#70', no: 'LIF-11', id: 'COFFEE', name: '咖啡小憩', cat: 'life', subcat: 'daily', icon: '☕', frames: 24 },
+      { num: '#71', no: 'LIF-12', id: 'WATER', name: '喝水打卡', cat: 'life', subcat: 'daily', icon: '💧', frames: 24 },
 
       /* --- 生活 / 萌宠生灵 --- */
-      { num: '#71', no: 'LIF-13', id: 'CAT', name: '像素小猫', cat: 'life', subcat: 'companion', icon: '🐱', frames: 24 },
-      { num: '#72', no: 'LIF-14', id: 'DOG', name: '灵动小狗', cat: 'life', subcat: 'companion', icon: '🐶', frames: 24 },
-      { num: '#73', no: 'LIF-15', id: 'FISH', name: '游动金鱼', cat: 'life', subcat: 'companion', icon: '🐟', frames: 24 },
-      { num: '#74', no: 'LIF-16', id: 'BIRD', name: '飞翔小鸟', cat: 'life', subcat: 'companion', icon: '🐦', frames: 24 },
-      { num: '#75', no: 'LIF-17', id: 'SUN_HORIZON', name: '昼夜晨昏交替', cat: 'life', subcat: 'weather', icon: '🌅', frames: 24 },
+      { num: '#72', no: 'LIF-13', id: 'CAT', name: '像素小猫', cat: 'life', subcat: 'companion', icon: '🐱', frames: 24 },
+      { num: '#73', no: 'LIF-14', id: 'DOG', name: '灵动小狗', cat: 'life', subcat: 'companion', icon: '🐶', frames: 24 },
+      { num: '#74', no: 'LIF-15', id: 'FISH', name: '游动金鱼', cat: 'life', subcat: 'companion', icon: '🐟', frames: 24 },
+      { num: '#75', no: 'LIF-16', id: 'BIRD', name: '飞翔小鸟', cat: 'life', subcat: 'companion', icon: '🐦', frames: 24 },
+      { num: '#76', no: 'LIF-17', id: 'SUN_HORIZON', name: '昼夜晨昏交替', cat: 'life', subcat: 'weather', icon: '🌅', frames: 24 },
 
       /* --- 氛围 / 节日庆典 --- */
-      { num: '#76', no: 'AMB-01', id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
-      { num: '#77', no: 'AMB-02', id: 'CANDLE', name: '摇曳烛火', cat: 'ambience', subcat: 'festive', icon: '🕯️', frames: 24 },
-      { num: '#78', no: 'AMB-03', id: 'GIFT', name: '节日礼盒', cat: 'ambience', subcat: 'festive', icon: '🎁', frames: 24 },
+      { num: '#77', no: 'AMB-01', id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
+      { num: '#78', no: 'AMB-02', id: 'CANDLE', name: '摇曳烛火', cat: 'ambience', subcat: 'festive', icon: '🕯️', frames: 24 },
+      { num: '#79', no: 'AMB-03', id: 'GIFT', name: '节日礼盒', cat: 'ambience', subcat: 'festive', icon: '🎁', frames: 24 },
 
       /* --- 氛围 / 空间视效 --- */
-      { num: '#79', no: 'AMB-04', id: 'ORBIT', name: '星际轨道', cat: 'ambience', subcat: 'visual', icon: '🪐', frames: 24 },
-      { num: '#80', no: 'AMB-05', id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
-      { num: '#81', no: 'AMB-06', id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
-      { num: '#82', no: 'AMB-07', id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24 },
-      { num: '#83', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
+      { num: '#80', no: 'AMB-04', id: 'ORBIT', name: '星际轨道', cat: 'ambience', subcat: 'visual', icon: '🪐', frames: 24 },
+      { num: '#81', no: 'AMB-05', id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
+      { num: '#82', no: 'AMB-06', id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
+      { num: '#83', no: 'AMB-07', id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24 },
+      { num: '#84', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
     ];
 
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V4';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V5';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 待修改项本地存储与管理系统 */
@@ -5011,16 +5044,16 @@
           break;
         }
 
-        case 'TURN_ARROW': {
-          // 动态流光转向指示 (豪车级流水转向箭头)
-          const at = Math.floor(t * 8) % 16;
-          const drawHDChevron = (offsetX, alpha) => {
+        case 'TURN_LEFT': {
+          // 动态流光左转向 (豪车级流水级联折线光矢 <<< 向左推进)
+          const at = Math.floor(t) % 16;
+          const drawHDChevronL = (offsetX, alpha) => {
             ctx.save();
             ctx.translate(cx + offsetX, cy);
             ctx.beginPath();
-            ctx.moveTo(-35, -75);
-            ctx.lineTo(25, 0);
-            ctx.lineTo(-35, 75);
+            ctx.moveTo(30, -75);
+            ctx.lineTo(-25, 0);
+            ctx.lineTo(30, 75);
             ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 16;
             ctx.lineCap = 'round';
@@ -5032,18 +5065,59 @@
           };
 
           if (at < 3) {
-            drawHDChevron(-70, 1.0);
+            drawHDChevronL(65, 1.0);
           } else if (at < 6) {
-            drawHDChevron(-70, 0.7);
-            drawHDChevron(0, 1.0);
-          } else if (at < 11) {
-            drawHDChevron(-70, 0.5);
-            drawHDChevron(0, 0.8);
-            drawHDChevron(70, 1.0);
+            drawHDChevronL(65, 0.7);
+            drawHDChevronL(0, 1.0);
           } else if (at < 14) {
-            drawHDChevron(-70, 1.0);
-            drawHDChevron(0, 1.0);
-            drawHDChevron(70, 1.0);
+            drawHDChevronL(65, 0.6);
+            drawHDChevronL(0, 0.85);
+            drawHDChevronL(-65, 1.0);
+          } else {
+            // 熄灭间歇期保留幽灵底影
+            drawHDChevronL(65, 0.08);
+            drawHDChevronL(0, 0.08);
+            drawHDChevronL(-65, 0.08);
+          }
+          ctx.globalAlpha = 1.0;
+          break;
+        }
+
+        case 'TURN_ARROW': // 保持历史 ID 兼容
+        case 'TURN_RIGHT': {
+          // 动态流光右转向 (豪车级流水级联折线光矢 >>> 向右推进)
+          const at = Math.floor(t) % 16;
+          const drawHDChevronR = (offsetX, alpha) => {
+            ctx.save();
+            ctx.translate(cx + offsetX, cy);
+            ctx.beginPath();
+            ctx.moveTo(-30, -75);
+            ctx.lineTo(25, 0);
+            ctx.lineTo(-30, 75);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 16;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 28;
+            ctx.globalAlpha = alpha;
+            ctx.stroke();
+            ctx.restore();
+          };
+
+          if (at < 3) {
+            drawHDChevronR(-65, 1.0);
+          } else if (at < 6) {
+            drawHDChevronR(-65, 0.7);
+            drawHDChevronR(0, 1.0);
+          } else if (at < 14) {
+            drawHDChevronR(-65, 0.6);
+            drawHDChevronR(0, 0.85);
+            drawHDChevronR(65, 1.0);
+          } else {
+            // 熄灭间歇期保留幽灵底影
+            drawHDChevronR(-65, 0.08);
+            drawHDChevronR(0, 0.08);
+            drawHDChevronR(65, 0.08);
           }
           ctx.globalAlpha = 1.0;
           break;
@@ -5739,14 +5813,14 @@
     }
 
     function resetAnimationsToDefault() {
-      if (confirm('确定要恢复为官方默认动画库吗？\n所有自定义新增或修改的动画将被重置，官方全部 83 款动画将完整还原。')) {
+      if (confirm('确定要恢复为官方默认动画库吗？\n所有自定义新增或修改的动画将被重置，官方全部 84 款动画将完整还原。')) {
         localStorage.removeItem(STORAGE_KEY_ANIMATIONS);
         localStorage.removeItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
         ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
         state.currentAnim = ALL_ANIMATIONS[0];
         initUI();
         selectAnimation(ALL_ANIMATIONS[0]);
-        showToast('已成功恢复为官方默认 83 款动画！');
+        showToast('已成功恢复为官方默认 84 款动画！');
       }
     }
 
@@ -6662,7 +6736,7 @@
                 🔄 恢复动态算法
               </button>
             </div>
-            <span style="font-size:10px;color:var(--muted)">支持随时恢复官方默认 83 款动画</span>
+            <span style="font-size:10px;color:var(--muted)">支持随时恢复官方默认 84 款动画</span>
           </div>
         </div>
       </div>
