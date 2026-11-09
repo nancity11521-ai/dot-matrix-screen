@@ -2589,43 +2589,97 @@
       break;
     }
     case 'SUN_HORIZON': {
-      // 昼夜晨昏交替 (24帧平滑大循环: 0-11 白昼日升日落, 12-23 静谧星夜月相)
-      const phaseT = t % 24;
-      line(3, 12, 19, 12); // 中央地平线
-      
-      if (phaseT < 12) {
-        // 白昼太阳：从地平线左侧升起 -> 苍穹顶点 -> 右侧地平线落下
-        const prog = phaseT / 11;
-        const sunX = Math.round(5 + prog * 12);
+      // 昼夜晨昏交替 (调优至48帧从容循环 · 4.0秒慢节奏 · 高辨识度8芒金阳与月牙弯月)
+      const phaseT = Math.floor(t) % 48;
+      line(3, 12, 19, 12); // 中央地平线水天相接
+
+      if (phaseT < 24) {
+        // --- 白昼阶段 (0-23帧 · 2.0秒)：艳阳东升西落，8芒日光璀璨 ---
+        const prog = phaseT / 23;
+        const sunX = Math.round(4 + prog * 14);
         const sunY = Math.round(12 - 7 * Math.sin(prog * Math.PI));
-        // 饱满发光太阳
-        circle(sunX, sunY, 2.4, true);
-        // 日光耀斑/光芒
-        if (sunY <= 7) {
-          put(sunX - 3, sunY); put(sunX + 3, sunY);
-          put(sunX, sunY - 3);
+
+        // 太阳本体：圆润饱满发光核心 (直径5灯珠)
+        for (let dy = -2; dy <= 2; dy++) {
+          for (let dx = -2; dx <= 2; dx++) {
+            if (dx * dx + dy * dy <= 4.5 && (sunY + dy) < 12) {
+              put(sunX + dx, sunY + dy);
+            }
+          }
         }
-        // 水面金波倒影
+
+        // 8道日光放射光芒 (地平线上方完全舒展，呈现极高辨识度的太阳 ☀️)
+        if (sunY <= 8) {
+          // 正交十字光芒 (上下左右)
+          if (sunY - 3 >= 1) put(sunX, sunY - 3);
+          if (sunY + 3 < 12) put(sunX, sunY + 3);
+          put(sunX - 3, sunY);
+          put(sunX + 3, sunY);
+          // 四角对角线光芒
+          if (sunY - 2 >= 1) {
+            put(sunX - 2, sunY - 2);
+            put(sunX + 2, sunY - 2);
+          }
+          if (sunY + 2 < 12) {
+            put(sunX - 2, sunY + 2);
+            put(sunX + 2, sunY + 2);
+          }
+        }
+
+        // 水面金波粼粼倒影
         line(sunX - 2, 14, sunX + 2, 14);
-        if (phaseT % 2 === 0) line(sunX - 4, 16, sunX + 4, 16);
-        line(sunX - 1, 18, sunX + 1, 18);
+        if (phaseT % 2 === 0) {
+          line(sunX - 4, 16, sunX + 4, 16);
+          line(sunX - 1, 18, sunX + 1, 18);
+        } else {
+          line(sunX - 3, 16, sunX + 3, 16);
+          line(sunX - 2, 18, sunX + 2, 18);
+        }
       } else {
-        // 静谧星夜月相：弯月滑过夜空与闪烁星群
-        const prog = (phaseT - 12) / 11;
-        const moonX = Math.round(6 + prog * 10);
-        const moonY = Math.round(11 - 6 * Math.sin(prog * Math.PI));
-        // 优美月牙弯月
-        circle(moonX, moonY, 2.5, true);
-        circle(moonX + 1, moonY - 1, 2.0, false);
-        // 夜空闪烁繁星 (y <= 10)
-        const stars = [[4, 4], [18, 5], [8, 6], [15, 3], [6, 9], [17, 9]];
-        stars.forEach(([sx, sy], sIdx) => {
-          if ((phaseT + sIdx) % 3 !== 0) put(sx, sy);
+        // --- 静谧夜空阶段 (24-47帧 · 2.0秒)：优雅月牙弯月 🌙 滑过夜空，繁星闪烁 ---
+        const prog = (phaseT - 24) / 23;
+        const moonX = Math.round(5 + prog * 12);
+        const moonY = Math.round(12 - 6.5 * Math.sin(prog * Math.PI));
+
+        // 优雅月牙弯月造型 (两端锐利渐缩，月弧优美内收)
+        const moonDots = [
+                     [0, -4],
+            [-2, -3], [-1, -3],
+            [-3, -2], [-2, -2],
+            [-3, -1], [-2, -1],
+            [-3,  0], [-2,  0],
+            [-3,  1], [-2,  1],
+            [-3,  2], [-2,  2],
+            [-2,  3], [-1,  3],
+                     [0,  4]
+        ];
+        for (const [dx, dy] of moonDots) {
+          if ((moonY + dy) < 12) {
+            put(moonX + dx, moonY + dy);
+          }
+        }
+
+        // 深邃夜空闪烁繁星 (y <= 10)
+        const stars = [
+          [3, 3], [19, 4], [8, 5], [15, 3], [5, 9], [17, 8], [11, 2]
+        ];
+        stars.forEach(([sx, sy], idx) => {
+          if (Math.hypot(sx - moonX, sy - moonY) > 4.2) {
+            if ((phaseT + idx * 3) % 4 !== 0) {
+              put(sx, sy);
+            }
+          }
         });
-        // 夜晚水面静谧微波倒影
+
+        // 水面月华倒影与微澜
         line(moonX - 1, 14, moonX + 1, 14);
-        line(7, 17, 15, 17);
-        line(9, 19, 13, 19);
+        if (phaseT % 2 === 0) {
+          line(6, 17, 16, 17);
+          line(9, 19, 13, 19);
+        } else {
+          line(7, 17, 15, 17);
+          line(8, 19, 14, 19);
+        }
       }
       break;
     }
@@ -2984,7 +3038,7 @@
       { num: '#73', no: 'LIF-14', id: 'DOG', name: '灵动小狗', cat: 'life', subcat: 'companion', icon: '🐶', frames: 24 },
       { num: '#74', no: 'LIF-15', id: 'FISH', name: '游动金鱼', cat: 'life', subcat: 'companion', icon: '🐟', frames: 24 },
       { num: '#75', no: 'LIF-16', id: 'BIRD', name: '飞翔小鸟', cat: 'life', subcat: 'companion', icon: '🐦', frames: 24 },
-      { num: '#76', no: 'LIF-17', id: 'SUN_HORIZON', name: '昼夜晨昏交替', cat: 'life', subcat: 'weather', icon: '🌅', frames: 24 },
+      { num: '#76', no: 'LIF-17', id: 'SUN_HORIZON', name: '昼夜晨昏交替', cat: 'life', subcat: 'weather', icon: '🌅', frames: 48 },
 
       /* --- 氛围 / 节日庆典 --- */
       { num: '#77', no: 'AMB-01', id: 'FIREWORKS', name: '粒子烟花', cat: 'ambience', subcat: 'festive', icon: '🎆', frames: 24 },
@@ -3001,7 +3055,7 @@
 
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V6';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V7';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 待修改项本地存储与管理系统 */
@@ -4942,71 +4996,103 @@
         }
 
         case 'SUN_HORIZON': {
-          // 昼夜晨昏交替 (高清大屏自然天空与日月同辉)
-          const prog = (t % 24) / 24;
+          // 昼夜晨昏交替 (48帧慢节奏 · 4.0秒 · 绚丽8芒耀斑金阳与唯美月牙弯月)
+          const prog = (t % 48) / 48;
           const isDay = prog < 0.5;
-          const cyLocal = cy + 10;
-          
+          const cyLocal = cy + 12;
+
           if (isDay) {
             const dayProg = prog * 2; // 0 to 1
-            const sunX = cx - 110 + dayProg * 220;
-            const sunY = cyLocal - 100 * Math.sin(dayProg * Math.PI);
-            
+            const sunX = cx - 115 + dayProg * 230;
+            const sunY = cyLocal - 105 * Math.sin(dayProg * Math.PI);
+
             // 天空暖光晕
-            const grad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 160);
-            grad.addColorStop(0, 'rgba(251, 146, 60, 0.45)');
+            const grad = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, 150);
+            grad.addColorStop(0, 'rgba(251, 146, 60, 0.42)');
             grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
             ctx.fillStyle = grad;
             ctx.fillRect(cx - 190, cy - 190, 380, 380);
 
-            // 发光太阳
+            // 太阳主体金色实心圆
             ctx.beginPath();
-            ctx.arc(sunX, sunY, 34, 0, Math.PI * 2);
+            ctx.arc(sunX, sunY, 26, 0, Math.PI * 2);
             ctx.fillStyle = '#fbbf24';
-            ctx.shadowColor = '#f59e0b'; ctx.shadowBlur = 35;
+            ctx.shadowColor = '#f59e0b';
+            ctx.shadowBlur = 32;
             ctx.fill();
 
-            // 水面/地面反射
+            // 8道旋转发散日光光芒 (打造极具辨识度的太阳 ☀️)
+            const rayAngle = t * 0.15;
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 4.5;
+            ctx.lineCap = 'round';
+            for (let i = 0; i < 8; i++) {
+              const ang = rayAngle + i * (Math.PI / 4);
+              ctx.beginPath();
+              ctx.moveTo(sunX + Math.cos(ang) * 32, sunY + Math.sin(ang) * 32);
+              ctx.lineTo(sunX + Math.cos(ang) * 44, sunY + Math.sin(ang) * 44);
+              ctx.stroke();
+            }
+
+            // 水面金波粼粼倒影
             ctx.beginPath();
-            ctx.ellipse(sunX, cyLocal + 40, 60, 12, 0, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(251, 191, 36, 0.25)';
+            ctx.ellipse(sunX, cyLocal + 28, 52, 9, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(251, 191, 36, 0.35)';
             ctx.fill();
           } else {
             const nightProg = (prog - 0.5) * 2; // 0 to 1
-            const moonX = cx - 100 + nightProg * 200;
-            const moonY = cyLocal - 90 * Math.sin(nightProg * Math.PI);
+            const moonX = cx - 105 + nightProg * 210;
+            const moonY = cyLocal - 95 * Math.sin(nightProg * Math.PI);
 
             // 闪烁繁星
-            for (let i = 0; i < 14; i++) {
+            for (let i = 0; i < 16; i++) {
               const sx = cx + Math.sin(i * 9.3) * 140;
-              const sy = cyLocal - 30 - Math.abs(Math.cos(i * 7.7)) * 120;
-              const sa = 0.4 + 0.6 * Math.abs(Math.sin(t * 3 + i));
+              const sy = cyLocal - 35 - Math.abs(Math.cos(i * 7.7)) * 115;
+              const sa = 0.35 + 0.65 * Math.abs(Math.sin(t * 1.5 + i));
               ctx.beginPath();
-              ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
+              ctx.arc(sx, sy, 2.2, 0, Math.PI * 2);
               ctx.fillStyle = '#ffffff';
               ctx.globalAlpha = sa;
               ctx.fill();
             }
             ctx.globalAlpha = 1.0;
 
-            // 月相月牙
+            // 优雅高保真月牙弯月 🌙
             ctx.save();
             ctx.translate(moonX, moonY);
+            ctx.rotate(-0.15); // 自然倾角
             ctx.beginPath();
-            ctx.arc(0, 0, 30, -Math.PI / 2, Math.PI / 2);
-            ctx.bezierCurveTo(15, 20, 15, -20, 0, -30);
+            const R = 28;
+            const startAng = -Math.PI * 0.45;
+            const endAng = Math.PI * 0.45;
+            const xTop = R * Math.cos(startAng);
+            const yTop = R * Math.sin(startAng);
+            const xBot = R * Math.cos(endAng);
+            const yBot = R * Math.sin(endAng);
+            // 沿左侧走外弧
+            ctx.arc(0, 0, R, endAng, Math.PI * 1.55, false);
+            // 弯月内收月弧
+            ctx.quadraticCurveTo(8, 0, xTop, yTop);
+            ctx.closePath();
             ctx.fillStyle = '#fef08a';
-            ctx.shadowColor = '#fde047'; ctx.shadowBlur = 28;
+            ctx.shadowColor = '#fde047';
+            ctx.shadowBlur = 25;
             ctx.fill();
             ctx.restore();
+
+            // 水面静谧月华倒影
+            ctx.beginPath();
+            ctx.ellipse(moonX, cyLocal + 28, 42, 7, 0, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
+            ctx.fill();
           }
 
-          // 地平线分割线
+          // 中央地平线
           ctx.beginPath();
           ctx.moveTo(cx - 150, cyLocal);
           ctx.lineTo(cx + 150, cyLocal);
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-          ctx.lineWidth = 3;
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+          ctx.lineWidth = 2.5;
           ctx.stroke();
           break;
         }
