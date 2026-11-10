@@ -1840,12 +1840,13 @@
       break;
     }
     case 'CLOUDY': {
-      circle(6, 6, 3, true); // Sun peek
-      for(let i = 0; i < 4; i++) {
-        const ang = i * Math.PI / 2;
-        put(6 + Math.round(5 * Math.cos(ang)), 6 + Math.round(5 * Math.sin(ang)));
+      // 完整云朵从屏幕外左侧进入，完全离开右侧后才循环。
+      const center = -10 + 42 * ((t % 80) / 79);
+      for (let y = -7; y <= 4; y++) for (let x = -8; x <= 8; x++) {
+        const inside = Math.hypot(x + 4, y) <= 4 || Math.hypot(x, y + 2) <= 5
+          || Math.hypot(x - 4, y) <= 4 || (x >= -6 && x <= 6 && y >= 0 && y <= 3);
+        if (inside) put(center + x, 12 + y);
       }
-      cloud(7);
       break;
     }
     case 'RAINY': case 'SNOW': case 'STORM': {
@@ -3143,7 +3144,7 @@
 
       /* --- 生活 / 气象万千 --- */
       { num: '#60', no: 'LIF-01', id: 'SUNNY', name: '阳光晴天', cat: 'life', subcat: 'weather', icon: '☀️', frames: 24 },
-      { num: '#61', no: 'LIF-02', id: 'CLOUDY', name: '浮云飘拂', cat: 'life', subcat: 'weather', icon: '☁️', frames: 24, isPending: true },
+      { num: '#61', no: 'LIF-02', id: 'CLOUDY', name: '浮云飘拂', cat: 'life', subcat: 'weather', icon: '☁️', frames: 80, isPending: true },
       { num: '#62', no: 'LIF-03', id: 'RAINY', name: '雨滴涟漪', cat: 'life', subcat: 'weather', icon: '🌧️', frames: 24 },
       { num: '#63', no: 'LIF-04', id: 'RAIN', name: '像素落雨', cat: 'life', subcat: 'weather', icon: '☔', frames: 16 },
       { num: '#64', no: 'LIF-05', id: 'SNOW', name: '冬日落雪', cat: 'life', subcat: 'weather', icon: '❄️', frames: 24 },
@@ -5003,14 +5004,19 @@
         }
 
         case 'CLOUDY': {
+          const progress = (curF % 80) / 79;
+          const scale = (cx - 18) / 11;
           ctx.save();
-          const cx2 = cx + Math.sin(t * 1.2) * 20;
+          ctx.translate(cx + (-21 + 42 * progress) * scale, cy + scale);
+          ctx.scale(scale, scale);
           ctx.beginPath();
-          ctx.arc(cx2 - 50, cy, 55, 0, Math.PI * 2);
-          ctx.arc(cx2 + 20, cy - 35, 65, 0, Math.PI * 2);
-          ctx.arc(cx2 + 75, cy, 45, 0, Math.PI * 2);
+          ctx.moveTo(0, 0); ctx.arc(-4, 0, 4, 0, Math.PI * 2);
+          ctx.moveTo(5, -2); ctx.arc(0, -2, 5, 0, Math.PI * 2);
+          ctx.moveTo(8, 0); ctx.arc(4, 0, 4, 0, Math.PI * 2);
+          ctx.rect(-6, 0, 12, 3);
           ctx.fillStyle = '#e2e8f0';
-          ctx.shadowColor = 'rgba(255,255,255,0.4)'; ctx.shadowBlur = 20;
+          ctx.shadowColor = 'rgba(255,255,255,0.4)';
+          ctx.shadowBlur = 8;
           ctx.fill();
           ctx.restore();
           break;
@@ -6161,6 +6167,8 @@
                 delete item.customFrames;
                 item.isCustom = false;
               }
+              // 浮云需要完整 80 帧行程，旧缓存的 24 帧不能覆盖新版时长。
+              if (item.id === 'CLOUDY' && !item.customFrames) item.frames = def.frames;
               if (def.isAvatar && !item.customFrames) {
                 loaded.push({ ...def, ...item, eyes: def.eyes, gaze: def.gaze });
               } else {
