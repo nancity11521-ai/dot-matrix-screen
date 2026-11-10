@@ -1660,27 +1660,43 @@
       put(5, 5); put(17, 5); put(5, 17); put(17, 17);
       break;
     }
-    case 'BATTERY': case 'TEMP': {
-      const valNum = Math.round(kind === 'TEMP' ? (opt.temperature ?? 37) : (opt.battery ?? 20));
-      const value = String(valNum);
-      const isBatt = kind === 'BATTERY';
-      if(isBatt && value.length === 3) {
-        text('100', 6);
-        mask('1101/0100/0010/1011', 10, 14);
-        break;
-      }
-      const totalW = value.length * 5 + (isBatt ? 5 : 4);
-      let sx = Math.floor((23 - totalW) / 2);
+    case 'BATTERY': {
+      // 横向 5×9 大字与 7×9 百分号；100% 使用窄字模，完整落在物理圆阵内。
+      const value = String(Math.max(0, Math.min(100, Math.round(opt.battery ?? 20))));
+      const largeDigits = [
+        '11111/10001/10001/10001/10001/10001/10001/10001/11111',
+        '00100/01100/00100/00100/00100/00100/00100/00100/11111',
+        '11111/00001/00001/00001/11111/10000/10000/10000/11111',
+        '11111/00001/00001/00001/11111/00001/00001/00001/11111',
+        '10001/10001/10001/10001/11111/00001/00001/00001/00001',
+        '11111/10000/10000/10000/11111/00001/00001/00001/11111',
+        '11111/10000/10000/10000/11111/10001/10001/10001/11111',
+        '11111/00001/00001/00010/00100/00100/01000/01000/01000',
+        '11111/10001/10001/10001/11111/10001/10001/10001/11111',
+        '11111/10001/10001/10001/11111/00001/00001/00001/11111'
+      ];
+      const narrowDigits = {
+        '1': '010/110/010/010/010/010/010/010/111',
+        '0': '111/101/101/101/101/101/101/101/111'
+      };
+      const digitWidth = value.length === 3 ? 3 : 5;
+      const totalWidth = value.length * (digitWidth + 1) + 7;
+      let x = Math.floor((23 - totalWidth) / 2);
+      [...value].forEach(c => {
+        mask(value.length === 3 ? narrowDigits[c] : largeDigits[+c], x, 7);
+        x += digitWidth + 1;
+      });
+      mask('1110001/1010001/1110010/0000100/0001000/0010000/0100111/1000101/1000111', x, 7);
+      break;
+    }
+    case 'TEMP': {
+      const value = String(Math.round(opt.temperature ?? 37));
+      let sx = Math.floor((23 - (value.length * 5 + 4)) / 2);
       [...value].forEach(c => {
         mask(digits[+c], sx, 8);
         sx += 5;
       });
-      if(isBatt) {
-        mask('1101/0100/0010/1011', sx + 1, 9);
-      } else {
-        circle(sx + 1, 9, 1.2);
-      }
-      // Top/bottom delicate brackets
+      circle(sx + 1, 9, 1.2);
       line(7, 5, 15, 5); line(7, 17, 15, 17);
       break;
     }
@@ -4526,34 +4542,15 @@
 
         /* ================= 系统：硬件仪表 ================= */
         case 'BATTERY': {
-          const bPct = Math.round(opt.battery ?? 20);
-          const startA = Math.PI * 0.75, endA = Math.PI * 2.25;
-          const curA = startA + (bPct / 100) * (endA - startA);
-          ctx.beginPath();
-          ctx.arc(cx, cy, 160, startA, endA);
-          ctx.strokeStyle = '#182430';
-          ctx.lineWidth = 22;
-          ctx.lineCap = 'round';
-          ctx.stroke();
-
-          const bColor = bPct > 40 ? '#22c55e' : (bPct > 20 ? '#f59e0b' : '#ef4444');
-          ctx.beginPath();
-          ctx.arc(cx, cy, 160, startA, curA);
-          ctx.strokeStyle = bColor;
-          ctx.lineWidth = 22;
-          ctx.shadowColor = bColor;
-          ctx.shadowBlur = 20;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-
-          ctx.font = 'bold 92px system-ui';
+          const bPct = Math.max(0, Math.min(100, Math.round(opt.battery ?? 20)));
+          ctx.font = `300 ${bPct === 100 ? 108 : 132}px monospace`;
           ctx.fillStyle = '#ffffff';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(`${bPct}%`, cx, cy - 20);
-          ctx.font = 'bold 32px system-ui';
-          ctx.fillStyle = bColor;
-          ctx.fillText('⚡ BATTERY', cx, cy + 60);
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 12;
+          ctx.fillText(`${bPct}%`, cx, cy);
+          ctx.shadowBlur = 0;
           break;
         }
 
