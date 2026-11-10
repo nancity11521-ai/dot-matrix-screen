@@ -1124,7 +1124,7 @@
       </div>
       <div class="brand-title">
         <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs · 23×23</span></h1>
-        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (84 款动画)</p>
+        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (87 款动画)</p>
       </div>
     </div>
     <div class="top-actions">
@@ -1266,6 +1266,14 @@
         <audio id="rhythmAudio" controls style="width:100%;height:34px;margin-top:10px" onplay="resumeRhythmAudio()"></audio>
         <div id="rhythmStatus" style="font-size:11px;line-height:1.7;color:var(--text-muted);margin-top:8px" aria-live="polite">请选择音乐并播放 · 音柱跟随真实频谱变化，文件仅在浏览器播放。</div>
         <button class="btn" style="width:100%;margin-top:8px" onclick="showRhythmDemo()">查看演示律动</button>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">🔔 系统通知预览</div>
+        <label for="ringerMode" style="font-size:12px">静音 / 铃声状态</label>
+        <select class="form-select" id="ringerMode" style="width:100%;margin-top:8px" onchange="setRingerPreview(this.value)">
+          <option value="auto">自动演示切换</option><option value="silent">静音</option><option value="ring">铃声</option>
+        </select>
       </div>
 
       <div class="panel-section" id="manualAnimationSection">
@@ -1572,6 +1580,16 @@
     let batteryLevel = 20, volumeLevel = 50, temperatureLevel = 37, compassBearing = 45, selectedDate = '2026-07-01';
 
     let volumeDemo = true;
+    let ringerMode = 'auto';
+    function setRingerPreview(mode) {
+      ringerMode = mode;
+      selectAnimation(ALL_ANIMATIONS.find(a => a.id === 'RINGER_MODE'));
+      state.playing = true;
+      document.getElementById('playBtn').textContent = '⏸ 暂停';
+    }
+    function isSilentPreview(frame, opt) {
+      return opt.ringerMode === 'silent' || (opt.ringerMode !== 'ring' && frame % 48 >= 24);
+    }
 
     const rhythm = { context: null, analyser: null, data: null, url: null, demo: false, style: 'ripples' };
     const systemRhythm = { stream: null, context: null, analyser: null, data: null, pending: false };
@@ -2039,6 +2057,7 @@
       const musicLevels = rhythmLevels();
       return {
         date: selectedDate,
+        ringerMode,
         musicLevels,
         voiceLevels: musicLevels ? liveVoiceMotion(musicLevels) : null,
         musicStyle: rhythm.style,
@@ -2179,6 +2198,28 @@
       }
 
       text5x8(mm, 13);
+      break;
+    }
+    case 'INCOMING_CALL': {
+      const shift = frame % 18 < 10 ? [0,1,0,-1][Math.floor(frame / 2) % 4] : 0;
+      mask('1110000000000/1111000000000/1111000000000/0111000000000/0110000000000/0110000000000/0011000000000/0011100000000/0001110000110/0000111101111/0000011111111/0000001111110/0000000111100', 5 + shift, 5);
+      if (frame % 18 < 10) { line(17,4,19,6); line(19,6,19,8); line(3,14,3,16); line(3,16,5,18); }
+      break;
+    }
+    case 'INCOMING_SMS': {
+      const lift = frame % 18 < 3 ? 1 : 0;
+      mask('000111111111000/011111111111110/111111111111111/111111111111111/111111111111111/111111111111111/111111111111111/011111111111110/001111111111100/001111110000000/011110000000000', 4, 6 - lift);
+      [8,11,14].forEach((x,i) => { if (Math.floor(frame / 4) % 4 >= i) put(x, 11 - lift, false); });
+      break;
+    }
+    case 'RINGER_MODE': {
+      const silent = isSilentPreview(frame, opt);
+      const sway = !silent && frame % 24 < 12 ? [0,1,0,-1][Math.floor(frame / 2) % 4] : 0;
+      mask('000010000/001111100/011111110/011111110/011111110/011111110/011111110/111111111/111111111/000000000/000111000', 7 + sway, 6);
+      if (silent) {
+        line(5,5,17,17,false); line(6,5,18,17,false); line(5,6,17,18,false);
+        line(5,5,18,18);
+      } else if (frame % 24 < 12) { line(4,7,3,10); line(3,10,4,13); line(18,7,19,10); line(19,10,18,13); }
       break;
     }
     case 'DATE': {
@@ -3550,7 +3591,8 @@
           { id: 'all', name: '全部' },
           { id: 'time', name: '时间日历' },
           { id: 'hardware', name: '硬件仪表' },
-          { id: 'sensor', name: '传感连接' }
+          { id: 'sensor', name: '传感连接' },
+          { id: 'alerts', name: '来电与提醒' }
         ]
       },
       {
@@ -3648,6 +3690,11 @@
       { num: '#45', no: 'SYS-09', id: 'RADAR', name: '雷达扫描', cat: 'system', subcat: 'sensor', icon: '📡', frames: 24, isPending: true },
       { num: '#46', no: 'SYS-10', id: 'BLUETOOTH', name: '蓝牙连接', cat: 'system', subcat: 'sensor', icon: 'ᛒ', frames: 24 },
       { num: '#47', no: 'SYS-11', id: 'ENERGY_RING', name: '能量环流', cat: 'system', subcat: 'sensor', icon: '⭕', frames: 24, isPending: true },
+
+      /* --- 系统 / 来电与提醒 --- */
+      { num: '#85', no: 'SYS-12', id: 'INCOMING_CALL', name: '来电提醒', cat: 'system', subcat: 'alerts', icon: '📞', frames: 36 },
+      { num: '#86', no: 'SYS-13', id: 'INCOMING_SMS', name: '短信提醒', cat: 'system', subcat: 'alerts', icon: '💬', frames: 36 },
+      { num: '#87', no: 'SYS-14', id: 'RINGER_MODE', name: '静音与铃声', cat: 'system', subcat: 'alerts', icon: '🔔', frames: 48 },
 
       /* --- 活动 / 运动健康 --- */
       { num: '#48', no: 'ACT-01', id: 'RUNNER', name: '动感奔跑者', cat: 'activity', subcat: 'fitness', icon: '🏃', frames: 12 },
@@ -5078,6 +5125,37 @@
           ctx.shadowBlur = 0;
           ctx.fillText(opt.date || '2026-07-01', cx, cy + 155);
           break;
+        }
+
+        case 'INCOMING_CALL': {
+          const shake = curF % 18 < 10 ? Math.sin(Math.floor(curF / 2) * Math.PI / 2) * 0.1 : 0;
+          ctx.save(); ctx.translate(cx,cy); ctx.rotate(shake);
+          ctx.fillStyle='#34c759'; ctx.beginPath(); ctx.roundRect(-145,-145,290,290,64); ctx.fill();
+          ctx.strokeStyle='#fff'; ctx.lineWidth=43; ctx.lineCap='round';
+          ctx.beginPath(); ctx.moveTo(-67,-69); ctx.bezierCurveTo(-79,-4,4,79,69,67); ctx.stroke();
+          ctx.lineWidth=54; ctx.beginPath(); ctx.moveTo(-70,-78); ctx.lineTo(-57,-61); ctx.moveTo(61,57); ctx.lineTo(78,70); ctx.stroke();
+          ctx.restore(); break;
+        }
+        case 'INCOMING_SMS': {
+          const lift = curF % 18 < 3 ? 8 : 0;
+          ctx.save(); ctx.translate(cx,cy-lift);
+          ctx.fillStyle='#34c759'; ctx.beginPath(); ctx.roundRect(-145,-145,290,290,64); ctx.fill();
+          ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(0,-7,104,78,0,0,Math.PI*2); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(-69,37); ctx.lineTo(-85,91); ctx.lineTo(-22,59); ctx.closePath(); ctx.fill();
+          ctx.fillStyle='#34c759'; [-42,0,42].forEach((x,i)=>{if(Math.floor(curF/4)%4>=i){ctx.beginPath();ctx.arc(x,-7,8,0,Math.PI*2);ctx.fill();}});
+          ctx.restore(); break;
+        }
+        case 'RINGER_MODE': {
+          const silent=isSilentPreview(curF,opt);
+          const angle=!silent&&curF%24<12?Math.sin(Math.floor(curF/2)*Math.PI/2)*0.13:0;
+          ctx.save();ctx.translate(cx,cy);ctx.rotate(angle);
+          ctx.fillStyle=silent?'#ff453a':'#fff';
+          ctx.beginPath();ctx.moveTo(-77,51);ctx.quadraticCurveTo(-56,25,-56,-29);ctx.bezierCurveTo(-56,-106,56,-106,56,-29);ctx.quadraticCurveTo(56,25,77,51);ctx.quadraticCurveTo(0,69,-77,51);ctx.fill();
+          ctx.beginPath();ctx.arc(0,78,17,0,Math.PI);ctx.fill();
+          ctx.beginPath();ctx.arc(0,-91,10,0,Math.PI*2);ctx.fill();
+          if(silent){ctx.lineCap='round';ctx.strokeStyle='#060a0e';ctx.lineWidth=23;ctx.beginPath();ctx.moveTo(-100,-105);ctx.lineTo(100,105);ctx.stroke();ctx.strokeStyle='#ff453a';ctx.lineWidth=12;ctx.stroke();}
+          else if(curF%24<12){ctx.strokeStyle=col;ctx.lineWidth=7;[-1,1].forEach(side=>{ctx.beginPath();ctx.moveTo(side*100,-61);ctx.quadraticCurveTo(side*125,-10,side*100,36);ctx.stroke();});}
+          ctx.restore();break;
         }
 
         case 'DATE': {
@@ -6806,6 +6884,9 @@
               // 仅保留用户自主新建的自定义动画，杜绝旧版孤儿游戏动画混入
               loaded.push(item);
             }
+          }
+          for (const id of ['INCOMING_CALL','INCOMING_SMS','RINGER_MODE']) {
+            if (!loaded.some(a => a.id === id) && !data.animations.some(a => a.no === DEFAULT_ANIMATIONS.find(d => d.id === id).no)) loaded.push({ ...DEFAULT_ANIMATIONS.find(d => d.id === id) });
           }
           ALL_ANIMATIONS = loaded.length > 0 ? loaded : DEFAULT_ANIMATIONS.map(a => ({ ...a }));
         } else {
