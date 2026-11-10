@@ -1233,7 +1233,7 @@
         </div>
         <div class="control-row">
           <div class="control-label"><span>模拟温度</span><span id="simTempVal">37°</span></div>
-          <input type="range" class="range-input" min="0" max="60" value="37" oninput="onSimTemp(this.value)">
+          <input type="range" class="range-input" min="-40" max="60" value="37" oninput="onSimTemp(this.value)">
         </div>
         <div class="control-row">
           <div class="control-label"><span>罗盘角度</span><span id="simCompassVal">45° NE</span></div>
@@ -1718,14 +1718,38 @@
       break;
     }
     case 'TEMP': {
+      const tempDigits = [
+        '11111/10001/10001/10001/10001/10001/10001/10001/11111',
+        '00100/01100/00100/00100/00100/00100/00100/00100/11111',
+        '11111/00001/00001/00001/11111/10000/10000/10000/11111',
+        '11111/00001/00001/00001/11111/00001/00001/00001/11111',
+        '10001/10001/10001/10001/11111/00001/00001/00001/00001',
+        '11111/10000/10000/10000/11111/00001/00001/00001/11111',
+        '11111/10000/10000/10000/11111/10001/10001/10001/11111',
+        '11111/00001/00001/00010/00100/00100/01000/01000/01000',
+        '11111/10001/10001/10001/11111/10001/10001/10001/11111',
+        '11111/10001/10001/10001/11111/00001/00001/00001/11111'
+      ];
       const value = String(Math.round(opt.temperature ?? 37));
-      let sx = Math.floor((23 - (value.length * 5 + 4)) / 2);
-      [...value].forEach(c => {
-        mask(digits[+c], sx, 8);
-        sx += 5;
+      const pixels = [];
+      const append = (glyph, x, y) => glyph.split('/').forEach((row, dy) => {
+        [...row].forEach((bit, dx) => { if (bit === '1') pixels.push([x + dx, y + dy]); });
       });
-      circle(sx + 1, 9, 1.2);
-      line(7, 5, 15, 5); line(7, 17, 15, 17);
+      if (value.startsWith('-')) {
+        // 零下使用独立的短负号，为两位大数字与度数符号保留空间。
+        append('111', 0, 11);
+        const magnitude = value.slice(1);
+        [...magnitude].forEach((c, i) => append(tempDigits[+c], 4 + i * 6, 7));
+        append('111/101/111', 4 + magnitude.length * 6, 7);
+      } else {
+        [...value].forEach((c, i) => append(tempDigits[+c], i * 6, 7));
+        append('111/101/111', value.length * 6, 7);
+      }
+      const centerX = pixels.reduce((sum, point) => sum + point[0], 0) / pixels.length;
+      const offsets = Array.from({ length: 23 }, (_, i) => i - 11)
+        .filter(offset => pixels.every(([x, y]) => Math.abs(x + offset - 11) <= (rows[y] - 1) / 2));
+      const offset = offsets.sort((a, b) => Math.abs(centerX + a - 11) - Math.abs(centerX + b - 11))[0];
+      pixels.forEach(([x, y]) => put(x + offset, y));
       break;
     }
     case 'SOUNDLEVEL': {
@@ -4617,32 +4641,18 @@
 
         case 'TEMP': {
           const temp = Math.round(opt.temperature ?? 37);
-          const tPct = clamp((temp - 10) / 40, 0, 1);
-          const startA = Math.PI * 0.75, endA = Math.PI * 2.25;
-          const curA = startA + tPct * (endA - startA);
-          ctx.beginPath();
-          ctx.arc(cx, cy, 160, startA, endA);
-          ctx.strokeStyle = '#182430';
-          ctx.lineWidth = 18;
-          ctx.stroke();
-          const tColor = temp > 35 ? '#ef4444' : (temp > 25 ? '#f59e0b' : '#38bdf8');
-          ctx.beginPath();
-          ctx.arc(cx, cy, 160, startA, curA);
-          ctx.strokeStyle = tColor;
-          ctx.lineWidth = 18;
-          ctx.shadowColor = tColor;
-          ctx.shadowBlur = 20;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-
-          ctx.font = 'bold 96px system-ui';
+          const label = `${temp < 0 ? '−' : ''}${Math.abs(temp)}°`;
+          ctx.font = `bold ${temp <= -10 ? 116 : 140}px system-ui`;
           ctx.fillStyle = '#ffffff';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(`${temp}°C`, cx, cy - 20);
-          ctx.font = 'bold 30px system-ui';
-          ctx.fillStyle = tColor;
-          ctx.fillText('🌡️ THERMOMETER', cx, cy + 60);
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 16;
+          const metrics = ctx.measureText(label);
+          const x = cx + (metrics.actualBoundingBoxLeft - metrics.actualBoundingBoxRight) / 2;
+          const y = cy + (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
+          ctx.fillText(label, x, y);
+          ctx.shadowBlur = 0;
           break;
         }
 
