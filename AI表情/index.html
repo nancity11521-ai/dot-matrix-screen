@@ -1656,16 +1656,24 @@
     }
     case 'WEEKDAY': {
       const glyph = {
-        S:'111/100/111/001/111', U:'101/101/101/101/111', N:'101/111/111/111/101',
-        M:'101/111/111/101/101', O:'111/101/101/101/111', T:'111/010/010/010/010',
-        E:'111/100/111/100/111', W:'101/101/111/111/101', D:'110/101/101/101/110',
-        H:'101/101/111/101/101', F:'111/100/111/100/100', R:'110/101/110/101/101',
-        I:'111/010/010/010/111', A:'010/101/111/101/101'
+        S:'01111/10000/10000/01110/00001/00001/11110',
+        U:'10001/10001/10001/10001/10001/10001/01110',
+        N:'10001/11001/10101/10101/10011/10001/10001',
+        M:'10001/11011/10101/10101/10001/10001/10001',
+        O:'01110/10001/10001/10001/10001/10001/01110',
+        T:'11111/00100/00100/00100/00100/00100/00100',
+        E:'11111/10000/10000/11110/10000/10000/11111',
+        W:'10001/10001/10001/10101/10101/10101/01010',
+        D:'11100/10010/10001/10001/10001/10010/11100',
+        H:'10001/10001/10001/11111/10001/10001/10001',
+        F:'11111/10000/10000/11110/10000/10000/10000',
+        R:'11110/10001/10001/11110/10100/10010/10001',
+        I:'11111/00100/00100/00100/00100/00100/11111',
+        A:'01110/10001/10001/11111/10001/10001/10001'
       };
       const day = ['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date((opt.date||'2026-07-01')+'T12:00:00').getDay()];
-      [...day].forEach((c, i) => mask(glyph[c], 6 + i * 4, 9));
-      line(5, 6, 17, 6); line(5, 16, 17, 16);
-      put(5, 5); put(17, 5); put(5, 17); put(17, 17);
+      // 5×7 紧凑字母，圆角与斜笔轮廓，整组 17×7 点阵居中。
+      [...day].forEach((c, i) => mask(glyph[c], 3 + i * 6, 8));
       break;
     }
     case 'BATTERY': {
@@ -4520,22 +4528,9 @@
         case 'WEEKDAY': {
           const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
           const activeIdx = new Date((opt.date || '2026-07-01') + 'T12:00:00').getDay();
-          for (let i = 0; i < 7; i++) {
-            const a = (i / 7) * Math.PI * 2 - Math.PI / 2;
-            const dx = cx + Math.cos(a) * 165;
-            const dy = cy + Math.sin(a) * 165;
-            const isActive = (i === activeIdx);
-            ctx.beginPath();
-            ctx.arc(dx, dy, isActive ? 30 : 22, 0, Math.PI * 2);
-            ctx.fillStyle = isActive ? col : '#16222d';
-            ctx.fill();
-            ctx.font = `bold ${isActive ? 18 : 14}px system-ui`;
-            ctx.fillStyle = isActive ? '#0b1116' : '#8899a6';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(days[i], dx, dy);
-          }
-          ctx.font = 'bold 70px system-ui';
+          ctx.font = 'bold 112px system-ui';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
           ctx.fillStyle = '#ffffff';
           ctx.shadowColor = col;
           ctx.shadowBlur = 20;
