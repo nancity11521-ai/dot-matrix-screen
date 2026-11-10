@@ -1696,13 +1696,22 @@
         '0': '111/101/101/101/101/101/101/101/111'
       };
       const digitWidth = value.length === 3 ? 3 : 5;
-      const totalWidth = value.length * (digitWidth + 1) + 7;
-      let x = Math.floor((23 - totalWidth) / 2);
+      const pixels = [];
+      const appendGlyph = (glyph, x) => glyph.split('/').forEach((row, y) => {
+        [...row].forEach((bit, dx) => { if (bit === '1') pixels.push([x + dx, y + 7]); });
+      });
+      let x = 0;
       [...value].forEach(c => {
-        mask(value.length === 3 ? narrowDigits[c] : largeDigits[+c], x, 7);
+        appendGlyph(value.length === 3 ? narrowDigits[c] : largeDigits[+c], x);
         x += digitWidth + 1;
       });
-      mask('1110001/1010001/1110010/0000100/0001000/0010000/0100111/1000101/1000111', x, 7);
+      // 百分号与数字留两列间距，按实际亮点重心选择最接近屏心的整列位置。
+      appendGlyph('1110001/1010001/1110010/0000100/0001000/0010000/0100111/1000101/1000111', x + 1);
+      const centerX = pixels.reduce((sum, point) => sum + point[0], 0) / pixels.length;
+      const candidates = Array.from({ length: 23 }, (_, i) => i - 11)
+        .filter(offset => pixels.every(([px, py]) => Math.abs(px + offset - 11) <= (rows[py] - 1) / 2));
+      const offsetX = candidates.sort((a, b) => Math.abs(centerX + a - 11) - Math.abs(centerX + b - 11))[0];
+      pixels.forEach(([px, py]) => put(px + offsetX, py));
       break;
     }
     case 'TEMP': {
@@ -1749,13 +1758,13 @@
       break;
     }
     case 'CHARGE': {
-      box(6, 6, 11, 11);
-      box(9, 4, 5, 2, true); // cap
-      const h = Math.floor((t % 20) / 19 * 9);
-      if(h) box(7, 16 - h, 9, h, true);
-      // Lightning bolt on top
-      const s = Math.floor(t / 2) % 2;
-      line(11, 8, 9, 12); line(9, 12, 13, 12); line(13, 12, 11, 15);
+      // 先画闪电，再叠加充电填充；经过闪电时直接覆盖，不留暗边。
+      mask('001/010/111/010/100', 10, 9);
+      const width = Math.floor((t % 18) / 17 * 12);
+      if (width) box(5, 9, width, 5, true);
+      box(3, 7, 16, 9);
+      line(19, 9, 19, 13);
+      line(20, 10, 20, 12);
       break;
     }
     case 'WAVE': case 'SPECTRUM': {
@@ -4547,40 +4556,41 @@
           ctx.textBaseline = 'middle';
           ctx.shadowColor = '#ffffff';
           ctx.shadowBlur = 12;
-          ctx.fillText(`${bPct}%`, cx, cy);
+          const label = `${bPct}%`;
+          const metrics = ctx.measureText(label);
+          // 用实际字形边界居中，消除字体基线和左右留白造成的偏移。
+          const inkX = cx + (metrics.actualBoundingBoxLeft - metrics.actualBoundingBoxRight) / 2;
+          const inkY = cy + (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
+          ctx.fillText(label, inkX, inkY);
           ctx.shadowBlur = 0;
           break;
         }
 
         case 'CHARGE': {
-          const rot = t * 3.5;
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(rot);
-          ctx.beginPath();
-          ctx.arc(0, 0, 160, 0, Math.PI * 1.5);
-          ctx.strokeStyle = '#22c55e';
-          ctx.lineWidth = 9;
-          ctx.shadowColor = '#22c55e';
-          ctx.shadowBlur = 25;
-          ctx.stroke();
-          ctx.rotate(Math.PI);
-          ctx.beginPath();
-          ctx.arc(0, 0, 130, 0, Math.PI * 1.4);
+          const progress = (curF % 18) / 17;
           ctx.strokeStyle = col;
-          ctx.lineWidth = 6;
+          ctx.lineWidth = 7;
           ctx.shadowColor = col;
           ctx.shadowBlur = 18;
-          ctx.stroke();
-          ctx.restore();
-
-          ctx.font = 'bold 96px system-ui';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = col;
-          ctx.shadowBlur = 25;
-          ctx.fillText('⚡', cx, cy);
+          ctx.strokeRect(cx - 128, cy - 58, 240, 116);
+          ctx.fillStyle = col;
+          ctx.fillRect(cx + 119, cy - 30, 13, 60);
+          ctx.fillRect(cx + 132, cy - 18, 13, 36);
+          const fillWidth = Math.floor(progress * 12) / 12 * 196;
+          ctx.shadowBlur = 0;
+          ctx.beginPath();
+          ctx.moveTo(cx + 14, cy - 30);
+          ctx.lineTo(cx - 18, cy + 3);
+          ctx.lineTo(cx + 3, cy + 5);
+          ctx.lineTo(cx - 12, cy + 30);
+          ctx.lineTo(cx + 20, cy - 5);
+          ctx.lineTo(cx - 2, cy - 5);
+          ctx.closePath();
+          ctx.fillStyle = col;
+          ctx.fill();
+          // 与点阵端一致：充电条从左向右覆盖闪电，无镂空边界。
+          ctx.fillStyle = col;
+          if (fillWidth) ctx.fillRect(cx - 106, cy - 36, fillWidth, 72);
           break;
         }
 
