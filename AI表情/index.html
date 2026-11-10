@@ -6664,20 +6664,16 @@
         if (isLit) {
           litCount++;
           eCtx.beginPath();
-          eCtx.arc(px, py, 6.5, 0, Math.PI * 2);
+          eCtx.rect(px - 6.5, py - 6.5, 13, 13);
           eCtx.fillStyle = state.color || '#ffd45e';
           eCtx.shadowColor = state.color || '#ffd45e';
           eCtx.shadowBlur = 8;
           eCtx.fill();
 
-          eCtx.beginPath();
-          eCtx.arc(px, py, 3.2, 0, Math.PI * 2);
-          eCtx.fillStyle = '#ffffff';
           eCtx.shadowBlur = 0;
-          eCtx.fill();
         } else {
           eCtx.beginPath();
-          eCtx.arc(px, py, 4.5, 0, Math.PI * 2);
+          eCtx.rect(px - 6.5, py - 6.5, 13, 13);
           eCtx.fillStyle = '#101720';
           eCtx.shadowBlur = 0;
           eCtx.fill();
@@ -6687,14 +6683,14 @@
         }
       });
 
-      // 绘制悬浮高亮指引光环
+      // 绘制正方形悬浮指引
       if (editorState.hoverGridId !== null) {
         const hoverPt = PHYSICAL_POINTS.find(p => p.gridId === editorState.hoverGridId);
         if (hoverPt) {
           const px = cx + hoverPt.x * scale;
           const py = cy + hoverPt.y * scale;
           eCtx.beginPath();
-          eCtx.arc(px, py, 8.5, 0, Math.PI * 2);
+          eCtx.rect(px - 8.5, py - 8.5, 17, 17);
           eCtx.strokeStyle = editorState.tool === 'eraser' ? '#f87171' : '#ffffff';
           eCtx.lineWidth = 1.6;
           eCtx.shadowColor = editorState.tool === 'eraser' ? '#f87171' : '#ffffff';
@@ -6765,7 +6761,7 @@
         const py = cy + pt.y * scale;
         if (fSet.has(pt.gridId)) {
           pCtx.beginPath();
-          pCtx.arc(px, py, 2.6, 0, Math.PI * 2);
+          pCtx.rect(px - 2.6, py - 2.6, 5.2, 5.2);
           pCtx.fillStyle = col;
           pCtx.fill();
         }
