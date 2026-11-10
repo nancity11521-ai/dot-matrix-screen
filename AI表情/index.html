@@ -1641,9 +1641,17 @@
     }
     case 'DATE': {
       const parts = (opt.date || '2026-07-01').split('-');
-      text(parts[1], 3);
-      line(8, 11, 14, 11);
-      text(parts[2], 13);
+      // 月/日横向居中；3×7 数字完整落在圆形点阵内。
+      const dateDigits = [
+        '111/101/101/101/101/101/111', '010/110/010/010/010/010/111',
+        '111/001/001/111/100/100/111', '111/001/001/111/001/001/111',
+        '101/101/101/111/001/001/001', '111/100/100/111/001/001/111',
+        '111/100/100/111/101/101/111', '111/001/001/010/010/010/010',
+        '111/101/101/111/101/101/111', '111/101/101/111/001/001/111'
+      ];
+      [...parts[1].padStart(2, '0')].forEach((c, i) => mask(dateDigits[+c], 2 + i * 4, 8));
+      mask('001/001/010/010/010/100/100', 10, 8);
+      [...parts[2].padStart(2, '0')].forEach((c, i) => mask(dateDigits[+c], 14 + i * 4, 8));
       break;
     }
     case 'WEEKDAY': {
@@ -3055,7 +3063,7 @@
 
       /* --- 系统 / 时间日历 --- */
       { num: '#37', no: 'SYS-01', id: 'CLOCK', name: '数字时间', cat: 'system', subcat: 'time', icon: '🕒', frames: 24, isPending: true },
-      { num: '#38', no: 'SYS-02', id: 'DATE', name: '双层日期', cat: 'system', subcat: 'time', icon: '📅', frames: 24 },
+      { num: '#38', no: 'SYS-02', id: 'DATE', name: '横向日期', cat: 'system', subcat: 'time', icon: '📅', frames: 24 },
       { num: '#39', no: 'SYS-03', id: 'WEEKDAY', name: '星期显示', cat: 'system', subcat: 'time', icon: '🗓️', frames: 24 },
 
       /* --- 系统 / 硬件仪表 --- */
@@ -4498,19 +4506,14 @@
 
         case 'DATE': {
           const parts = (opt.date || '2026-07-01').split('-');
-          ctx.font = 'bold 30px system-ui';
-          ctx.fillStyle = '#ef4444';
-          ctx.textAlign = 'center';
-          ctx.fillText(`MONTH ${parts[1]}`, cx, cy - 105);
-          ctx.font = 'bold 125px system-ui';
+          ctx.font = 'bold 96px system-ui';
           ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
           ctx.shadowColor = col;
           ctx.shadowBlur = 24;
-          ctx.fillText(parts[2], cx, cy + 10);
+          ctx.fillText(`${parts[1]}/${parts[2]}`, cx, cy);
           ctx.shadowBlur = 0;
-          ctx.font = '600 28px system-ui';
-          ctx.fillStyle = col;
-          ctx.fillText(parts[0], cx, cy + 110);
           break;
         }
 
