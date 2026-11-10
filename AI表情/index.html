@@ -1532,6 +1532,8 @@
     /* 硬件模拟动态参数 */
     let batteryLevel = 20, volumeLevel = 50, temperatureLevel = 37, compassBearing = 45, selectedDate = '2026-07-01';
 
+    let volumeDemo = true;
+
     function refinedOptions() {
       const now = new Date();
       return {
@@ -1539,6 +1541,7 @@
         battery: batteryLevel,
         temperature: temperatureLevel,
         volume: volumeLevel,
+        volumeDemo,
         bearing: compassBearing,
         hour: now.getHours(),
         minute: now.getMinutes(),
@@ -2519,28 +2522,17 @@
     }
 
     case 'VOLUME': {
-      // 扬声器喇叭外形
-      line(3, 9, 3, 13);
-      line(3, 9, 6, 7);
-      line(6, 7, 6, 15);
-      line(6, 15, 3, 13);
-      line(6, 8, 6, 14);
-      // 阶梯音量柱 (根据当前音量值与时间动态弹跳)
-      const vol = opt.volume !== undefined ? opt.volume : 0.7;
-      const bars = [
-        { x: 9, h: 4 },
-        { x: 12, h: 7 },
-        { x: 15, h: 10 },
-        { x: 18, h: 13 }
-      ];
-      bars.forEach((b, idx) => {
-        const threshold = (idx + 1) / 4;
-        if (vol >= threshold - 0.15) {
-          const dynamicPulse = Math.sin(t * 0.5 + idx) * 1.5;
-          const actH = Math.max(2, Math.round(b.h + dynamicPulse));
-          line(b.x, 11 - Math.floor(actH / 2), b.x, 11 + Math.floor(actH / 2));
+      // Glyph 风格：16 段径向刻度与中央档位，末端轻微闪动。
+      const volume = Math.max(0, Math.min(100, Number(opt.volume ?? 50)));
+      const level = opt.volumeDemo !== false ? 1 + Math.floor((t % 96) / 6) : Math.ceil(volume * 16 / 100);
+      for (let i = 0; i < level; i++) {
+        const angle = -Math.PI / 2 + i * Math.PI / 8;
+        put(11 + 9 * Math.cos(angle), 11 + 9 * Math.sin(angle));
+        if (i < level - 1 || Math.floor(t / 3) % 2 === 0) {
+          put(11 + 10 * Math.cos(angle), 11 + 10 * Math.sin(angle));
         }
-      });
+      }
+      text(String(Math.max(0, level - 1)).padStart(2, '0'), 8);
       break;
     }
     case 'RADAR': {
@@ -3086,7 +3078,7 @@
       /* --- 系统 / 硬件仪表 --- */
       { num: '#40', no: 'SYS-04', id: 'BATTERY', name: '电量百分比', cat: 'system', subcat: 'hardware', icon: '🔋', frames: 24, isPending: true },
       { num: '#41', no: 'SYS-05', id: 'CHARGE', name: '充电流光', cat: 'system', subcat: 'hardware', icon: '⚡', frames: 18, isPending: true },
-      { num: '#42', no: 'SYS-06', id: 'VOLUME', name: '音量阶梯', cat: 'system', subcat: 'hardware', icon: '🔊', frames: 24, isPending: true },
+      { num: '#42', no: 'SYS-06', id: 'VOLUME', name: '音量阶梯', cat: 'system', subcat: 'hardware', icon: '🔊', frames: 96, isPending: true },
       { num: '#43', no: 'SYS-07', id: 'TEMP', name: '环境温度', cat: 'system', subcat: 'hardware', icon: '🌡️', frames: 24, isPending: true },
 
       /* --- 系统 / 传感连接 --- */
@@ -3633,6 +3625,7 @@
     function selectAnimation(anim) {
       if (!anim) return;
       state.currentAnim = anim;
+      if (anim.id === 'VOLUME') volumeDemo = true;
       state.time = 0;
 
       // 更新顶部与卡片状态
@@ -3734,6 +3727,7 @@
     }
     function onSimVolume(v) {
       volumeLevel = parseInt(v);
+      volumeDemo = false;
       document.getElementById('simVolumeVal').textContent = `${v}%`;
     }
     function onSimTemp(v) {
@@ -4595,33 +4589,29 @@
         }
 
         case 'VOLUME': {
-          const vLevel = Math.round(opt.volume ?? 50);
-          const totalBars = 22;
-          const activeBars = Math.round((vLevel / 100) * totalBars);
-          for (let i = 0; i < totalBars; i++) {
-            const a = Math.PI * 0.75 + (i / (totalBars - 1)) * (Math.PI * 1.5);
-            const r1 = 150, r2 = 185;
+          const volume = Math.max(0, Math.min(100, Number(opt.volume ?? 50)));
+          const level = opt.volumeDemo !== false ? 1 + Math.floor((curF % 96) / 6) : Math.ceil(volume * 16 / 100);
+          ctx.lineWidth = 10;
+          ctx.lineCap = 'round';
+          for (let i = 0; i < 16; i++) {
+            const angle = -Math.PI / 2 + i * Math.PI / 8;
+            const active = i < level;
+            const pulse = i === level - 1 && Math.floor(curF / 3) % 2 !== 0;
+            ctx.strokeStyle = active ? col : '#16222d';
+            ctx.shadowColor = col;
+            ctx.shadowBlur = active ? 12 : 0;
             ctx.beginPath();
-            ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
-            ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
-            ctx.strokeStyle = i < activeBars ? col : '#1a2632';
-            ctx.lineWidth = 9;
-            ctx.lineCap = 'round';
-            if (i < activeBars) {
-              ctx.shadowColor = col;
-              ctx.shadowBlur = 15;
-            }
+            ctx.moveTo(cx + 153 * Math.cos(angle), cy + 153 * Math.sin(angle));
+            ctx.lineTo(cx + (pulse ? 158 : 174) * Math.cos(angle), cy + (pulse ? 158 : 174) * Math.sin(angle));
             ctx.stroke();
-            ctx.shadowBlur = 0;
           }
-          ctx.font = 'bold 88px system-ui';
-          ctx.fillStyle = '#ffffff';
+          ctx.shadowBlur = 12;
+          ctx.font = '500 106px monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(`${vLevel}%`, cx, cy - 20);
-          ctx.font = 'bold 32px system-ui';
           ctx.fillStyle = col;
-          ctx.fillText('🔊 VOLUME', cx, cy + 60);
+          ctx.fillText(String(Math.max(0, level - 1)).padStart(2, '0'), cx, cy);
+          ctx.shadowBlur = 0;
           break;
         }
 
