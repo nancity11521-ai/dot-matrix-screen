@@ -1241,6 +1241,33 @@
         </div>
       </div>
 
+      <div class="panel-section">
+        <div class="section-title">♫ 音乐律动 · LIF-07</div>
+        <label class="btn" style="display:block;text-align:center;cursor:pointer">选择音乐
+          <input id="musicFileInput" type="file" accept="audio/*" onchange="loadRhythmMusic(this)" style="display:none">
+        </label>
+        <div class="btn-group" style="margin-top:8px">
+          <button class="btn" id="captureAudioBtn" onclick="startSystemAudioCapture()">捕获系统音频</button>
+          <button class="btn" id="stopCaptureAudioBtn" onclick="stopSystemAudioCapture()" disabled>停止捕获</button>
+        </div>
+        <div style="font-size:11px;line-height:1.7;color:var(--text-muted);margin-top:8px">在共享窗口中选择播放音乐的标签页或屏幕，并勾选“共享音频”。声音仅用于本地律动，不录制、不上传。</div>
+        <label for="rhythmStyle" style="display:block;font-size:12px;margin-top:10px">律动展示方式</label>
+        <select id="rhythmStyle" class="form-select" style="width:100%;margin-top:6px" onchange="selectRhythmStyle(this.value)">
+          <option value="ripples">涟漪水圈 · 逐圈散开</option>
+          <option value="flowers">天女散花 · 音乐花点</option>
+          <option value="beatRing">音乐脉冲光环 · 视频参考</option>
+          <option value="piano">音符流 · 横条律动</option>
+          <option value="voice">通话声波 · 紧凑律动</option>
+          <option value="bars">01 · 对称音柱</option>
+          <option value="radial">02 · 放射声环</option>
+          <option value="pulse">03 · 中心脉冲</option>
+          <option value="ribbon">04 · 流动频谱</option>
+        </select>
+        <audio id="rhythmAudio" controls style="width:100%;height:34px;margin-top:10px" onplay="resumeRhythmAudio()"></audio>
+        <div id="rhythmStatus" style="font-size:11px;line-height:1.7;color:var(--text-muted);margin-top:8px" aria-live="polite">请选择音乐并播放 · 音柱跟随真实频谱变化，文件仅在浏览器播放。</div>
+        <button class="btn" style="width:100%;margin-top:8px" onclick="showRhythmDemo()">查看演示律动</button>
+      </div>
+
       <div class="panel-section" id="manualAnimationSection">
         <div class="section-title">🎨 手动制作动画</div>
         <p style="font-size:12px;line-height:1.7;color:var(--text-muted);margin:0 0 12px">亲手点亮灯珠，把每一帧连成动画。</p>
@@ -1546,10 +1573,479 @@
 
     let volumeDemo = true;
 
+    const rhythm = { context: null, analyser: null, data: null, url: null, demo: false, style: 'ripples' };
+    const systemRhythm = { stream: null, context: null, analyser: null, data: null, pending: false };
+    function stopSystemAudioCapture(notify = true) {
+      const stream = systemRhythm.stream;
+      systemRhythm.stream = null;
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      if (systemRhythm.context) systemRhythm.context.close().catch(() => {});
+      systemRhythm.context = systemRhythm.analyser = systemRhythm.data = null;
+      document.getElementById('stopCaptureAudioBtn').disabled = true;
+      if (notify) document.getElementById('rhythmStatus').textContent = '已停止捕获 · 可重新捕获或选择本地音乐';
+    }
+    async function startSystemAudioCapture() {
+      const status = document.getElementById('rhythmStatus');
+      if (systemRhythm.pending) return;
+      if (!navigator.mediaDevices?.getDisplayMedia) {
+        status.textContent = '当前浏览器不支持共享音频，请使用支持屏幕音频共享的浏览器，或选择本地音乐。';
+        return;
+      }
+      const button = document.getElementById('captureAudioBtn');
+      systemRhythm.pending = true;
+      button.disabled = true;
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true, systemAudio: 'include' });
+        const audioTracks = stream.getAudioTracks();
+        if (!audioTracks.length) {
+          stream.getTracks().forEach(track => track.stop());
+          status.textContent = '没有捕获到音频。请重新选择播放音乐的标签页，并勾选“共享标签页音频”；系统声音支持取决于浏览器。';
+          return;
+        }
+        stopSystemAudioCapture(false);
+        systemRhythm.stream = stream;
+        document.getElementById('rhythmAudio').pause();
+        rhythm.demo = false;
+        systemRhythm.context = new (window.AudioContext || window.webkitAudioContext)();
+        systemRhythm.analyser = systemRhythm.context.createAnalyser();
+        systemRhythm.analyser.fftSize = 2048;
+        systemRhythm.analyser.smoothingTimeConstant = 0.3;
+        systemRhythm.data = new Uint8Array(systemRhythm.analyser.frequencyBinCount);
+        const source = systemRhythm.context.createMediaStreamSource(new MediaStream(audioTracks));
+        source.connect(systemRhythm.analyser);
+        const silent = systemRhythm.context.createGain();
+        silent.gain.value = 0;
+        systemRhythm.analyser.connect(silent).connect(systemRhythm.context.destination);
+        stream.getTracks().forEach(track => track.addEventListener('ended', () => {
+          if (systemRhythm.stream === stream) stopSystemAudioCapture();
+        }));
+        await systemRhythm.context.resume();
+        selectRhythmStyle(rhythm.style);
+        document.getElementById('stopCaptureAudioBtn').disabled = false;
+        status.textContent = '正在捕获共享音频 · 音乐将实时驱动声波，点击“停止捕获”结束';
+      } catch (error) {
+        if (stream && systemRhythm.stream === stream) stopSystemAudioCapture(false);
+        else if (stream) stream.getTracks().forEach(track => track.stop());
+        status.textContent = error.name === 'NotAllowedError' ? '未开始捕获：共享被取消或未获授权。' : '捕获失败，请重新选择共享来源，或使用本地音乐。';
+      } finally {
+        systemRhythm.pending = false;
+        button.disabled = false;
+      }
+    }
+
+    function musicStorage(mode, value) {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('DOT_MATRIX_MUSIC_V1', 1);
+        request.onupgradeneeded = () => request.result.createObjectStore('music');
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          const db = request.result;
+          const tx = db.transaction('music', mode);
+          const store = tx.objectStore('music');
+          const operation = mode === 'readwrite' ? store.put(value, 'last') : store.get('last');
+          tx.oncomplete = () => { db.close(); resolve(operation.result); };
+          tx.onerror = tx.onabort = () => { db.close(); reject(tx.error || new Error('音乐保存失败')); };
+        };
+      });
+    }
+    function ensureRhythmAudio() {
+      if (rhythm.context) return;
+      const audio = document.getElementById('rhythmAudio');
+      rhythm.context = new (window.AudioContext || window.webkitAudioContext)();
+      rhythm.analyser = rhythm.context.createAnalyser();
+      rhythm.analyser.fftSize = 2048;
+      rhythm.analyser.smoothingTimeConstant = 0.3;
+      rhythm.data = new Uint8Array(rhythm.analyser.frequencyBinCount);
+      rhythm.context.createMediaElementSource(audio).connect(rhythm.analyser);
+      rhythm.analyser.connect(rhythm.context.destination);
+    }
+    async function resumeRhythmAudio() {
+      try {
+        stopSystemAudioCapture(false);
+        rhythm.demo = false;
+        ensureRhythmAudio();
+        await rhythm.context.resume();
+        selectRhythmStyle(rhythm.style);
+      } catch (error) {
+        document.getElementById('rhythmStatus').textContent = '音频初始化失败，请重新点击播放。';
+      }
+    }
+    async function restoreRhythmMusic() {
+      try {
+        const saved = await musicStorage('readonly');
+        if (!saved?.blob || rhythm.url) return;
+        rhythm.url = URL.createObjectURL(saved.blob);
+        document.getElementById('rhythmAudio').src = rhythm.url;
+        document.getElementById('rhythmStatus').textContent = '已恢复音乐：' + saved.name + ' · 点击播放即可继续律动';
+      } catch (error) {
+        document.getElementById('rhythmStatus').textContent = '无法读取已存音乐，可重新选择音乐播放。';
+      }
+    }
+    async function loadRhythmMusic(input) {
+      const file = input.files[0];
+      if (!file) return;
+      stopSystemAudioCapture(false);
+      const audio = document.getElementById('rhythmAudio');
+      const status = document.getElementById('rhythmStatus');
+      audio.pause();
+      if (rhythm.url) URL.revokeObjectURL(rhythm.url);
+      rhythm.url = URL.createObjectURL(file);
+      audio.src = rhythm.url;
+      rhythm.demo = false;
+      // 文件保存在本机 IndexedDB，刷新后恢复，不依赖临时文件路径。
+      const saved = musicStorage('readwrite', { blob: file, name: file.name }).then(() => true, () => false);
+      let playing = true;
+      try {
+        ensureRhythmAudio();
+        selectRhythmStyle(rhythm.style);
+        await rhythm.context.resume();
+        await audio.play();
+      } catch (error) { playing = false; }
+      const persisted = await saved;
+      status.textContent = (persisted ? '已保存音乐：' : '音乐仅本次可用，浏览器保存失败：') + file.name
+        + (playing ? ' · 刷新后无需重新选择' : ' · 点击播放继续');
+      input.value = '';
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', restoreRhythmMusic, { once: true });
+    else restoreRhythmMusic();
+
+    function showRhythmDemo() {
+      stopSystemAudioCapture(false);
+      document.getElementById('rhythmAudio').pause();
+      rhythm.demo = true;
+      document.getElementById('rhythmStatus').textContent = '演示律动 · 当前为模拟节奏';
+      selectAnimation(ALL_ANIMATIONS.find(a => a.id === 'WAVE'));
+      state.playing = true;
+      document.getElementById('playBtn').textContent = '⏸ 暂停';
+    }
+    function rhythmLevels() {
+      if (rhythm.demo) return null;
+      const audio = document.getElementById('rhythmAudio');
+      const input = systemRhythm.stream ? systemRhythm : rhythm;
+      if (!input.analyser || (!systemRhythm.stream && (audio.paused || audio.ended))) return Array(9).fill(0);
+      input.analyser.getByteFrequencyData(input.data);
+      const binHz = input.context.sampleRate / input.analyser.fftSize;
+      return Array.from({ length: 9 }, (_, i) => {
+        const lo = Math.max(1, Math.floor(60 * Math.pow(200, i / 9) / binHz));
+        const hi = Math.min(input.data.length, Math.max(lo + 1, Math.ceil(60 * Math.pow(200, (i + 1) / 9) / binHz)));
+        let sum = 0;
+        for (let j = lo; j < hi; j++) sum += input.data[j] * input.data[j];
+        const vocalBand = i >= 2 && i <= 6;
+        return Math.min(1, Math.pow(Math.max(0, Math.sqrt(sum / (hi - lo)) - (vocalBand ? 2 : 8)) / (vocalBand ? 125 : 145), vocalBand ? 0.65 : 0.75));
+      });
+    }
+    function selectRhythmStyle(style) {
+      rhythm.style = style;
+      selectAnimation(ALL_ANIMATIONS.find(a => a.id === 'WAVE'));
+      state.playing = true;
+      document.getElementById('playBtn').textContent = '⏸ 暂停';
+    }
+    function floatingNotes(frame, opt) {
+      const lanes = [0, 1, 2, 3, 4, 2, 1, 0, 3, 4, 2, 1];
+      return lanes.flatMap((lane, i) => {
+        const levels = opt.musicLevels;
+        const strength = levels ? Math.max(levels[lane * 2], levels[Math.min(8, lane * 2 + 1)]) : 0.8;
+        if (strength < 0.08) return [];
+        const y = ((frame % 48) / 2 + i * 2.7) % 24 - 1;
+        return [{ x: 3 + lane * 4, y, lane, strength }];
+      });
+    }
+
+    function beatRingBrightness(frame, opt) {
+      if (opt.musicLevels) {
+        const energy = opt.musicLevels.reduce((sum, v) => sum + v * v, 0) / 9;
+        const motion = opt.voiceLevels ? Math.max(...opt.voiceLevels) / 8 : Math.sqrt(energy);
+        if (motion < 0.025 && energy < 0.001) return 0;
+        return Math.min(1, Math.pow(motion, 1.25) * 1.65);
+      }
+      const position = frame % 48;
+      const hits = [0, 12, 24, 30, 36];
+      const elapsed = Math.min(...hits.map(hit => (position - hit + 48) % 48));
+      return Math.exp(-elapsed / 3.2);
+    }
+
+    const flowerMotion = { bursts: [], previous: 0, lastHit: -1, lastAudible: -1, envelope: 0, lastTime: 0, seed: 0, pulse: 0, previousBands: Array(9).fill(0), beatTarget: 0, pendingAccent: 0, beatKick: 0, lastBeat: -1 };
+    function updateFlowerBursts(levels) {
+      const now = performance.now() / 1000;
+      const dt = Math.min(0.05, Math.max(0.001, now - flowerMotion.lastTime));
+      flowerMotion.lastTime = now;
+      const vocalEnergy = levels ? Math.sqrt(levels.slice(2, 7).reduce((sum, v) => sum + v * v, 0) / 5) : 0;
+      const vocalResponse = vocalEnergy > 0.006 ? Math.min(0.55, Math.sqrt(vocalEnergy) * 1.5) : 0;
+      const energy = levels ? Math.max(...levels, vocalResponse) : 0;
+      // 用频段上升沿识别拍点，避免持续响亮的音乐被当作恒定亮度。
+      const flux = levels ? levels.reduce((sum, v, i) => sum + Math.max(0, v - flowerMotion.previousBands[i]), 0) / levels.length : 0;
+      const bassRise = levels ? Math.max(0, (levels[0] + levels[1]) / 2 - (flowerMotion.previousBands[0] + flowerMotion.previousBands[1]) / 2) : 0;
+      flowerMotion.previousBands = levels ? [...levels] : Array(9).fill(0);
+      const accent = Math.min(1, flux * 7 + bassRise * 2.5);
+      // 重拍立即推动所有现有花点，不必等下一簇发射。
+      const strongBeat = accent > 0.55 && now - flowerMotion.lastBeat > 0.18;
+      flowerMotion.beatKick *= Math.exp(-dt / 0.23);
+      if (strongBeat) {
+        flowerMotion.beatKick = Math.max(flowerMotion.beatKick, accent);
+        flowerMotion.lastBeat = now;
+      }
+      // 拍点留存后缓升缓降，拉长亮灭；非线性强调强拍，弱拍保持柔和。
+      flowerMotion.beatTarget = Math.max(flowerMotion.beatTarget * Math.exp(-dt / 0.32), Math.pow(accent, 1.4));
+      const pulseRate = 1 - Math.exp(-dt / (flowerMotion.beatTarget > flowerMotion.pulse ? 0.065 : 0.24));
+      flowerMotion.pulse += (flowerMotion.beatTarget - flowerMotion.pulse) * pulseRate;
+      if (energy > 0.018) flowerMotion.lastAudible = now;
+      const rate = 1 - Math.exp(-dt / (energy > flowerMotion.envelope ? 0.025 : 0.2));
+      flowerMotion.envelope += (energy - flowerMotion.envelope) * rate;
+      const amplitude = flowerMotion.envelope;
+      // 轻音乐持续发射，强音乐加快；鼓点可提前触发下一簇，前后花点重叠衔接。
+      const interval = 0.42 - Math.min(1, amplitude) * 0.12;
+      flowerMotion.pendingAccent = Math.max(flowerMotion.pendingAccent * Math.exp(-dt / 0.25), accent);
+      const onset = flowerMotion.pendingAccent > 0.2;
+      const audible = now - flowerMotion.lastAudible < 0.22;
+      if (audible && now - flowerMotion.lastHit >= (onset ? 0.22 : interval)) {
+        const power = Math.min(1, Math.max(amplitude, energy) + (onset ? 0.18 : 0));
+        // 每簇数量由拍点强度决定；持续背景音只发 1–2 点，不固定铺满。
+        const count = onset ? 2 + Math.round(Math.pow(flowerMotion.pendingAccent, 1.8) * 14)
+          : 1 + (vocalResponse > 0.08 ? 1 : 0) + (amplitude > 0.5 ? 1 : 0);
+        flowerMotion.bursts.push({ born: now, power, count, seed: flowerMotion.seed++ });
+        flowerMotion.pendingAccent = 0;
+        flowerMotion.lastHit = now;
+      }
+      flowerMotion.previous = energy;
+      flowerMotion.bursts = flowerMotion.bursts.filter(b => now - b.born < 1.15).slice(-4);
+      return flowerMotion.bursts.map(b => ({ age: now - b.born, power: b.power, count: b.count, seed: b.seed }));
+    }
+    function flowerPixels(frame, opt) {
+      const bursts = opt.musicLevels ? (opt.flowerBursts || []) : Array.from({ length: 5 }, (_, i) => ({
+        age: ((frame + i * 9.6) % 48) / 24, power: [0.3, 0.9, 0.4, 1, 0.5][i], count: [2, 12, 3, 16, 2][i], seed: i
+      })).filter(b => b.age < 1.15);
+      const pixels = new Map();
+      const put = (x, y, alpha) => {
+        x = Math.round(x); y = Math.round(y);
+        if (Math.hypot(x - 11, y - 11) > 9.8 || alpha < 0.04) return;
+        const id = y * 23 + x;
+        pixels.set(id, Math.max(pixels.get(id) || 0, alpha));
+      };
+      const pulse = opt.musicLevels ? (opt.flowerPulse || 0) : beatRingBrightness(frame, {});
+      const kick = opt.musicLevels ? (opt.flowerKick || 0) : Math.pow(beatRingBrightness(frame, {}), 0.75);
+      bursts.forEach(b => {
+        // 弱拍仅少量花点，强拍成簇散开；密度由音乐能量和起音驱动。
+        const count = b.count ?? (2 + Math.round(Math.pow(b.power, 1.2) * 6));
+        for (let i = 0; i < count; i++) {
+          const angle = i * Math.PI * 2 / count + b.seed * 0.73;
+          const speed = 4 + ((i * 7) % 3) + b.power;
+          const launch = (0.45 + b.power * 0.6) * (1 - Math.exp(-b.age / 0.055));
+          const distance = (0.8 + b.age * speed + launch) * (1 + kick * 0.23) + pulse * 0.5;
+          const fade = Math.pow(Math.max(0, 1 - b.age / 1.15), 0.75);
+          const attack = Math.min(1, b.age / 0.085);
+          const resting = attack * fade * (0.35 + b.power * 0.65) * (0.62 + Math.pow(pulse, 1.3) * 1.25);
+          const accentLight = kick * 0.9 * Math.pow(fade, 0.4) * Math.min(1, b.age / 0.045);
+          const alpha = Math.min(1, Math.max(resting, accentLight));
+          const x = 11 + Math.cos(angle) * distance;
+          const y = 11 + Math.sin(angle) * distance + b.age * b.age * 2;
+          put(x, y, alpha);
+          // 每个花点只保留一个灯珠，避免拖尾堆积成片。
+        }
+      });
+      return pixels;
+    }
+
+    // 涟漪使用独立的生命周期，散花的发射、数量和亮灭参数保持不变。
+    const rippleMotion = { waves: [], lastHit: -1, previous: [0,0,0], previousLevels: Array(9).fill(0), baseline: Array(9).fill(0), pending: null, envelope: 0, lastTime: 0, seed: 0 };
+    function updateRippleWaves(levels) {
+      const now = performance.now() / 1000;
+      const dt = Math.min(0.05, Math.max(0.001, now - rippleMotion.lastTime));
+      rippleMotion.lastTime = now;
+      const bands = [0, 3, 6].map(start => Math.sqrt(levels.slice(start, start + 3).reduce((sum, v) => sum + v * v, 0) / 3));
+      const rises = bands.map((v, i) => Math.max(0, v - rippleMotion.previous[i]));
+      const accent = Math.min(1, Math.max(...rises) * 5);
+      const energy = Math.max(...bands);
+      const response = Math.min(1, Math.sqrt(energy) * 1.25);
+      const rate = 1 - Math.exp(-dt / (response > rippleMotion.envelope ? 0.065 : 0.3));
+      rippleMotion.envelope += (response - rippleMotion.envelope) * rate;
+      // 人声起音、鼓点和音色变化均以频谱事件触发，不按固定时间生成。
+      const oldEnergy = Math.max(...rippleMotion.previous);
+      const flux = levels.reduce((sum, v, i) => sum + Math.max(0, v - rippleMotion.previousLevels[i]), 0) / 9;
+      const vocal = Math.max(...levels.slice(2, 7));
+      const vocalBase = Math.max(...rippleMotion.baseline.slice(2, 7));
+      const vocalStart = vocal > 0.009 && vocal > vocalBase * 1.35 + 0.006 && flux > 0.001;
+      const total = levels.reduce((sum, v) => sum + v, 0);
+      const oldTotal = rippleMotion.previousLevels.reduce((sum, v) => sum + v, 0);
+      const colorChange = total > 0.015 && oldTotal > 0.015
+        ? levels.reduce((sum, v, i) => sum + Math.abs(v / total - rippleMotion.previousLevels[i] / oldTotal), 0) : 0;
+      const start = energy > 0.008 && oldEnergy <= 0.008;
+      const beat = accent > 0.16 && flux > 0.003;
+      const changed = colorChange > 0.35 && energy > 0.012;
+      if (start || vocalStart || beat || changed) {
+        const band = bands.indexOf(Math.max(...bands));
+        const strength = Math.min(1, Math.max(accent, colorChange * 0.6, vocalStart ? 0.25 : 0.15));
+        if (!rippleMotion.pending || strength >= rippleMotion.pending.strength) rippleMotion.pending = { at: now, strength, band, power: energy };
+      }
+      if (rippleMotion.pending && now - rippleMotion.pending.at > 0.4) rippleMotion.pending = null;
+      if (rippleMotion.pending && now - rippleMotion.lastHit >= 0.55 && rippleMotion.waves.length < 4) {
+        const event = rippleMotion.pending;
+        rippleMotion.waves.push({ radius: 0.5, power: Math.min(1, Math.sqrt(event.power) * 1.4),
+          band: event.band, seed: rippleMotion.seed++, speed: 1.8 + event.band * 0.35, born: now, edgeAt: null });
+        rippleMotion.lastHit = now;
+        rippleMotion.pending = null;
+      }
+      rippleMotion.previousLevels = [...levels];
+      rippleMotion.baseline = rippleMotion.baseline.map((v, i) => v + (levels[i] - v) * (1 - Math.exp(-dt / 0.25)));
+      rippleMotion.previous = bands;
+      rippleMotion.waves.forEach(w => {
+        // 每一圈的扩散速度持续跟随音乐，而不是只在创建时取一个固定速度。
+        const targetSpeed = 1.6 + w.band * 0.35 + rippleMotion.envelope * 1.35 + Math.min(1, bands[w.band] * 2) * 0.8 + accent * 0.6;
+        w.speed += (targetSpeed - w.speed) * (1 - Math.exp(-dt / 0.16));
+        if (w.edgeAt === null) {
+          w.radius = Math.min(11, w.radius + w.speed * dt);
+          if (w.radius >= 11) w.edgeAt = now;
+        }
+      });
+      // 不因新圈到来而删掉未到边缘的旧圈。
+      rippleMotion.waves = rippleMotion.waves.filter(w => w.edgeAt === null || now - w.edgeAt < 0.9);
+      return rippleMotion.waves.map(w => ({ radius: w.radius, seed: w.seed, band: w.band,
+        alpha: Math.min(1, (now - w.born) / 0.16) * (0.62 + w.power * 0.38)
+          * (w.edgeAt === null ? 1 : Math.max(0, 1 - (now - w.edgeAt) / 0.9)) }));
+    }
+    function rippleWaves(frame, opt) {
+      if (opt.musicLevels) return opt.rippleWaves || [];
+      return Array.from({ length: 3 }, (_, i) => {
+        const age = ((frame + i * 32) % 96) / 24;
+        const power = [0.4,0.9,0.55,1,0.6][i];
+        const travel = 3.4 - power * 0.7;
+        return { radius: Math.min(11, 0.5 + age / travel * 10.5), seed: i, band: i % 3,
+          alpha: Math.min(1, age / 0.16) * (0.62 + power * 0.38) * (age <= travel ? 1 : Math.max(0, 1 - (age - travel) / 0.9)) };
+      });
+    }
+    function ripplePixels(frame, opt) {
+      const pixels = new Map();
+      const rows = [5,9,13,15,17,19,19,21,21,23,23,23,23,23,21,21,19,19,17,15,13,9,5];
+      const waves = rippleWaves(frame, opt);
+      const innerWaves = new Set([...waves].sort((a, b) => a.radius - b.radius).slice(0, 2));
+      waves.forEach(wave => {
+        const emphasis = innerWaves.has(wave) ? Math.max(0, Math.min(1, (6 - wave.radius) / 2)) : 0;
+        for (let y = 0; y <= 22; y++) for (let x = 0; x <= 22; x++) {
+          if (Math.abs(x - 11) > (rows[y] - 1) / 2) continue;
+          const d = Math.hypot(x - 11, y - 11);
+          // 分段缺口随每圈错开，留下不规则空格，保留水波轮廓。
+          const angle = Math.atan2(y - 11, x - 11);
+          const sector = Math.floor((angle + Math.PI) * 12 / Math.PI);
+          const gap = (sector + (wave.seed || 0) * 5) % 7;
+          const sparse = gap !== 1 && gap !== 2 && gap !== 4 && gap !== 5 && (x + y + (wave.seed || 0)) % 2 === 0;
+          const innerArc = gap !== 1 && gap !== 4;
+          const filled = sparse || (emphasis > 0.3 && innerArc && (emphasis > 0.7 || (x + y) % 2 === 0));
+          if (filled && Math.abs(d - wave.radius) < 0.48 + emphasis * 0.08) {
+            const id = y * 23 + x;
+            pixels.set(id, Math.max(pixels.get(id) || 0, Math.min(1, wave.alpha * (1 + emphasis * 0.4))));
+          }
+        }
+      });
+      return pixels;
+    }
+
+    function rhythmPixels(frame, opt) {
+      const heights = rhythmHeights(frame, opt);
+      const points = new Set();
+      const put = (x, y) => { x = Math.round(x); y = Math.round(y); if (Math.hypot(x - 11, y - 11) <= 10) points.add(y * 23 + x); };
+      const style = opt.musicStyle || 'voice';
+      if (style === 'ripples') {
+        ripplePixels(frame, opt).forEach((alpha, id) => points.add(id));
+      } else if (style === 'flowers') {
+        flowerPixels(frame, opt).forEach((alpha, id) => points.add(id));
+      } else if (style === 'beatRing') {
+        if (beatRingBrightness(frame, opt) > 0.025) {
+          for (let y = 5; y <= 19; y++) for (let x = 4; x <= 18; x++) {
+            if (Math.abs(Math.hypot(x - 11, y - 12) - 6) < 0.65) put(x, y);
+          }
+          [2, 3, 4].forEach(y => put(11, y));
+        }
+      } else if (style === 'piano') {
+        floatingNotes(frame, opt).forEach(note => {
+          for (let dx = -1; dx <= 1; dx++) put(note.x + dx, note.y);
+        });
+      } else if (style === 'voice') {
+        voiceHeights(frame, opt).forEach((value, i) => {
+          const h = Math.round(value);
+          for (let y = 11 - h; y <= 11 + h; y++) put(5 + i * 2, y);
+        });
+      } else if (style === 'radial') {
+        for (let i = 0; i < 16; i++) {
+          const a = i * Math.PI / 8 - Math.PI / 2;
+          const h = heights[Math.floor(i * 9 / 16)];
+          for (let r = 3; r <= 3 + h; r++) put(11 + Math.cos(a) * r, 11 + Math.sin(a) * r);
+        }
+      } else if (style === 'pulse') {
+        const energy = heights.reduce((sum, h) => sum + h, 0) / 9;
+        const radius = 2 + Math.round(energy);
+        for (let y = 1; y <= 21; y++) for (let x = 1; x <= 21; x++) {
+          const d = Math.hypot(x - 11, y - 11);
+          if (Math.abs(d - radius) < 0.65 || (energy > 2 && Math.abs(d - Math.min(9, radius + 3)) < 0.5)) put(x, y);
+        }
+        put(11, 11);
+      } else if (style === 'ribbon') {
+        heights.forEach((h, i) => {
+          const x = 3 + i * 2;
+          for (let y = 17 - h * 2; y <= 17; y++) put(x, y);
+          if (h) put(x, Math.max(2, 15 - h * 2));
+        });
+      } else {
+        heights.forEach((h, i) => { for (let y = 11 - h; y <= 11 + h; y++) put(3 + i * 2, y); });
+      }
+      return points;
+    }
+
+    const voiceMotion = { values: Array(7).fill(0), lastTime: 0, bass: 0, kick: 0 };
+    function liveVoiceMotion(levels) {
+      const now = performance.now();
+      const dt = Math.min(0.05, Math.max(0.001, (now - voiceMotion.lastTime) / 1000));
+      voiceMotion.lastTime = now;
+      const energy = Math.sqrt(levels.reduce((sum, v) => sum + v * v, 0) / levels.length);
+      const bass = (levels[0] + levels[1] + levels[2]) / 3;
+      voiceMotion.kick = Math.max(voiceMotion.kick * Math.exp(-dt / 0.12), Math.max(0, bass - voiceMotion.bass) * 3);
+      voiceMotion.bass = bass;
+      const weights = [0.55, 0.78, 0.94, 1, 0.94, 0.78, 0.55];
+      const bands = [5, 2, 4, 0, 3, 1, 6];
+      return weights.map((weight, i) => {
+        const target = Math.min(1, levels[bands[i]] * 0.85 + energy * 0.3 + voiceMotion.kick * (i % 2 ? 0.35 : 0.6)) * weight * 8;
+        const previous = voiceMotion.values[i];
+        const rate = 1 - Math.exp(-dt / (target > previous ? 0.022 : 0.14));
+        const value = previous + (target - previous) * rate;
+        voiceMotion.values[i] = value < 0.06 ? 0 : value;
+        return voiceMotion.values[i];
+      });
+    }
+    function voiceHeights(frame, opt) {
+      if (opt.voiceLevels) return opt.voiceLevels;
+      if (opt.musicLevels) return [5, 2, 4, 0, 3, 1, 6].map((band, i) =>
+        opt.musicLevels[band] * [0.55, 0.78, 0.94, 1, 0.94, 0.78, 0.55][i] * 8);
+      // 演示用切分鼓点：快速抬升、拖尾回落，各柱错拍。
+      const beat = ((frame % 48) / 2) % 24;
+      return [0.55, 0.78, 0.94, 1, 0.94, 0.78, 0.55].map((weight, i) => {
+        const phase = (beat + [0, 1.4, 0.6, 0, 2.2, 0.9, 2.8][i]) % 6;
+        const hit = Math.exp(-phase / 1.5);
+        const accent = beat < 12 ? 1 : 0.7;
+        return (0.08 + hit * 0.92) * weight * 8 * accent;
+      });
+    }
+
+    function rhythmHeights(frame, opt) {
+      return Array.from({ length: 9 }, (_, i) => {
+        const edge = Math.abs(i - 4);
+        const amplitude = opt.musicLevels ? opt.musicLevels[i] :
+          Math.pow(Math.max(0, Math.sin(frame * Math.PI / 12 + i * 1.7)), 2) * 0.75
+          + Math.pow(Math.max(0, Math.sin(frame * Math.PI / 6)), 6) * 0.25;
+        return Math.round(Math.max(0, Math.min(1, amplitude)) * (8 - Math.floor(edge / 2)));
+      });
+    }
+
     function refinedOptions() {
       const now = new Date();
+      const musicLevels = rhythmLevels();
       return {
         date: selectedDate,
+        musicLevels,
+        voiceLevels: musicLevels ? liveVoiceMotion(musicLevels) : null,
+        musicStyle: rhythm.style,
+        flowerBursts: musicLevels ? updateFlowerBursts(musicLevels) : null,
+        flowerPulse: flowerMotion.pulse,
+        flowerKick: flowerMotion.beatKick,
+        rippleWaves: musicLevels ? updateRippleWaves(musicLevels) : null,
         battery: batteryLevel,
         temperature: temperatureLevel,
         volume: volumeLevel,
@@ -1562,6 +2058,12 @@
     }
 
     /* 引入 106 种点阵图形栅格生成函数 */
+    function dawnPosition(frame) {
+      // 从左侧灯阵边缘沿直斜线向右上升起，越过圆屏边界后循环。
+      const progress = (frame % 72) / 71;
+      return { x: -4 + 30 * progress, y: 18 - 28 * progress };
+    }
+
     function refinedFrame(kind, frame, opt = {}) {
   const out = new Set(), rows = [5,9,13,15,17,19,19,21,21,23,23,23,23,23,21,21,19,19,17,15,13,9,5];
   const put = (x,y,on=true) => {
@@ -1808,18 +2310,7 @@
     }
     case 'WAVE': case 'SPECTRUM': {
       if(kind === 'WAVE') {
-        const frames = [
-          [2,4,7,10,13,10,7,4,2], [2,5,9,8,11,8,9,5,2],
-          [2,7,11,6,9,6,11,7,2], [2,4,8,12,7,12,8,4,2],
-          [2,5,10,9,5,9,10,5,2], [2,7,7,11,4,11,7,7,2],
-          [2,4,6,10,9,10,6,4,2], [2,4,7,10,13,10,7,4,2]
-        ];
-        const shape = frames[Math.floor((t % 24) / 3)];
-        line(3, 11, 19, 11);
-        [3, 5, 7, 9, 11, 13, 15, 17, 19].forEach((x, i) => {
-          const half = Math.floor(shape[i] / 2);
-          line(x, 11 - half, x, 11 + half);
-        });
+        rhythmPixels(t, opt).forEach(id => put(id % 23, Math.floor(id / 23)));
       } else {
         for(let x = 3; x <= 19; x += 2) {
           const h = 2 + Math.round(8 * Math.abs(Math.sin(Math.abs(x - 11) * 0.5 + t * Math.PI / 12)));
@@ -2516,13 +3007,15 @@
       break;
     }
     case 'DAWN': {
-      line(3, 14, 19, 14); // Horizon
-      circle(11, 15 - Math.floor((t % 20) / 4), 4, true);
-      for(const id of [...out]) {
-        if(Math.floor(id / 23) > 14) out.delete(id);
+      const sun = dawnPosition(t);
+      circle(sun.x, sun.y, 3, true);
+      for (let i = 0; i < 8; i++) {
+        const angle = i * Math.PI / 4;
+        put(sun.x + Math.cos(angle) * 5, sun.y + Math.sin(angle) * 5);
       }
+      for (const id of [...out]) if (Math.floor(id / 23) > 14) out.delete(id);
       line(3, 14, 19, 14);
-      line(6, 17, 16, 17); // Water ripples
+      line(6, 17, 16, 17);
       line(8, 19, 14, 19);
       break;
     }
@@ -3151,10 +3644,10 @@
       { num: '#65', no: 'LIF-06', id: 'STORM', name: '闪电雷暴', cat: 'life', subcat: 'weather', icon: '⛈️', frames: 24 },
 
       /* --- 生活 / 影音与日常 --- */
-      { num: '#66', no: 'LIF-07', id: 'WAVE', name: '跳动声波', cat: 'life', subcat: 'audio', icon: '〰️', frames: 16, isPending: true },
+      { num: '#66', no: 'LIF-07', id: 'WAVE', name: '音乐律动', cat: 'life', subcat: 'audio', icon: '〰️', frames: 96, fps: 24, isPending: true },
       { num: '#67', no: 'LIF-08', id: 'SPECTRUM', name: '音频频谱', cat: 'life', subcat: 'audio', icon: '📶', frames: 24 },
       { num: '#68', no: 'LIF-09', id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24 },
-      { num: '#69', no: 'LIF-10', id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 24, isPending: true },
+      { num: '#69', no: 'LIF-10', id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 72, isPending: true },
       { num: '#70', no: 'LIF-11', id: 'COFFEE', name: '咖啡小憩', cat: 'life', subcat: 'daily', icon: '☕', frames: 24 },
       { num: '#71', no: 'LIF-12', id: 'WATER', name: '喝水打卡', cat: 'life', subcat: 'daily', icon: '💧', frames: 24 },
 
@@ -4121,14 +4614,17 @@
         // 栅格动画直接使用 23×23 精准绘制
         const totalF = anim.frames || 24;
         const curF = Math.floor(state.time) % totalF;
-        const gridSet = refinedFrame(anim.id, curF, refinedOptions());
-
+        const options = refinedOptions();
+        const gridSet = refinedFrame(anim.id, curF, options);
+        const pulse = anim.id === 'WAVE' && options.musicStyle === 'beatRing' ? beatRingBrightness(curF, options) : 1;
+        const flowers = anim.id === 'WAVE' ? (options.musicStyle === 'flowers' ? flowerPixels(curF, options)
+          : options.musicStyle === 'ripples' ? ripplePixels(curF, options) : null) : null;
         PHYSICAL_POINTS.forEach((pt, idx) => {
-          brightnessArray[idx] = gridSet.has(pt.gridId) ? 1.0 : 0.0;
+          brightnessArray[idx] = flowers ? (flowers.get(pt.gridId) || 0) : (gridSet.has(pt.gridId) ? pulse : 0);
         });
 
-        // 正常显示端同步渲染 (系统/活动/生活/氛围连续高保真动画)
-        renderNormalDisplay(anim, state.time, null, refinedOptions());
+        // 左右屏共用同一次音频采样，保证节奏与明暗同步。
+        renderNormalDisplay(anim, state.time, null, options);
       }
 
       // 导出数据准备
@@ -5075,19 +5571,85 @@
         }
 
         case 'WAVE': {
-          for (let w = 0; w < 3; w++) {
-            ctx.beginPath();
-            for (let x = -200; x <= 200; x += 4) {
-              const y = Math.sin(x * 0.03 + t * 4.5 + w * 1.6) * 58 * Math.cos((x / 200) * (Math.PI / 2));
-              if (x === -200) ctx.moveTo(cx + x, cy + y);
-              else ctx.lineTo(cx + x, cy + y);
-            }
-            ctx.strokeStyle = [col, '#38bdf8', '#ec4899'][w];
-            ctx.lineWidth = 6;
-            ctx.shadowColor = ctx.strokeStyle;
-            ctx.shadowBlur = 20;
-            ctx.stroke();
+          const scale = (cx - 18) / 11;
+          if (opt.musicStyle === 'ripples') {
+            ctx.fillStyle = col;
+            ctx.shadowColor = col;
+            ripplePixels(curF, opt).forEach((alpha, id) => {
+              ctx.globalAlpha = alpha;
+              ctx.shadowBlur = alpha * 10;
+              const x = id % 23, y = Math.floor(id / 23);
+              ctx.fillRect(cx + (x - 11.35) * scale, cy + (y - 11.35) * scale, scale * 0.7, scale * 0.7);
+            });
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            break;
           }
+          if (opt.musicStyle === 'flowers') {
+            ctx.fillStyle = col;
+            ctx.shadowColor = col;
+            flowerPixels(curF, opt).forEach((alpha, id) => {
+              ctx.globalAlpha = alpha;
+              ctx.shadowBlur = 18 * alpha;
+              const x = id % 23, y = Math.floor(id / 23);
+              ctx.fillRect(cx + (x - 11.35) * scale, cy + (y - 11.35) * scale, scale * 0.7, scale * 0.7);
+            });
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            break;
+          }
+          if (opt.musicStyle === 'beatRing') {
+            const brightness = beatRingBrightness(curF, opt);
+            ctx.strokeStyle = col;
+            ctx.lineWidth = scale * 0.85;
+            ctx.globalAlpha = Math.max(0.025, brightness);
+            ctx.shadowColor = col;
+            ctx.shadowBlur = brightness * 26;
+            ctx.beginPath();
+            ctx.arc(cx, cy + scale, scale * 6, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - scale * 9);
+            ctx.lineTo(cx, cy - scale * 7);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            break;
+          }
+          if (opt.musicStyle === 'piano') {
+            const colors = ['#60a5fa', '#e879f9', '#fb923c', '#a3e635', '#fbbf24'];
+            floatingNotes(curF, opt).forEach(note => {
+              ctx.fillStyle = colors[note.lane];
+              ctx.shadowColor = colors[note.lane];
+              ctx.shadowBlur = 8 + note.strength * 8;
+              ctx.globalAlpha = 0.45 + Math.min(1, note.strength) * 0.55;
+              ctx.fillRect(cx + (note.x - 12.4) * scale, cy + (note.y - 11.35) * scale, scale * 2.8, scale * 0.7);
+            });
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            break;
+          }
+          if ((opt.musicStyle || 'voice') === 'voice') {
+            ctx.fillStyle = col;
+            ctx.shadowColor = col;
+            ctx.shadowBlur = 12;
+            voiceHeights(curF, opt).forEach((h, i) => {
+              ctx.beginPath();
+              ctx.roundRect(cx + (i - 3) * 2 * scale - scale * 0.45,
+                cy - (h + 0.45) * scale, scale * 0.9, (2 * h + 0.9) * scale, scale * 0.45);
+              ctx.fill();
+            });
+            ctx.shadowBlur = 0;
+            break;
+          }
+          ctx.fillStyle = col;
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 12;
+          rhythmPixels(curF, opt).forEach(id => {
+            const x = id % 23, y = Math.floor(id / 23);
+            ctx.fillRect(cx + (x - 11 - 0.35) * scale, cy + (y - 11 - 0.35) * scale, scale * 0.7, scale * 0.7);
+          });
+          ctx.shadowBlur = 0;
           break;
         }
 
@@ -5179,16 +5741,27 @@
         }
 
         case 'DAWN': {
-          // 地平线海浪朝阳
-          const sunY = cy + 40 - Math.abs(Math.sin(t * 0.8)) * 80;
-          ctx.beginPath();
-          ctx.arc(cx, sunY, 70, 0, Math.PI * 2);
+          const sun = dawnPosition(curF);
+          const scale = (cx - 18) / 11;
+          const x = cx + (sun.x - 11) * scale, y = cy + (sun.y - 11) * scale;
           ctx.fillStyle = '#f97316';
-          ctx.shadowColor = '#f97316'; ctx.shadowBlur = 35;
+          ctx.shadowColor = '#f97316';
+          ctx.shadowBlur = 22;
+          ctx.beginPath();
+          ctx.arc(x, y, scale * 3, 0, Math.PI * 2);
           ctx.fill();
-          // 海浪
+          ctx.strokeStyle = '#f97316';
+          ctx.lineWidth = scale * 0.55;
+          for (let i = 0; i < 8; i++) {
+            const angle = i * Math.PI / 4;
+            ctx.beginPath();
+            ctx.moveTo(x + Math.cos(angle) * scale * 4.5, y + Math.sin(angle) * scale * 4.5);
+            ctx.lineTo(x + Math.cos(angle) * scale * 5.2, y + Math.sin(angle) * scale * 5.2);
+            ctx.stroke();
+          }
+          ctx.shadowBlur = 0;
           ctx.fillStyle = '#0284c7';
-          ctx.fillRect(cx - 200, cy + 40, 400, 160);
+          ctx.fillRect(cx - 220, cy + 3 * scale, 440, 220);
           break;
         }
 
@@ -6169,6 +6742,8 @@
               }
               // 浮云需要完整 80 帧行程，旧缓存的 24 帧不能覆盖新版时长。
               if (item.id === 'CLOUDY' && !item.customFrames) item.frames = def.frames;
+              if (item.id === 'DAWN' && !item.customFrames) item.frames = def.frames;
+              if (item.id === 'WAVE' && !item.customFrames) { item.frames = def.frames; item.fps = def.fps; }
               if (def.isAvatar && !item.customFrames) {
                 loaded.push({ ...def, ...item, eyes: def.eyes, gaze: def.gaze });
               } else {
