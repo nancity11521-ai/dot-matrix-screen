@@ -1124,7 +1124,7 @@
       </div>
       <div class="brand-title">
         <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs · 23×23</span></h1>
-        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (87 款动画)</p>
+        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (89 款动画)</p>
       </div>
     </div>
     <div class="top-actions">
@@ -2198,6 +2198,19 @@
       }
 
       text5x8(mm, 13);
+      break;
+    }
+    case 'AIRPLANE_MODE': {
+      const travel = frame % 48;
+      const dx = travel < 12 ? Math.round(-18 * (1 - travel / 12)) : travel > 35 ? Math.round((travel - 35) / 12 * 22) : 0;
+      mask('0000001000000/0000001000000/0000011100000/0000011100000/0000111110000/0011111111100/1111111111111/0000011100000/0000011100000/0000011100000/0000111110000/0001111111000', 5 + dx, 5);
+      break;
+    }
+    case 'POWER_SAVER': {
+      box(3, 7, 16, 10); line(19,10,19,13);
+      box(5, 9, 3, 6, true);
+      mask('0000011/0001111/0011111/0111110/1111100/1111000/1110000', 10, 8);
+      line(10,16,15,11,false);
       break;
     }
     case 'INCOMING_CALL': {
@@ -3695,6 +3708,8 @@
       { num: '#85', no: 'SYS-12', id: 'INCOMING_CALL', name: '来电提醒', cat: 'system', subcat: 'alerts', icon: '📞', frames: 36 },
       { num: '#86', no: 'SYS-13', id: 'INCOMING_SMS', name: '短信提醒', cat: 'system', subcat: 'alerts', icon: '💬', frames: 36 },
       { num: '#87', no: 'SYS-14', id: 'RINGER_MODE', name: '静音与铃声', cat: 'system', subcat: 'alerts', icon: '🔔', frames: 48 },
+      { num: '#88', no: 'SYS-15', id: 'AIRPLANE_MODE', name: '飞行模式', cat: 'system', subcat: 'sensor', icon: '✈️', frames: 48 },
+      { num: '#89', no: 'SYS-16', id: 'POWER_SAVER', name: '省电模式', cat: 'system', subcat: 'hardware', icon: '🍃', frames: 48 },
 
       /* --- 活动 / 运动健康 --- */
       { num: '#48', no: 'ACT-01', id: 'RUNNER', name: '动感奔跑者', cat: 'activity', subcat: 'fitness', icon: '🏃', frames: 12 },
@@ -4695,7 +4710,8 @@
         const curF = Math.floor(state.time) % totalF;
         const options = refinedOptions();
         const gridSet = refinedFrame(anim.id, curF, options);
-        const pulse = anim.id === 'WAVE' && options.musicStyle === 'beatRing' ? beatRingBrightness(curF, options) : 1;
+        const pulse = anim.id === 'POWER_SAVER' ? 0.55 + 0.18 * Math.sin(curF / 48 * Math.PI * 2)
+          : anim.id === 'WAVE' && options.musicStyle === 'beatRing' ? beatRingBrightness(curF, options) : 1;
         const flowers = anim.id === 'WAVE' ? (options.musicStyle === 'flowers' ? flowerPixels(curF, options)
           : options.musicStyle === 'ripples' ? ripplePixels(curF, options) : null) : null;
         PHYSICAL_POINTS.forEach((pt, idx) => {
@@ -5127,6 +5143,20 @@
           break;
         }
 
+        case 'AIRPLANE_MODE': {
+          const travel=curF%48;
+          const dx=travel<12?-360*(1-travel/12):travel>35?(travel-35)/12*440:0;
+          ctx.save();ctx.translate(cx+dx,cy);ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=15;
+          ctx.beginPath();ctx.moveTo(0,-112);ctx.quadraticCurveTo(14,-110,14,-84);ctx.lineTo(14,-20);ctx.lineTo(112,36);ctx.lineTo(112,56);ctx.lineTo(14,25);ctx.lineTo(14,76);ctx.lineTo(45,97);ctx.lineTo(45,112);ctx.lineTo(0,99);ctx.lineTo(-45,112);ctx.lineTo(-45,97);ctx.lineTo(-14,76);ctx.lineTo(-14,25);ctx.lineTo(-112,56);ctx.lineTo(-112,36);ctx.lineTo(-14,-20);ctx.lineTo(-14,-84);ctx.quadraticCurveTo(-14,-110,0,-112);ctx.fill();ctx.restore();break;
+        }
+        case 'POWER_SAVER': {
+          ctx.save();ctx.globalAlpha=0.55+0.18*Math.sin(curF/48*Math.PI*2);ctx.translate(cx,cy);
+          ctx.strokeStyle=col;ctx.lineWidth=8;ctx.beginPath();ctx.roundRect(-146,-72,270,144,17);ctx.stroke();
+          ctx.fillStyle=col;ctx.fillRect(132,-27,14,54);ctx.fillRect(-123,-48,44,96);
+          ctx.fillStyle='#a3e635';ctx.shadowColor='#a3e635';ctx.shadowBlur=14;
+          ctx.beginPath();ctx.moveTo(-24,50);ctx.bezierCurveTo(-62,-13,2,-65,86,-55);ctx.bezierCurveTo(86,27,35,64,-24,50);ctx.fill();
+          ctx.strokeStyle='#203514';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-35,63);ctx.quadraticCurveTo(3,20,58,-28);ctx.stroke();ctx.restore();break;
+        }
         case 'INCOMING_CALL': {
           const shake = curF % 18 < 10 ? Math.sin(Math.floor(curF / 2) * Math.PI / 2) * 0.1 : 0;
           ctx.save(); ctx.translate(cx,cy); ctx.rotate(shake);
@@ -6885,7 +6915,7 @@
               loaded.push(item);
             }
           }
-          for (const id of ['INCOMING_CALL','INCOMING_SMS','RINGER_MODE']) {
+          for (const id of ['INCOMING_CALL','INCOMING_SMS','RINGER_MODE','AIRPLANE_MODE','POWER_SAVER']) {
             if (!loaded.some(a => a.id === id) && !data.animations.some(a => a.no === DEFAULT_ANIMATIONS.find(d => d.id === id).no)) loaded.push({ ...DEFAULT_ANIMATIONS.find(d => d.id === id) });
           }
           ALL_ANIMATIONS = loaded.length > 0 ? loaded : DEFAULT_ANIMATIONS.map(a => ({ ...a }));
