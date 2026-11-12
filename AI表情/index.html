@@ -3764,6 +3764,7 @@
 
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+    const EMPTY_ANIMATION = { id: 'EMPTY', name: '暂无动画', cat: 'emotion', frames: 1 };
     const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V7';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
@@ -4050,7 +4051,7 @@
       loadAnimationsFromStorage();
       loadPendingStorage();
       if (!ALL_ANIMATIONS.some(a => a.id === state.currentAnim.id)) {
-        state.currentAnim = ALL_ANIMATIONS[0] || DEFAULT_ANIMATIONS[0];
+        state.currentAnim = ALL_ANIMATIONS[0] || EMPTY_ANIMATION;
       }
       renderSubcatPills();
       renderAnimationsList();
@@ -6881,7 +6882,7 @@
           return;
         }
         const data = JSON.parse(raw);
-        if (data && Array.isArray(data.animations) && data.animations.length > 0) {
+        if (data && Array.isArray(data.animations)) {
           const loaded = [];
           for (const item of data.animations) {
             // 彻底过滤已下线的全部游戏分类动画
@@ -6912,10 +6913,8 @@
               loaded.push(item);
             }
           }
-          for (const id of ['INCOMING_CALL','INCOMING_SMS','RINGER_MODE','AIRPLANE_MODE','POWER_SAVER']) {
-            if (!loaded.some(a => a.id === id) && !data.animations.some(a => a.no === DEFAULT_ANIMATIONS.find(d => d.id === id).no)) loaded.push({ ...DEFAULT_ANIMATIONS.find(d => d.id === id) });
-          }
-          ALL_ANIMATIONS = loaded.length > 0 ? loaded : DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+          // 已保存清单是用户的有效清单；缺少的内置动画表示已删除，不自动补回。
+          ALL_ANIMATIONS = loaded;
         } else {
           ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
         }
@@ -6924,6 +6923,13 @@
         ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
       }
     }
+
+    // 同一网站、同一浏览器的其他标签页同步动画增删。
+    window.addEventListener('storage', event => {
+      if (event.key !== STORAGE_KEY_ANIMATIONS) return;
+      initUI();
+      selectAnimation(state.currentAnim);
+    });
 
     function saveAnimationsToStorage() {
       try {
@@ -7663,12 +7669,8 @@
           saveAnimationsToStorage();
           closeAnimationEditor();
 
-          if (ALL_ANIMATIONS.length === 0) {
-            ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
-          }
-
           if (state.currentAnim.id === animId) {
-            state.currentAnim = ALL_ANIMATIONS[Math.min(idx, ALL_ANIMATIONS.length - 1)];
+            state.currentAnim = ALL_ANIMATIONS[Math.min(idx, ALL_ANIMATIONS.length - 1)] || EMPTY_ANIMATION;
           }
 
           initUI();
