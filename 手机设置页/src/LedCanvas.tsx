@@ -13,7 +13,7 @@ export function LedCanvas({id,size=140,brightness=80,enabled=true,blink=true,sec
    const ratio=2;canvas.width=size*ratio;canvas.height=size*ratio;ctx.scale(ratio,ratio);
    const group=collections.find(c=>c.id===id);if(group&&Date.now()>nextChange){const options=group.members.filter(x=>x!==previous);current=options[Math.floor(Math.random()*options.length)];previous=current;nextChange=Date.now()+3000;}
    const custom=customs.find(c=>c.id===current);const anim=animations.find(a=>a.id===current);const now=new Date();
-   const index=Math.floor((Date.now()-started)/1000*(custom?.fps||12)*speed);
+   const index=Math.floor((Date.now()-started)/1000*(custom?.fps||12)*speed*(current==='SUNNY'?1/3:1));
    let lit=pixels||custom?.pixels[index%custom.pixels.length]||anim?.pixels[index%(anim?.pixels.length||1)]||[];
    if(current==='CLOCK'&&!pixels)lit=clockPixels(now,blink);if(current==='SAND'&&!pixels)lit=timerPixels(seconds,now);if(current==='PENCIL')lit=pencil;
    if(current==='COMPASS'&&bearing!==undefined)lit=compassFrames[Math.round(bearing)%360];
