@@ -1124,7 +1124,7 @@
       </div>
       <div class="brand-title">
         <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs · 23×23</span></h1>
-        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (89 款动画)</p>
+        <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (90 款动画)</p>
       </div>
     </div>
     <div class="top-actions">
@@ -1274,6 +1274,12 @@
         <select class="form-select" id="ringerMode" style="width:100%;margin-top:8px" onchange="setRingerPreview(this.value)">
           <option value="auto">自动演示切换</option><option value="silent">静音</option><option value="ring">铃声</option>
         </select>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">⏱ SYS-17 数字倒计时</div>
+        <label for="countdownMinutes" style="font-size:12px">倒计时分钟</label>
+        <input id="countdownMinutes" type="number" class="form-input" min="1" max="99" value="5" onchange="setCountdownMinutes(this.value)" style="width:100%;margin-top:8px">
       </div>
 
       <div class="panel-section" id="manualAnimationSection">
@@ -1579,6 +1585,20 @@
     /* 硬件模拟动态参数 */
     let batteryLevel = 20, volumeLevel = 50, temperatureLevel = 37, compassBearing = 45, selectedDate = '2026-07-01';
 
+    let countdownMinutes = 5;
+    function setCountdownMinutes(value) {
+      countdownMinutes = Math.max(1, Math.min(99, Math.round(Number(value) || 5)));
+      document.getElementById('countdownMinutes').value = countdownMinutes;
+      const anim = ALL_ANIMATIONS.find(a => a.id === 'SAND');
+      if (anim && !anim.customFrames) anim.frames = (countdownMinutes * 60 + 1) * 12;
+      if (state.currentAnim.id === 'SAND') state.time = 0;
+    }
+    function countdownDisplay(frame, opt = {}) {
+      const total = opt.countdownSeconds ?? 300;
+      const remaining = Math.max(0, total - Math.floor(frame / 12));
+      return { minutes: String(Math.floor(remaining / 60)).padStart(2, '0'),
+        seconds: String(remaining % 60).padStart(2, '0'), blink: frame % 12 < 6 };
+    }
     let volumeDemo = true;
     let ringerMode = 'auto';
     function setRingerPreview(mode) {
@@ -2057,6 +2077,7 @@
       const musicLevels = rhythmLevels();
       return {
         date: selectedDate,
+        countdownSeconds: countdownMinutes * 60,
         ringerMode,
         musicLevels,
         voiceLevels: musicLevels ? liveVoiceMotion(musicLevels) : null,
@@ -3046,7 +3067,19 @@
       }
       break;
     }
-    case 'FOCUS': case 'SAND': {
+    case 'SAND': {
+      const timer = countdownDisplay(frame, opt);
+      const glyph = ['111/101/101/101/101/101/111','010/110/010/010/010/010/111',
+        '111/001/001/111/100/100/111','111/001/001/111/001/001/111',
+        '101/101/101/111/001/001/001','111/100/100/111/001/001/111',
+        '111/100/100/111/101/101/111','111/001/001/010/010/010/010',
+        '111/101/101/111/101/101/111','111/101/101/111/001/001/111'];
+      [...timer.minutes].forEach((c,i)=>mask(glyph[+c],3+i*4,8));
+      [...timer.seconds].forEach((c,i)=>mask(glyph[+c],13+i*4,8));
+      if (timer.blink) [10,12].forEach(y=>put(11,y));
+      break;
+    }
+    case 'FOCUS': {
       // Precise symmetrical hourglass
       line(4, 3, 18, 3); line(4, 19, 18, 19);
       line(4, 4, 10, 11); line(18, 4, 12, 11);
@@ -3120,6 +3153,18 @@
       circle(11, 13, 3);
       put(17, 10); // Red dot / flash
       if(t % 18 > 12) circle(11, 13, 4, true); // Flash firing
+      break;
+    }
+    case 'SYSTEM_NOTICE': {
+      const lift = frame % 24 >= 12 && frame % 24 < 18 ? -1 : 0;
+      box(3, 7 + lift, 17, 10);
+      line(3, 7 + lift, 11, 13 + lift);
+      line(19, 7 + lift, 11, 13 + lift);
+      line(3, 16 + lift, 8, 12 + lift);
+      line(19, 16 + lift, 14, 12 + lift);
+      if (frame % 24 >= 6 && frame % 24 < 18) {
+        line(3, 7 + lift, 11, 3 + lift); line(11, 3 + lift, 19, 7 + lift);
+      }
       break;
     }
     case 'MAIL': case 'NOTIFY': {
@@ -3708,6 +3753,9 @@
       { num: '#88', no: 'SYS-15', id: 'AIRPLANE_MODE', name: '飞行模式', cat: 'system', subcat: 'sensor', icon: '✈️', frames: 48 },
       { num: '#89', no: 'SYS-16', id: 'POWER_SAVER', name: '省电模式', cat: 'system', subcat: 'hardware', icon: '🍃', frames: 48 },
 
+      { num: '#53', no: 'SYS-17', id: 'SAND', name: '数字倒计时', cat: 'system', subcat: 'time', icon: '⏱', frames: 3612, fps: 12 },
+      { num: '#90', no: 'SYS-18', id: 'SYSTEM_NOTICE', name: '通知动画', cat: 'system', subcat: 'alerts', icon: '✉️', frames: 24 },
+
       /* --- 活动 / 运动健康 --- */
       { num: '#48', no: 'ACT-01', id: 'RUNNER', name: '动感奔跑者', cat: 'activity', subcat: 'fitness', icon: '🏃', frames: 12 },
       { num: '#49', no: 'ACT-02', id: 'STEPS', name: '万步达成', cat: 'activity', subcat: 'fitness', icon: '👟', frames: 24 },
@@ -3716,7 +3764,6 @@
 
       /* --- 活动 / 专注效率 --- */
       { num: '#52', no: 'ACT-05', id: 'FOCUS', name: '时砂专注', cat: 'activity', subcat: 'efficiency', icon: '⏳', frames: 20 },
-      { num: '#53', no: 'ACT-06', id: 'SAND', name: '沙漏倒计时', cat: 'activity', subcat: 'efficiency', icon: '⌛', frames: 24 },
       { num: '#54', no: 'ACT-07', id: 'PROGRESS', name: '三排进度条', cat: 'activity', subcat: 'efficiency', icon: '📊', frames: 24 },
       { num: '#55', no: 'ACT-08', id: 'SUCCESS', name: '完成确认', cat: 'activity', subcat: 'efficiency', icon: '✅', frames: 20 },
       { num: '#56', no: 'ACT-09', id: 'MAIL', name: '紧急提醒', cat: 'activity', subcat: 'efficiency', icon: '🔔', frames: 24 },
@@ -4049,6 +4096,8 @@
     /* UI 初始化与渲染 */
     function initUI() {
       loadAnimationsFromStorage();
+      const summary = document.querySelector('header p');
+      if (summary) summary.textContent = `全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (${ALL_ANIMATIONS.length} 款动画)`;
       loadPendingStorage();
       if (!ALL_ANIMATIONS.some(a => a.id === state.currentAnim.id)) {
         state.currentAnim = ALL_ANIMATIONS[0] || EMPTY_ANIMATION;
@@ -4691,7 +4740,7 @@
       } else if (anim.customFrames && anim.customFrames.length > 0) {
         // 用户自定义 / 逐帧涂抹编辑的点阵动画
         const totalF = anim.customFrames.length;
-        const curF = Math.floor(state.time) % totalF;
+        const curF = anim.id === 'SAND' ? Math.min(Math.floor(state.time), totalF - 1) : Math.floor(state.time) % totalF;
         const frameData = anim.customFrames[curF] || [];
         const frameSet = new Set(frameData);
 
@@ -4705,7 +4754,7 @@
       } else {
         // 栅格动画直接使用 23×23 精准绘制
         const totalF = anim.frames || 24;
-        const curF = Math.floor(state.time) % totalF;
+        const curF = anim.id === 'SAND' ? Math.min(Math.floor(state.time), totalF - 1) : Math.floor(state.time) % totalF;
         const options = refinedOptions();
         const gridSet = refinedFrame(anim.id, curF, options);
         const pulse = anim.id === 'POWER_SAVER' ? 0.55 + 0.18 * Math.sin(curF / 48 * Math.PI * 2)
@@ -4802,7 +4851,7 @@
 
       const themeCol = state.color || '#ffd45e';
       const totalF = anim.frames || 24;
-      const curF = Math.floor(curTime) % totalF;
+      const curF = anim.id === 'SAND' ? Math.min(Math.floor(curTime), totalF - 1) : Math.floor(curTime) % totalF;
 
       if (customFrameSet) {
         // 自定义点阵逐帧：高保真超清矢量发光同步呈现
@@ -5509,8 +5558,7 @@
           break;
         }
 
-        case 'FOCUS':
-        case 'SAND': {
+        case 'FOCUS': {
           ctx.save();
           ctx.translate(cx, cy);
           // 沙漏外壳
@@ -5552,6 +5600,15 @@
           break;
         }
 
+        case 'SAND': {
+          const timer = countdownDisplay(curF, opt);
+          ctx.font = '500 104px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#ffffff'; ctx.shadowColor = col; ctx.shadowBlur = 15;
+          ctx.fillText(timer.minutes, cx - 89, cy); ctx.fillText(timer.seconds, cx + 89, cy);
+          if (timer.blink) { [-20, 20].forEach(dy => { ctx.beginPath(); ctx.arc(cx, cy + dy, 5, 0, Math.PI * 2); ctx.fill(); }); }
+          ctx.shadowBlur = 0; break;
+        }
+
         case 'PROGRESS': {
           const bars = [0.85, 0.60, 0.42];
           for (let i = 0; i < 3; i++) {
@@ -5586,6 +5643,18 @@
           ctx.moveTo(cx - 55, cy); ctx.lineTo(cx - 15, cy + 45); ctx.lineTo(cx + 60, cy - 40);
           ctx.stroke();
           break;
+        }
+
+        case 'SYSTEM_NOTICE': {
+          const lift = curF % 24 >= 12 && curF % 24 < 18 ? -12 : 0;
+          ctx.save(); ctx.translate(cx, cy + lift); ctx.strokeStyle = col;
+          ctx.shadowColor = col; ctx.shadowBlur = 16; ctx.lineWidth = 10;
+          ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+          ctx.strokeRect(-155, -70, 310, 180);
+          ctx.beginPath(); ctx.moveTo(-155, -70); ctx.lineTo(0, 40); ctx.lineTo(155, -70);
+          ctx.moveTo(-155, 110); ctx.lineTo(-55, 15); ctx.moveTo(155, 110); ctx.lineTo(55, 15); ctx.stroke();
+          if (curF % 24 >= 6 && curF % 24 < 18) { ctx.beginPath(); ctx.moveTo(-155, -70); ctx.lineTo(0, -155); ctx.lineTo(155, -70); ctx.stroke(); }
+          ctx.restore(); break;
         }
 
         case 'MAIL': {
@@ -6901,6 +6970,7 @@
               if (item.id === 'DAWN' && !item.customFrames) item.frames = def.frames;
               if (item.id === 'DOG' && !item.customFrames) item.frames = def.frames;
               if (item.id === 'CANDLE' && !item.customFrames) item.frames = def.frames;
+              if (item.id === 'SAND' && !item.customFrames) { item.name = def.name; item.icon = def.icon; item.frames = (countdownMinutes * 60 + 1) * 12; item.fps = def.fps; item.cat = def.cat; item.subcat = def.subcat; item.no = def.no; }
               if (item.id === 'MAIL' && !item.customFrames) { item.name = def.name; item.icon = def.icon; item.frames = def.frames; }
               if (item.id === 'WAVE' && !item.customFrames) { item.frames = def.frames; item.fps = def.fps; }
               if (def.isAvatar && !item.customFrames) {
@@ -6912,6 +6982,12 @@
               // 仅保留用户自主新建的自定义动画，杜绝旧版孤儿游戏动画混入
               loaded.push(item);
             }
+          }
+          // 只向旧缓存引入本次新增功能；已知动画的删除状态保持不变。
+          const known = data.knownBuiltinIds;
+          for (const def of DEFAULT_ANIMATIONS) {
+            const isNew = Array.isArray(known) ? !known.includes(def.id) : def.id === 'SYSTEM_NOTICE';
+            if (isNew && !loaded.some(a => a.id === def.id)) loaded.push({ ...def });
           }
           // 已保存清单是用户的有效清单；缺少的内置动画表示已删除，不自动补回。
           ALL_ANIMATIONS = loaded;
@@ -6943,6 +7019,7 @@
         });
         localStorage.setItem(STORAGE_KEY_ANIMATIONS, JSON.stringify({
           version: '2.5.0',
+          knownBuiltinIds: DEFAULT_ANIMATIONS.map(a => a.id),
           updatedAt: new Date().toISOString(),
           animations: serialized
         }));
@@ -7889,5 +7966,6 @@
     </div>
   </div>
 
+  <script src="global-sync.js"></script>
 </body>
 </html>
