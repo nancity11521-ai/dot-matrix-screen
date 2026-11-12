@@ -2129,6 +2129,32 @@
       return { x: -4 + 30 * progress, y: 18 - 28 * progress };
     }
 
+    function notificationArtwork(kind, frame) {
+      const phase = ((frame % 48) + 48) % 48;
+      const ease = value => value * value * (3 - 2 * value);
+      if (kind === 'INCOMING_CALL') {
+        const ringing = phase < 22;
+        const angle = ringing ? Math.sin(phase / 22 * Math.PI * 4) * 0.075 : 0;
+        const rotate = ([x, y]) => [11 + (x - 11) * Math.cos(angle) - (y - 11) * Math.sin(angle),
+          11 + (x - 11) * Math.sin(angle) + (y - 11) * Math.cos(angle)];
+        const handset = [[6,4],[8,4],[10,8],[8,10],[10,13],[13,15],[15,13],[19,15],[19,17],[17,19],[14,19],[10,17],[7,14],[5,10],[4,7],[4,5],[6,4]].map(rotate);
+        const paths = [handset];
+        if (ringing && phase % 11 >= 3) paths.push([[15,4],[17,5],[18,7]]);
+        if (ringing && phase % 11 >= 7) paths.push([[16,3],[19,5],[20,7]]);
+        return { paths, dots: [] };
+      }
+      if (kind === 'INCOMING_SMS') {
+        const outline = [[6,5],[16,5],[18,6],[19,8],[19,12],[18,14],[16,15],[9,15],[5,18],[5,15],[4,14],[3,12],[3,8],[4,6],[6,5]];
+        const count = phase < 6 ? 0 : phase < 12 ? 1 : phase < 18 ? 2 : 3;
+        return { paths: [outline], dots: [7,11,15].slice(0,count).map(x => [x,10]) };
+      }
+      const open = phase < 8 ? 0 : phase < 18 ? ease((phase - 8) / 10) : phase < 30 ? 1 : phase < 40 ? 1 - ease((phase - 30) / 10) : 0;
+      const lift = -open;
+      const outline = [[5,9],[17,9],[18,10],[18,16],[17,17],[5,17],[4,16],[4,10],[5,9]].map(([x,y])=>[x,y+lift]);
+      // 保持标准信封封口，只做轻微上浮与提示点呼吸，避免图标变形。
+      return { paths: [outline, [[4,10+lift],[11,14+lift],[18,10+lift]]], dots: phase >= 12 && phase < 28 ? [[18,5]] : [] };
+    }
+
     function refinedFrame(kind, frame, opt = {}) {
   const out = new Set(), rows = [5,9,13,15,17,19,19,21,21,23,23,23,23,23,21,21,19,19,17,15,13,9,5];
   const put = (x,y,on=true) => {
@@ -2231,16 +2257,10 @@
       line(10,16,15,11,false);
       break;
     }
-    case 'INCOMING_CALL': {
-      const shift = frame % 18 < 10 ? [0,1,0,-1][Math.floor(frame / 2) % 4] : 0;
-      mask('1110000000000/1111000000000/1111000000000/0111000000000/0110000000000/0110000000000/0011000000000/0011100000000/0001110000110/0000111101111/0000011111111/0000001111110/0000000111100', 5 + shift, 5);
-      if (frame % 18 < 10) { line(17,4,19,6); line(19,6,19,8); line(3,14,3,16); line(3,16,5,18); }
-      break;
-    }
-    case 'INCOMING_SMS': {
-      const lift = frame % 18 < 3 ? 1 : 0;
-      mask('000111111111000/011111111111110/111111111111111/111111111111111/111111111111111/111111111111111/111111111111111/011111111111110/001111111111100/001111110000000/011110000000000', 4, 6 - lift);
-      [8,11,14].forEach((x,i) => { if (Math.floor(frame / 4) % 4 >= i) put(x, 11 - lift, false); });
+    case 'INCOMING_CALL': case 'INCOMING_SMS': case 'SYSTEM_NOTICE': {
+      const artwork = notificationArtwork(kind, frame);
+      artwork.paths.forEach(path => { for (let i = 1; i < path.length; i++) line(...path[i - 1], ...path[i]); });
+      artwork.dots.forEach(([x,y]) => put(x,y));
       break;
     }
     case 'RINGER_MODE': {
@@ -3155,18 +3175,6 @@
       if(t % 18 > 12) circle(11, 13, 4, true); // Flash firing
       break;
     }
-    case 'SYSTEM_NOTICE': {
-      const lift = frame % 24 >= 12 && frame % 24 < 18 ? -1 : 0;
-      box(3, 7 + lift, 17, 10);
-      line(3, 7 + lift, 11, 13 + lift);
-      line(19, 7 + lift, 11, 13 + lift);
-      line(3, 16 + lift, 8, 12 + lift);
-      line(19, 16 + lift, 14, 12 + lift);
-      if (frame % 24 >= 6 && frame % 24 < 18) {
-        line(3, 7 + lift, 11, 3 + lift); line(11, 3 + lift, 19, 7 + lift);
-      }
-      break;
-    }
     case 'MAIL': case 'NOTIFY': {
       box(10, 4, 3, 9, true);
       box(10, 15, 3, 3, true);
@@ -3747,14 +3755,14 @@
       { num: '#47', no: 'SYS-11', id: 'ENERGY_RING', name: '能量环流', cat: 'system', subcat: 'sensor', icon: '⭕', frames: 24, isPending: true },
 
       /* --- 系统 / 来电与提醒 --- */
-      { num: '#85', no: 'SYS-12', id: 'INCOMING_CALL', name: '来电提醒', cat: 'system', subcat: 'alerts', icon: '📞', frames: 36 },
-      { num: '#86', no: 'SYS-13', id: 'INCOMING_SMS', name: '短信提醒', cat: 'system', subcat: 'alerts', icon: '💬', frames: 36 },
+      { num: '#85', no: 'SYS-12', id: 'INCOMING_CALL', name: '来电提醒', cat: 'system', subcat: 'alerts', icon: '📞', frames: 48 },
+      { num: '#86', no: 'SYS-13', id: 'INCOMING_SMS', name: '短信提醒', cat: 'system', subcat: 'alerts', icon: '💬', frames: 48 },
       { num: '#87', no: 'SYS-14', id: 'RINGER_MODE', name: '静音与铃声', cat: 'system', subcat: 'alerts', icon: '🔔', frames: 48 },
       { num: '#88', no: 'SYS-15', id: 'AIRPLANE_MODE', name: '飞行模式', cat: 'system', subcat: 'sensor', icon: '✈️', frames: 48 },
       { num: '#89', no: 'SYS-16', id: 'POWER_SAVER', name: '省电模式', cat: 'system', subcat: 'hardware', icon: '🍃', frames: 48 },
 
       { num: '#53', no: 'SYS-17', id: 'SAND', name: '数字倒计时', cat: 'system', subcat: 'time', icon: '⏱', frames: 3612, fps: 12 },
-      { num: '#90', no: 'SYS-18', id: 'SYSTEM_NOTICE', name: '通知动画', cat: 'system', subcat: 'alerts', icon: '✉️', frames: 24 },
+      { num: '#90', no: 'SYS-18', id: 'SYSTEM_NOTICE', name: '通知动画', cat: 'system', subcat: 'alerts', icon: '✉️', frames: 48 },
 
       /* --- 活动 / 运动健康 --- */
       { num: '#48', no: 'ACT-01', id: 'RUNNER', name: '动感奔跑者', cat: 'activity', subcat: 'fitness', icon: '🏃', frames: 12 },
@@ -5204,24 +5212,19 @@
           ctx.beginPath();ctx.moveTo(-24,50);ctx.bezierCurveTo(-62,-13,2,-65,86,-55);ctx.bezierCurveTo(86,27,35,64,-24,50);ctx.fill();
           ctx.strokeStyle='#203514';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-35,63);ctx.quadraticCurveTo(3,20,58,-28);ctx.stroke();ctx.restore();break;
         }
-        case 'INCOMING_CALL': {
-          const shake = curF % 18 < 10 ? Math.sin(Math.floor(curF / 2) * Math.PI / 2) * 0.1 : 0;
-          ctx.save(); ctx.translate(cx,cy); ctx.rotate(shake);
-          ctx.fillStyle='#34c759'; ctx.beginPath(); ctx.roundRect(-145,-145,290,290,64); ctx.fill();
-          ctx.strokeStyle='#fff'; ctx.lineWidth=43; ctx.lineCap='round';
-          ctx.beginPath(); ctx.moveTo(-67,-69); ctx.bezierCurveTo(-79,-4,4,79,69,67); ctx.stroke();
-          ctx.lineWidth=54; ctx.beginPath(); ctx.moveTo(-70,-78); ctx.lineTo(-57,-61); ctx.moveTo(61,57); ctx.lineTo(78,70); ctx.stroke();
+        case 'INCOMING_CALL': case 'INCOMING_SMS': case 'SYSTEM_NOTICE': {
+          const artwork = notificationArtwork(anim.id, curF);
+          const scale = (cx - 40) / 11;
+          ctx.save(); ctx.translate(cx, cy); ctx.scale(scale, scale); ctx.translate(-11,-11);
+          ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 0.7;
+          ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.shadowColor = col; ctx.shadowBlur = 0.6;
+          artwork.paths.forEach(path => {
+            ctx.beginPath(); path.forEach(([x,y],i) => { if(i) ctx.lineTo(x,y); else ctx.moveTo(x,y); }); ctx.stroke();
+          });
+          artwork.dots.forEach(([x,y]) => { ctx.beginPath(); ctx.arc(x,y,0.48,0,Math.PI*2); ctx.fill(); });
           ctx.restore(); break;
         }
-        case 'INCOMING_SMS': {
-          const lift = curF % 18 < 3 ? 8 : 0;
-          ctx.save(); ctx.translate(cx,cy-lift);
-          ctx.fillStyle='#34c759'; ctx.beginPath(); ctx.roundRect(-145,-145,290,290,64); ctx.fill();
-          ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(0,-7,104,78,0,0,Math.PI*2); ctx.fill();
-          ctx.beginPath(); ctx.moveTo(-69,37); ctx.lineTo(-85,91); ctx.lineTo(-22,59); ctx.closePath(); ctx.fill();
-          ctx.fillStyle='#34c759'; [-42,0,42].forEach((x,i)=>{if(Math.floor(curF/4)%4>=i){ctx.beginPath();ctx.arc(x,-7,8,0,Math.PI*2);ctx.fill();}});
-          ctx.restore(); break;
-        }
+
         case 'RINGER_MODE': {
           const silent=isSilentPreview(curF,opt);
           const angle=!silent&&curF%24<12?Math.sin(Math.floor(curF/2)*Math.PI/2)*0.13:0;
@@ -5643,18 +5646,6 @@
           ctx.moveTo(cx - 55, cy); ctx.lineTo(cx - 15, cy + 45); ctx.lineTo(cx + 60, cy - 40);
           ctx.stroke();
           break;
-        }
-
-        case 'SYSTEM_NOTICE': {
-          const lift = curF % 24 >= 12 && curF % 24 < 18 ? -12 : 0;
-          ctx.save(); ctx.translate(cx, cy + lift); ctx.strokeStyle = col;
-          ctx.shadowColor = col; ctx.shadowBlur = 16; ctx.lineWidth = 10;
-          ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-          ctx.strokeRect(-155, -70, 310, 180);
-          ctx.beginPath(); ctx.moveTo(-155, -70); ctx.lineTo(0, 40); ctx.lineTo(155, -70);
-          ctx.moveTo(-155, 110); ctx.lineTo(-55, 15); ctx.moveTo(155, 110); ctx.lineTo(55, 15); ctx.stroke();
-          if (curF % 24 >= 6 && curF % 24 < 18) { ctx.beginPath(); ctx.moveTo(-155, -70); ctx.lineTo(0, -155); ctx.lineTo(155, -70); ctx.stroke(); }
-          ctx.restore(); break;
         }
 
         case 'MAIL': {
@@ -6970,6 +6961,8 @@
               if (item.id === 'DAWN' && !item.customFrames) item.frames = def.frames;
               if (item.id === 'DOG' && !item.customFrames) item.frames = def.frames;
               if (item.id === 'CANDLE' && !item.customFrames) item.frames = def.frames;
+              if (item.id === 'SAND') { item.cat = def.cat; item.subcat = def.subcat; item.no = def.no; }
+              if (['SYSTEM_NOTICE','INCOMING_CALL','INCOMING_SMS'].includes(item.id) && !item.customFrames) item.frames = def.frames;
               if (item.id === 'SAND' && !item.customFrames) { item.name = def.name; item.icon = def.icon; item.frames = (countdownMinutes * 60 + 1) * 12; item.fps = def.fps; item.cat = def.cat; item.subcat = def.subcat; item.no = def.no; }
               if (item.id === 'MAIL' && !item.customFrames) { item.name = def.name; item.icon = def.icon; item.frames = def.frames; }
               if (item.id === 'WAVE' && !item.customFrames) { item.frames = def.frames; item.fps = def.fps; }
@@ -6986,11 +6979,15 @@
           // 只向旧缓存引入本次新增功能；已知动画的删除状态保持不变。
           const known = data.knownBuiltinIds;
           for (const def of DEFAULT_ANIMATIONS) {
-            const isNew = Array.isArray(known) ? !known.includes(def.id) : def.id === 'SYSTEM_NOTICE';
+            const isNew = (Array.isArray(known) ? !known.includes(def.id) : def.id === 'SYSTEM_NOTICE')
+              || (def.id === 'SAND' && data.systemCountdownVersion !== 1);
             if (isNew && !loaded.some(a => a.id === def.id)) loaded.push({ ...def });
           }
           // 已保存清单是用户的有效清单；缺少的内置动画表示已删除，不自动补回。
           ALL_ANIMATIONS = loaded;
+          if (data.systemCountdownVersion !== 1) {
+            localStorage.setItem(STORAGE_KEY_ANIMATIONS, JSON.stringify({ ...data, systemCountdownVersion: 1, animations: loaded }));
+          }
         } else {
           ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
         }
@@ -7020,6 +7017,7 @@
         localStorage.setItem(STORAGE_KEY_ANIMATIONS, JSON.stringify({
           version: '2.5.0',
           knownBuiltinIds: DEFAULT_ANIMATIONS.map(a => a.id),
+          systemCountdownVersion: 1,
           updatedAt: new Date().toISOString(),
           animations: serialized
         }));
