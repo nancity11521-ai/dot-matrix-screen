@@ -17,6 +17,8 @@ export function LedCanvas({id,size=140,brightness=80,enabled=true,blink=true,sec
    if(current==='CLOCK'&&!pixels)lit=clockPixels(now,blink);if(current==='SAND'&&!pixels)lit=timerPixels(seconds,now);if(current==='PENCIL')lit=pencil;
    if(current==='COMPASS'&&bearing!==undefined)lit=compassFrames[Math.round(bearing)%360];
    if((current==='WAVE'||current==='SPECTRUM')&&levels?.length){lit=[];levels.forEach((level,i)=>{for(let y=0;y<Math.round(level*13);y++)lit.push((17-y)*23+3+i*2)});}
+   if(current==='MUSIC_SCATTER'){const t=(Date.now()-started)/1000*speed;lit=[];for(let i=0;i<24;i++){const phase=(t*.48+i*.137)%1,angle=i*2.39996+t*.16,r=phase*11;const x=Math.round(11+Math.cos(angle)*r),y=Math.round(11+Math.sin(angle)*r+phase*phase*2);if(x>=0&&x<23&&y>=0&&y<23)lit.push(y*23+x)}}
+   if(current==='MUSIC_RIPPLE'){const t=(Date.now()-started)/1000*speed;lit=points.filter(p=>{const r=Math.hypot(p.x-11,p.y-11);return [0,1,2].some(i=>Math.abs(r-((t*3+i*4)%12))<.45)}).map(p=>p.y*23+p.x)}
    const on=new Set(enabled?lit:[]);const center=size/2,pitch=size*.78/23,cell=pitch*.66;
    ctx.clearRect(0,0,size,size);ctx.fillStyle='#06080a';ctx.beginPath();ctx.arc(center,center,center-1,0,Math.PI*2);ctx.fill();
    ctx.strokeStyle='#171c20';ctx.lineWidth=.6;ctx.stroke();
