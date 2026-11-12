@@ -30,7 +30,7 @@ function Home(){
  <Section><Group><Row label="便捷工具" disabled={!s.enabled} onClick={()=>flow.push(route('utilities','便捷工具',<Utilities/>))}/><Row label="全部灯效" disabled={!s.enabled} onClick={()=>flow.push(route('styles','全部灯效',<StyleHub/>))}/><Row label="我的动画" onClick={()=>flow.push(route('mine','我的动画',<MyAnimations/>))}/></Group></Section>
  <button className="about-link" onClick={()=>flow.push(route('about','关于此体验',<About/>))}><InfoCircledIcon/>关于此体验</button></Page>
 }
-function StyleHub(){const flow=useFlow();return <Page><p className="intro">点击样式即可选中，再次点击取消选中。</p><Group>{categories.map(c=><Row key={c.id} label={c.name} description={c.id==='emotion'?'3 个表情集合 · 每个约 6 款动画':c.id==='custom'?'绘制属于自己的点阵动画':undefined} onClick={()=>goCategory(flow,c.id)}/>)}</Group></Page>}
+function StyleHub(){const flow=useFlow();return <Page><p className="intro">点击样式即可选中，再次点击取消选中。</p><Group>{categories.map(c=><Row key={c.id} label={c.name} description={c.id==='custom'?'绘制属于自己的点阵动画':undefined} onClick={()=>goCategory(flow,c.id)}/>)}</Group></Page>}
 const systemIds=['CLOCK','DATE','WEEKDAY','BATTERY','SAND','SYSTEM_NOTICE'];
 function Library({category,pick}:{category:string;pick?:(id:string)=>void}){
  const {s,set}=useApp(),flow=useFlow();const [query,setQuery]=useState('');
