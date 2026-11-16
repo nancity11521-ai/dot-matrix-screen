@@ -3819,11 +3819,35 @@
       break;
     }
     case 'BIG_FOCUS': {
-      // #97 · EMO-43 大眼 · 聚精凝神 (眼皮半阖聚焦 + 瞳孔内聚微聚焦)
-      const f = t % 24;
-      const lid = 2 + (f % 8 < 4 ? 1 : 0);
-      drawBigEye(false, 1, 0, lid, lid);
-      drawBigEye(true, -1, 0, lid, lid);
+      // #97 · EMO-43 大眼 · 专注凝视 (平稳对视聚焦 + 上眼睑沉着平压微阖 + 聚精深思微收与微光星芒 + 清脆瞬眨)
+      const f = t % 32;
+      let lidTop = 2;
+      let lidBot = 0;
+      let isPeakFocus = false;
+
+      if (f >= 26 && f <= 29) {
+        // 清脆利落的瞬眨 (第 26~29 帧快速闭合回弹，自然生理微眨)
+        lidTop = [4, 7, 7, 4][f - 26];
+        lidBot = [2, 4, 4, 1][f - 26];
+      } else if (f >= 12 && f <= 21) {
+        // 聚精凝视微缩聚焦 (上眼睑压低至行2，下眼睑微收1格，眼神更显深邃专注)
+        lidTop = 2;
+        lidBot = 1;
+        isPeakFocus = true;
+      } else {
+        // 稳态专注对焦
+        lidTop = 2;
+        lidBot = 0;
+      }
+
+      drawBigEye(false, 0, 0, lidTop, lidBot, 'normal');
+      drawBigEye(true, 0, 0, lidTop, lidBot, 'normal');
+
+      // 聚精峰值期追加瞳孔对焦第二微光星芒 (右下方 (c=3, r=6) -> 对应 393 坐标 (x+3, y+6))
+      if (isPeakFocus && (lidTop <= 6) && (6 < 11 - lidBot)) {
+        put(2 + 3, 6 + 6, true);
+        put(13 + 3, 6 + 6, true);
+      }
       break;
     }
     case 'BIG_SURPRISE': {
@@ -4708,7 +4732,7 @@
       { num: '#94', no: 'EMO-40', id: 'BIG_CURIOUS', name: '大眼 · 环顾探索', cat: 'emotion', subcat: 'big_eyes', icon: '🔍', frames: 48 },
       { num: '#95', no: 'EMO-41', id: 'BIG_HAPPY', name: '大眼 · 弯月微笑', cat: 'emotion', subcat: 'big_eyes', icon: '😊', frames: 24 },
       { num: '#96', no: 'EMO-42', id: 'BIG_WINK', name: '大眼 · 俏皮单眨', cat: 'emotion', subcat: 'big_eyes', icon: '😉', frames: 28 },
-      { num: '#97', no: 'EMO-43', id: 'BIG_FOCUS', name: '大眼 · 专注凝视', cat: 'emotion', subcat: 'big_eyes', icon: '🧐', frames: 24 },
+      { num: '#97', no: 'EMO-43', id: 'BIG_FOCUS', name: '大眼 · 专注凝视', cat: 'emotion', subcat: 'big_eyes', icon: '🧐', frames: 32 },
       { num: '#98', no: 'EMO-44', id: 'BIG_SURPRISE', name: '大眼 · 惊讶瞪大', cat: 'emotion', subcat: 'big_eyes', icon: '😲', frames: 24 },
       { num: '#99', no: 'EMO-45', id: 'BIG_SLEEPY', name: '大眼 · 困倦打盹', cat: 'emotion', subcat: 'big_eyes', icon: '🥱', frames: 48 },
       { num: '#100', no: 'EMO-46', id: 'BIG_SAD', name: '大眼 · 委屈难过', cat: 'emotion', subcat: 'big_eyes', icon: '🥺', frames: 32 },
@@ -4833,7 +4857,7 @@
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
     const EMPTY_ANIMATION = { id: 'EMPTY', name: '暂无动画', cat: 'emotion', frames: 1 };
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V16';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V17';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 官方线上基准待修改动画清单 (内置代码库，保障全网部署、移动端无缓存与初次加载 100% 永久在线可见) */
@@ -6957,7 +6981,22 @@
         leftWink = (f >= 6 && f <= 20);
         pdx = leftWink ? 0.8 : 0;
       } else if (id === 'BIG_FOCUS') {
-        lidTop = lidBot = 0.32;
+        const f = curF % 32;
+        pdx = 0;
+        pdy = 0;
+        if (f >= 26 && f <= 29) {
+          // 清脆利落的瞬眨 (与 393 点阵同频)
+          lidTop = [0.45, 0.95, 0.95, 0.45][f - 26];
+          lidBot = [0.2, 0.5, 0.5, 0.15][f - 26];
+        } else if (f >= 12 && f <= 21) {
+          // 聚精会神微收缩 (呼吸深思，上眼睑微沉至 24%，下眼睑微提 8%)
+          lidTop = 0.24;
+          lidBot = 0.08;
+        } else {
+          // 稳态专注 (上眼睑 20%，下眼睑舒展 2%)
+          lidTop = 0.20;
+          lidBot = 0.02;
+        }
       } else if (id === 'BIG_SURPRISE') {
         const f = curF % 24;
         if (f >= 4 && f <= 18) style = 'surprise';
@@ -7134,6 +7173,13 @@
         ctx.beginPath();
         ctx.arc(gx, gy, 7.5, 0, Math.PI * 2);
         ctx.fill();
+
+        // 专注凝视高峰期第二微光星芒 (与 393 点阵晶莹星芒同频)
+        if (id === 'BIG_FOCUS' && (curF % 32 >= 12 && curF % 32 <= 21)) {
+          ctx.beginPath();
+          ctx.arc(pupilCx + pw * 0.18, pupilCy + ph * 0.18, 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         ctx.restore();
       };
