@@ -653,6 +653,42 @@
       font-size: 9px;
       color: var(--muted);
     }
+    /* 传音 Infinix Note 60 Pro 专属视觉标签与按钮样式 */
+    .main-tab-btn[data-cat="infinix"] {
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 7px;
+    }
+    .main-tab-btn[data-cat="infinix"].active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border-color: #10b981;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+    }
+    .infinix-tag {
+      background: rgba(16, 185, 129, 0.14) !important;
+      color: #10b981 !important;
+      border: 1px solid rgba(16, 185, 129, 0.3) !important;
+      font-weight: 500;
+    }
+    .priority-badge {
+      display: inline-block;
+      font-size: 8.5px;
+      font-weight: 700;
+      padding: 0.5px 4px;
+      border-radius: 3px;
+      margin-left: 3px;
+      vertical-align: middle;
+      line-height: 1.2;
+    }
+    .priority-p0 { background: #ef4444; color: #fff; }
+    .priority-p1 { background: #f97316; color: #fff; }
+    .priority-p2 { background: #eab308; color: #000; }
+    .priority-p3 { background: #3b82f6; color: #fff; }
+    .priority-p4 { background: #10b981; color: #fff; }
+    .priority-p5 { background: #8b5cf6; color: #fff; }
+    .priority-p6 { background: #64748b; color: #fff; }
+
     .anim-tag {
       font-size: 8px;
       padding: 1px 5px;
@@ -1437,6 +1473,7 @@
         <button class="main-tab-btn" data-cat="activity" onclick="selectMainCategory('activity')">🏃 活动</button>
         <button class="main-tab-btn" data-cat="life" onclick="selectMainCategory('life')">☕ 生活</button>
         <button class="main-tab-btn" data-cat="ambience" onclick="selectMainCategory('ambience')">✨ 氛围</button>
+        <button class="main-tab-btn" data-cat="infinix" onclick="selectMainCategory('infinix')">📱 传音 Infinix</button>
         <button class="main-tab-btn" data-cat="pending" id="mainTabPendingBtn" onclick="selectMainCategory('pending')" style="color:#f59e0b">🚩 待修改 <span class="pending-count-badge" id="pendingCountBadge">0</span></button>
         <button class="main-tab-btn" data-cat="export" onclick="selectMainCategory('export')">💾 导出</button>
       </div>
@@ -1457,6 +1494,18 @@
           <button class="btn" style="padding:2px 7px;font-size:10px;border-color:rgba(245,158,11,0.4)" onclick="copyPendingCodeConfig()" title="复制可提交到代码的待改清单数组">📋 导出配置</button>
           <button class="btn" style="padding:2px 7px;font-size:10px" onclick="resetPendingToDefaults()" title="恢复线上默认待修改项">🔄 恢复线上默认</button>
           <button class="btn" style="padding:2px 7px;font-size:10px;color:var(--dim)" onclick="clearAllPending()" title="清空全部待修改标记">🗑️ 清空</button>
+        </div>
+      </div>
+
+      <!-- 传音 Infinix Note 60 Pro 专属系列专属提示栏 -->
+      <div id="infinixInfoBar" style="display:none;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;margin-bottom:8px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:10px;font-size:11px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:6px;color:#10b981;font-weight:600">
+          <span>📱 传音 Infinix Note 60 Pro (5G) 官方定制体系</span>
+          <span style="font-size:10px;color:var(--text);font-weight:normal">(GR1003 · 393白光圆屏 · 严格对齐 P0~P6 硬件显示调度)</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <a href="docs.html" target="_blank" class="btn" style="padding:2px 8px;font-size:10px;text-decoration:none;border-color:rgba(16,185,129,0.4);color:#10b981">📖 需求文档</a>
+          <a href="https://nancity11521-ai.github.io/dot-matrix-light-effects/" target="_blank" class="btn" style="padding:2px 8px;font-size:10px;text-decoration:none;border-color:rgba(16,185,129,0.4);color:#10b981">📱 手机设置页原型</a>
         </div>
       </div>
 
@@ -3958,6 +4007,20 @@
           { id: 'festive', name: '节日庆典' },
           { id: 'visual', name: '空间视效' }
         ]
+      },
+      {
+        id: 'infinix',
+        name: '传音 Infinix Note 60 Pro (5G)',
+        icon: '📱',
+        subcats: [
+          { id: 'all', name: '全部 (Infinix全景)' },
+          { id: 'tools', name: '01 便捷工具 (5)' },
+          { id: 'scene', name: '02 场景提醒 P0-P3 (5)' },
+          { id: 'music', name: '03 音乐律动 P5 (2)' },
+          { id: 'status', name: '04 系统状态 P3 (5)' },
+          { id: 'default', name: '05 默认样式 P6 (6)' },
+          { id: 'eyes', name: '06 灵动大眼套件 (16)' }
+        ]
       }
     ];
 
@@ -4006,49 +4069,49 @@
       { num: '#36', no: 'EMO-36', id: 'HEARTBEAT', name: '心跳回响', cat: 'emotion', subcat: 'faces', icon: '💓', frames: 16 },
 
       /* --- 表情 / 灵动萌瞳大眼系列 (16款，按实拍大眼高光胶囊造型，动作参考经典表情) --- */
-      { num: '#91', no: 'EMO-37', id: 'BIG_NEUTRAL', name: '大眼 · 平常萌视', cat: 'emotion', subcat: 'big_eyes', icon: '👀', frames: 32 },
-      { num: '#92', no: 'EMO-38', id: 'BIG_LOOK_LEFT', name: '大眼 · 灵眸望左', cat: 'emotion', subcat: 'big_eyes', icon: '👈', frames: 32 },
-      { num: '#93', no: 'EMO-39', id: 'BIG_LOOK_RIGHT', name: '大眼 · 灵眸望右', cat: 'emotion', subcat: 'big_eyes', icon: '👉', frames: 32 },
-      { num: '#94', no: 'EMO-40', id: 'BIG_CURIOUS', name: '大眼 · 环顾探索', cat: 'emotion', subcat: 'big_eyes', icon: '🔍', frames: 48 },
-      { num: '#95', no: 'EMO-41', id: 'BIG_HAPPY', name: '大眼 · 弯月微笑', cat: 'emotion', subcat: 'big_eyes', icon: '😊', frames: 24 },
-      { num: '#96', no: 'EMO-42', id: 'BIG_WINK', name: '大眼 · 俏皮单眨', cat: 'emotion', subcat: 'big_eyes', icon: '😉', frames: 28 },
-      { num: '#97', no: 'EMO-43', id: 'BIG_FOCUS', name: '大眼 · 专注凝视', cat: 'emotion', subcat: 'big_eyes', icon: '🧐', frames: 24 },
-      { num: '#98', no: 'EMO-44', id: 'BIG_SURPRISE', name: '大眼 · 惊讶瞪大', cat: 'emotion', subcat: 'big_eyes', icon: '😲', frames: 24 },
-      { num: '#99', no: 'EMO-45', id: 'BIG_SLEEPY', name: '大眼 · 困倦打盹', cat: 'emotion', subcat: 'big_eyes', icon: '🥱', frames: 48 },
-      { num: '#100', no: 'EMO-46', id: 'BIG_SAD', name: '大眼 · 委屈难过', cat: 'emotion', subcat: 'big_eyes', icon: '🥺', frames: 32 },
-      { num: '#101', no: 'EMO-47', id: 'BIG_ANGRY', name: '大眼 · 严肃生气', cat: 'emotion', subcat: 'big_eyes', icon: '😠', frames: 24 },
-      { num: '#102', no: 'EMO-48', id: 'BIG_SMUG', name: '大眼 · 得意傲娇', cat: 'emotion', subcat: 'big_eyes', icon: '😏', frames: 28 },
-      { num: '#103', no: 'EMO-49', id: 'BIG_DIZZY', name: '大眼 · 晕眩转圈', cat: 'emotion', subcat: 'big_eyes', icon: '😵', frames: 24 },
-      { num: '#104', no: 'EMO-50', id: 'BIG_ALERT', name: '大眼 · 警觉探寻', cat: 'emotion', subcat: 'big_eyes', icon: '🚨', frames: 24 },
-      { num: '#105', no: 'EMO-51', id: 'BIG_HEART', name: '大眼 · 满眼爱意', cat: 'emotion', subcat: 'big_eyes', icon: '😍', frames: 24 },
-      { num: '#106', no: 'EMO-52', id: 'BIG_SLEEP', name: '大眼 · 安然睡眠', cat: 'emotion', subcat: 'big_eyes', icon: '💤', frames: 32 },
+      { num: '#91', no: 'EMO-37', id: 'BIG_NEUTRAL', name: '大眼 · 平常萌视', cat: 'emotion', subcat: 'big_eyes', icon: '👀', frames: 32, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#92', no: 'EMO-38', id: 'BIG_LOOK_LEFT', name: '大眼 · 灵眸望左', cat: 'emotion', subcat: 'big_eyes', icon: '👈', frames: 32, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#93', no: 'EMO-39', id: 'BIG_LOOK_RIGHT', name: '大眼 · 灵眸望右', cat: 'emotion', subcat: 'big_eyes', icon: '👉', frames: 32, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#94', no: 'EMO-40', id: 'BIG_CURIOUS', name: '大眼 · 环顾探索', cat: 'emotion', subcat: 'big_eyes', icon: '🔍', frames: 48, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#95', no: 'EMO-41', id: 'BIG_HAPPY', name: '大眼 · 弯月微笑', cat: 'emotion', subcat: 'big_eyes', icon: '😊', frames: 24, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#96', no: 'EMO-42', id: 'BIG_WINK', name: '大眼 · 俏皮单眨', cat: 'emotion', subcat: 'big_eyes', icon: '😉', frames: 28, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#97', no: 'EMO-43', id: 'BIG_FOCUS', name: '大眼 · 专注凝视', cat: 'emotion', subcat: 'big_eyes', icon: '🧐', frames: 24, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#98', no: 'EMO-44', id: 'BIG_SURPRISE', name: '大眼 · 惊讶瞪大', cat: 'emotion', subcat: 'big_eyes', icon: '😲', frames: 24, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#99', no: 'EMO-45', id: 'BIG_SLEEPY', name: '大眼 · 困倦打盹', cat: 'emotion', subcat: 'big_eyes', icon: '🥱', frames: 48, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#100', no: 'EMO-46', id: 'BIG_SAD', name: '大眼 · 委屈难过', cat: 'emotion', subcat: 'big_eyes', icon: '🥺', frames: 32, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#101', no: 'EMO-47', id: 'BIG_ANGRY', name: '大眼 · 严肃生气', cat: 'emotion', subcat: 'big_eyes', icon: '😠', frames: 24, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#102', no: 'EMO-48', id: 'BIG_SMUG', name: '大眼 · 得意傲娇', cat: 'emotion', subcat: 'big_eyes', icon: '😏', frames: 28, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#103', no: 'EMO-49', id: 'BIG_DIZZY', name: '大眼 · 晕眩转圈', cat: 'emotion', subcat: 'big_eyes', icon: '😵', frames: 24, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#104', no: 'EMO-50', id: 'BIG_ALERT', name: '大眼 · 警觉探寻', cat: 'emotion', subcat: 'big_eyes', icon: '🚨', frames: 24, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#105', no: 'EMO-51', id: 'BIG_HEART', name: '大眼 · 满眼爱意', cat: 'emotion', subcat: 'big_eyes', icon: '😍', frames: 24, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
+      { num: '#106', no: 'EMO-52', id: 'BIG_SLEEP', name: '大眼 · 安然睡眠', cat: 'emotion', subcat: 'big_eyes', icon: '💤', frames: 32, infinixGroup: 'eyes', infinixRole: 'P6 交互套件 · 灵动大眼', infinixPriority: 'P6' },
 
       /* --- 系统 / 时间日历 --- */
-      { num: '#37', no: 'SYS-01', id: 'CLOCK', name: '数字时间', cat: 'system', subcat: 'time', icon: '🕒', frames: 24, isPending: true },
-      { num: '#38', no: 'SYS-02', id: 'DATE', name: '横向日期', cat: 'system', subcat: 'time', icon: '📅', frames: 24 },
-      { num: '#39', no: 'SYS-03', id: 'WEEKDAY', name: '星期显示', cat: 'system', subcat: 'time', icon: '🗓️', frames: 24 },
+      { num: '#37', no: 'SYS-01', id: 'CLOCK', name: '数字时间', cat: 'system', subcat: 'time', icon: '🕒', frames: 24, isPending: true, infinixGroup: 'default', infinixRole: 'P6 默认常驻 · 上下数字时间', infinixPriority: 'P6' },
+      { num: '#38', no: 'SYS-02', id: 'DATE', name: '横向日期', cat: 'system', subcat: 'time', icon: '📅', frames: 24, infinixGroup: 'default', infinixRole: 'P6 默认常驻 · 横向日期', infinixPriority: 'P6' },
+      { num: '#39', no: 'SYS-03', id: 'WEEKDAY', name: '星期显示', cat: 'system', subcat: 'time', icon: '🗓️', frames: 24, infinixGroup: 'default', infinixRole: 'P6 默认常驻 · 星期显示环', infinixPriority: 'P6' },
 
       /* --- 系统 / 硬件仪表 --- */
-      { num: '#40', no: 'SYS-04', id: 'BATTERY', name: '电量百分比', cat: 'system', subcat: 'hardware', icon: '🔋', frames: 24, isPending: true },
-      { num: '#41', no: 'SYS-05', id: 'CHARGE', name: '充电流光', cat: 'system', subcat: 'hardware', icon: '⚡', frames: 18, isPending: true },
-      { num: '#42', no: 'SYS-06', id: 'VOLUME', name: '音量阶梯', cat: 'system', subcat: 'hardware', icon: '🔊', frames: 96, isPending: true },
+      { num: '#40', no: 'SYS-04', id: 'BATTERY', name: '电量百分比', cat: 'system', subcat: 'hardware', icon: '🔋', frames: 24, isPending: true, infinixGroup: 'default', infinixRole: 'P6 默认常驻 · 电量百分比', infinixPriority: 'P6' },
+      { num: '#41', no: 'SYS-05', id: 'CHARGE', name: '充电流光', cat: 'system', subcat: 'hardware', icon: '⚡', frames: 18, isPending: true, infinixGroup: 'scene', infinixRole: 'P3 短时提示 · 充电流光', infinixPriority: 'P3' },
+      { num: '#42', no: 'SYS-06', id: 'VOLUME', name: '音量阶梯', cat: 'system', subcat: 'hardware', icon: '🔊', frames: 96, isPending: true, infinixGroup: 'status', infinixRole: 'P3 短时状态 · 音量阶梯', infinixPriority: 'P3' },
       { num: '#43', no: 'SYS-07', id: 'TEMP', name: '环境温度', cat: 'system', subcat: 'hardware', icon: '🌡️', frames: 24, isPending: true },
 
       /* --- 系统 / 传感连接 --- */
       { num: '#44', no: 'SYS-08', id: 'COMPASS', name: '星罗盘指南针', cat: 'system', subcat: 'sensor', icon: '🧭', frames: 24, isPending: true },
       { num: '#45', no: 'SYS-09', id: 'RADAR', name: '雷达扫描', cat: 'system', subcat: 'sensor', icon: '📡', frames: 24, isPending: true },
-      { num: '#46', no: 'SYS-10', id: 'BLUETOOTH', name: '蓝牙连接', cat: 'system', subcat: 'sensor', icon: 'ᛒ', frames: 24 },
+      { num: '#46', no: 'SYS-10', id: 'BLUETOOTH', name: '蓝牙连接', cat: 'system', subcat: 'sensor', icon: 'ᛒ', frames: 24, infinixGroup: 'status', infinixRole: 'P3 短时状态 · 蓝牙连接', infinixPriority: 'P3' },
       { num: '#47', no: 'SYS-11', id: 'ENERGY_RING', name: '能量环流', cat: 'system', subcat: 'sensor', icon: '⭕', frames: 24, isPending: true },
 
       /* --- 系统 / 来电与提醒 --- */
-      { num: '#85', no: 'SYS-12', id: 'INCOMING_CALL', name: '来电提醒', cat: 'system', subcat: 'alerts', icon: '📞', frames: 48 },
-      { num: '#86', no: 'SYS-13', id: 'INCOMING_SMS', name: '短信提醒', cat: 'system', subcat: 'alerts', icon: '💬', frames: 48 },
-      { num: '#87', no: 'SYS-14', id: 'RINGER_MODE', name: '静音与铃声', cat: 'system', subcat: 'alerts', icon: '🔔', frames: 48 },
-      { num: '#88', no: 'SYS-15', id: 'AIRPLANE_MODE', name: '飞行模式', cat: 'system', subcat: 'sensor', icon: '✈️', frames: 48 },
-      { num: '#89', no: 'SYS-16', id: 'POWER_SAVER', name: '省电模式', cat: 'system', subcat: 'hardware', icon: '🍃', frames: 48 },
+      { num: '#85', no: 'SYS-12', id: 'INCOMING_CALL', name: '来电提醒', cat: 'system', subcat: 'alerts', icon: '📞', frames: 48, infinixGroup: 'scene', infinixRole: 'P0 抢占最高级 · 来电提醒', infinixPriority: 'P0' },
+      { num: '#86', no: 'SYS-13', id: 'INCOMING_SMS', name: '短信提醒', cat: 'system', subcat: 'alerts', icon: '💬', frames: 48, infinixGroup: 'scene', infinixRole: 'P2 优先级 · 消息通知提醒', infinixPriority: 'P2' },
+      { num: '#87', no: 'SYS-14', id: 'RINGER_MODE', name: '静音与铃声', cat: 'system', subcat: 'alerts', icon: '🔔', frames: 48, infinixGroup: 'status', infinixRole: 'P3 短时状态 · 静音与铃声', infinixPriority: 'P3' },
+      { num: '#88', no: 'SYS-15', id: 'AIRPLANE_MODE', name: '飞行模式', cat: 'system', subcat: 'sensor', icon: '✈️', frames: 48, infinixGroup: 'status', infinixRole: 'P3 短时状态 · 飞行模式', infinixPriority: 'P3' },
+      { num: '#89', no: 'SYS-16', id: 'POWER_SAVER', name: '省电模式', cat: 'system', subcat: 'hardware', icon: '🍃', frames: 48, infinixGroup: 'status', infinixRole: 'P3 短时状态 · 省电模式', infinixPriority: 'P3' },
 
-      { num: '#53', no: 'SYS-17', id: 'SAND', name: '数字倒计时', cat: 'system', subcat: 'time', icon: '⏱', frames: 3612, fps: 12 },
-      { num: '#90', no: 'SYS-18', id: 'SYSTEM_NOTICE', name: '通知动画', cat: 'system', subcat: 'alerts', icon: '✉️', frames: 48 },
+      { num: '#53', no: 'SYS-17', id: 'SAND', name: '数字倒计时', cat: 'system', subcat: 'time', icon: '⏱', frames: 3612, fps: 12, infinixGroup: 'default', infinixRole: 'P6 默认常驻 · 数字倒计时', infinixPriority: 'P6' },
+      { num: '#90', no: 'SYS-18', id: 'SYSTEM_NOTICE', name: '通知动画', cat: 'system', subcat: 'alerts', icon: '✉️', frames: 48, infinixGroup: 'default', infinixRole: 'P6 默认常驻 · 系统通知动画', infinixPriority: 'P6' },
 
       /* --- 活动 / 运动健康 --- */
       { num: '#48', no: 'ACT-01', id: 'RUNNER', name: '动感奔跑者', cat: 'activity', subcat: 'fitness', icon: '🏃', frames: 12 },
@@ -4057,15 +4120,15 @@
       { num: '#51', no: 'ACT-04', id: 'PERSON', name: '跃动小人', cat: 'activity', subcat: 'fitness', icon: '🧍', frames: 24 },
 
       /* --- 活动 / 专注效率 --- */
-      { num: '#52', no: 'ACT-05', id: 'FOCUS', name: '时砂专注', cat: 'activity', subcat: 'efficiency', icon: '⏳', frames: 20 },
+      { num: '#52', no: 'ACT-05', id: 'FOCUS', name: '时砂专注', cat: 'activity', subcat: 'efficiency', icon: '⏳', frames: 20, infinixGroup: 'scene', infinixRole: 'P1 高优先级 · 计时结束', infinixPriority: 'P1' },
       { num: '#54', no: 'ACT-07', id: 'PROGRESS', name: '三排进度条', cat: 'activity', subcat: 'efficiency', icon: '📊', frames: 24 },
-      { num: '#55', no: 'ACT-08', id: 'SUCCESS', name: '完成确认', cat: 'activity', subcat: 'efficiency', icon: '✅', frames: 20 },
-      { num: '#56', no: 'ACT-09', id: 'MAIL', name: '紧急提醒', cat: 'activity', subcat: 'efficiency', icon: '🔔', frames: 24 },
+      { num: '#55', no: 'ACT-08', id: 'SUCCESS', name: '完成确认', cat: 'activity', subcat: 'efficiency', icon: '✅', frames: 20, infinixGroup: 'tools', infinixRole: 'P4 便捷工具 · 45°斜线完成确认', infinixPriority: 'P4' },
+      { num: '#56', no: 'ACT-09', id: 'MAIL', name: '紧急提醒', cat: 'activity', subcat: 'efficiency', icon: '🔔', frames: 24, infinixGroup: 'tools', infinixRole: 'P4 便捷工具 · 紧急通知提醒', infinixPriority: 'P4' },
 
       /* --- 活动 / 户外安全 --- */
-      { num: '#57', no: 'ACT-10', id: 'STROBE', name: '骑行/夜跑警示尾灯', cat: 'activity', subcat: 'safety', icon: '🚨', frames: 12, isPending: true },
-      { num: '#58', no: 'ACT-11', id: 'TURN_LEFT', name: '动态流光左转向', cat: 'activity', subcat: 'safety', icon: '⏪', frames: 16, isPending: true },
-      { num: '#59', no: 'ACT-12', id: 'TURN_RIGHT', name: '动态流光右转向', cat: 'activity', subcat: 'safety', icon: '⏩', frames: 16, isPending: true },
+      { num: '#57', no: 'ACT-10', id: 'STROBE', name: '骑行/夜跑警示尾灯', cat: 'activity', subcat: 'safety', icon: '🚨', frames: 12, isPending: true, infinixGroup: 'tools', infinixRole: 'P4 便捷工具 · 警示尾灯', infinixPriority: 'P4' },
+      { num: '#58', no: 'ACT-11', id: 'TURN_LEFT', name: '动态流光左转向', cat: 'activity', subcat: 'safety', icon: '⏪', frames: 16, isPending: true, infinixGroup: 'tools', infinixRole: 'P4 便捷工具 · 动态流光左转向', infinixPriority: 'P4' },
+      { num: '#59', no: 'ACT-12', id: 'TURN_RIGHT', name: '动态流光右转向', cat: 'activity', subcat: 'safety', icon: '⏩', frames: 16, isPending: true, infinixGroup: 'tools', infinixRole: 'P4 便捷工具 · 动态流光右转向', infinixPriority: 'P4' },
 
       /* --- 生活 / 气象万千 --- */
       { num: '#60', no: 'LIF-01', id: 'SUNNY', name: '阳光晴天', cat: 'life', subcat: 'weather', icon: '☀️', frames: 24 },
@@ -4078,7 +4141,7 @@
       /* --- 生活 / 影音与日常 --- */
       { num: '#66', no: 'LIF-07', id: 'WAVE', name: '音乐律动', cat: 'life', subcat: 'audio', icon: '〰️', frames: 96, fps: 24, isPending: true },
       { num: '#67', no: 'LIF-08', id: 'SPECTRUM', name: '音频频谱', cat: 'life', subcat: 'audio', icon: '📶', frames: 24 },
-      { num: '#68', no: 'LIF-09', id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24 },
+      { num: '#68', no: 'LIF-09', id: 'ALARM', name: '晨起闹钟', cat: 'life', subcat: 'audio', icon: '⏰', frames: 24, infinixGroup: 'scene', infinixRole: 'P1 高优先级 · 闹钟提醒', infinixPriority: 'P1' },
       { num: '#69', no: 'LIF-10', id: 'DAWN', name: '地平线朝阳', cat: 'life', subcat: 'audio', icon: '🌅', frames: 72, isPending: true },
       { num: '#70', no: 'LIF-11', id: 'COFFEE', name: '咖啡小憩', cat: 'life', subcat: 'daily', icon: '☕', frames: 24 },
       { num: '#71', no: 'LIF-12', id: 'WATER', name: '喝水打卡', cat: 'life', subcat: 'daily', icon: '💧', frames: 24 },
@@ -4100,13 +4163,17 @@
       { num: '#81', no: 'AMB-05', id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
       { num: '#82', no: 'AMB-06', id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
       { num: '#83', no: 'AMB-07', id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24, isPending: true },
-      { num: '#84', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 }
+      { num: '#84', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 },
+
+      /* --- 传音 Infinix Note 60 Pro (5G) 专属音乐律动动效 --- */
+      { num: '#107', no: 'INF-01', id: 'INFINIX_FLOWERS', name: '音乐律动 · 天女散花', cat: 'life', subcat: 'audio', icon: '🌸', frames: 48, infinixGroup: 'music', infinixRole: 'P5 音乐律动 · 天女散花', infinixPriority: 'P5' },
+      { num: '#108', no: 'INF-02', id: 'INFINIX_RIPPLES', name: '音乐律动 · 涟漪水圈', cat: 'life', subcat: 'audio', icon: '💧', frames: 48, infinixGroup: 'music', infinixRole: 'P5 音乐律动 · 涟漪水圈', infinixPriority: 'P5' }
     ];
 
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
     const EMPTY_ANIMATION = { id: 'EMPTY', name: '暂无动画', cat: 'emotion', frames: 1 };
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V9';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V10';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 官方线上基准待修改动画清单 (内置代码库，保障全网部署、移动端无缓存与初次加载 100% 永久在线可见) */
@@ -4413,6 +4480,7 @@
 
       const isExport = catId === 'export';
       const isPending = catId === 'pending';
+      const isInfinix = catId === 'infinix';
       document.getElementById('searchWrap').style.display = isExport ? 'none' : 'block';
       document.getElementById('subcatPillsBar').style.display = isExport ? 'none' : 'flex';
       document.getElementById('animationsGrid').style.display = isExport ? 'none' : 'grid';
@@ -4420,12 +4488,15 @@
 
       const syncBar = document.getElementById('pendingSyncBar');
       if (syncBar) syncBar.style.display = isPending ? 'flex' : 'none';
+      const infinixBar = document.getElementById('infinixInfoBar');
+      if (infinixBar) infinixBar.style.display = isInfinix ? 'flex' : 'none';
 
       if (!isExport) {
         renderSubcatPills();
         renderAnimationsList();
         const matches = ALL_ANIMATIONS.filter(item => {
           if (state.currentCat === 'pending') return isPendingModify(item.id);
+          if (state.currentCat === 'infinix') return !!item.infinixGroup;
           return item.cat === state.currentCat;
         });
         if (matches.length > 0 && (!state.currentAnim || !matches.some(m => m.id === state.currentAnim.id))) {
@@ -4466,6 +4537,57 @@
               if (!isPendingModify(item.id)) return false;
               if (state.currentSubcat !== 'all' && item.cat !== state.currentSubcat) return false;
               return true;
+            });
+            if (matches.length > 0 && (!state.currentAnim || !matches.some(m => m.id === state.currentAnim.id))) {
+              selectAnimation(matches[0]);
+            }
+          };
+          container.appendChild(pill);
+        });
+        return;
+      }
+
+      // 传音 Infinix Note 60 Pro 专属分类视图下的子胶囊
+      if (state.currentCat === 'infinix') {
+        const totalInfinix = ALL_ANIMATIONS.filter(a => !!a.infinixGroup).length;
+        const pendingInfinix = ALL_ANIMATIONS.filter(a => !!a.infinixGroup && isPendingModify(a.id)).length;
+        const catDef = CATEGORIES.find(c => c.id === 'infinix');
+        const pillsToRender = [];
+
+        catDef.subcats.forEach((sub, idx) => {
+          let displayName = sub.name;
+          if (sub.id === 'all') {
+            displayName = `全部 (${totalInfinix})`;
+          } else {
+            const count = ALL_ANIMATIONS.filter(a => a.infinixGroup === sub.id).length;
+            displayName = sub.name.replace(/\s*\(\d+\)/, '') + ` (${count})`;
+          }
+          pillsToRender.push({ id: sub.id, name: displayName });
+          if (idx === 0) {
+            pillsToRender.push({
+              id: 'pending_in_cat',
+              name: `🚩 待修改` + (pendingInfinix > 0 ? ` (${pendingInfinix})` : ' (0)')
+            });
+          }
+        });
+
+        pillsToRender.forEach(sub => {
+          const pill = document.createElement('div');
+          const isActive = sub.id === state.currentSubcat;
+          const isPendingPill = sub.id === 'pending_in_cat';
+          pill.className = 'subcat-pill' + (isActive ? ' active' : '') + (isPendingPill ? ' pending-pill' : '');
+          pill.textContent = sub.name;
+          pill.onclick = () => {
+            state.currentSubcat = sub.id;
+            document.querySelectorAll('.subcat-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            renderAnimationsList();
+
+            const matches = ALL_ANIMATIONS.filter(item => {
+              if (!item.infinixGroup) return false;
+              if (sub.id === 'pending_in_cat') return isPendingModify(item.id);
+              if (sub.id === 'all') return true;
+              return item.infinixGroup === sub.id;
             });
             if (matches.length > 0 && (!state.currentAnim || !matches.some(m => m.id === state.currentAnim.id))) {
               selectAnimation(matches[0]);
@@ -4540,6 +4662,13 @@
         if (state.currentCat === 'pending') {
           if (!pending) return false;
           if (state.currentSubcat !== 'all' && item.cat !== state.currentSubcat) return false;
+        } else if (state.currentCat === 'infinix') {
+          if (!item.infinixGroup) return false;
+          if (state.currentSubcat === 'pending_in_cat') {
+            if (!pending) return false;
+          } else if (state.currentSubcat !== 'all' && item.infinixGroup !== state.currentSubcat) {
+            return false;
+          }
         } else {
           // 常规一级分类筛选
           if (state.currentCat !== 'all' && item.cat !== state.currentCat) return false;
@@ -4559,7 +4688,8 @@
           const matchId = item.id.toLowerCase().includes(kw);
           const matchNo = item.no ? item.no.toLowerCase().includes(kw) : false;
           const matchNum = item.num ? item.num.toLowerCase().includes(kw) : false;
-          if (!matchName && !matchId && !matchNo && !matchNum) return false;
+          const matchRole = item.infinixRole ? item.infinixRole.toLowerCase().includes(kw) : false;
+          if (!matchName && !matchId && !matchNo && !matchNum && !matchRole) return false;
         }
         return true;
       });
@@ -4589,9 +4719,14 @@
         card.onclick = () => selectAnimation(item);
 
         const subName = getSubcatName(item.cat, item.subcat);
+        const priorityBadge = item.infinixPriority ? `<span class="priority-badge priority-${item.infinixPriority.toLowerCase()}">${item.infinixPriority}</span>` : '';
+        const tagHtml = (state.currentCat === 'infinix' && item.infinixRole)
+          ? `<span class="anim-tag infinix-tag">${item.infinixRole}</span>`
+          : `<span class="anim-tag">${subName}</span>`;
+
         card.innerHTML = `
           <div class="anim-card-no" title="动画编号: ${item.num} (${item.no})">
-            ${item.no}${isPending ? ' <span class="anim-pending-flag" title="待修改项">待改</span>' : ''}
+            ${item.no}${priorityBadge}${isPending ? ' <span class="anim-pending-flag" title="待修改项">待改</span>' : ''}
           </div>
           <div class="anim-card-actions">
             <button class="anim-action-btn pending ${isPending ? 'active' : ''}" 
@@ -4604,7 +4739,7 @@
           </div>
           <div class="anim-card-icon">${item.icon}</div>
           <div class="anim-card-name">${item.name}</div>
-          <div class="anim-card-sub"><span class="anim-tag">${subName}</span> ${item.frames ? item.frames + '帧' : item.duration + 's'}</div>
+          <div class="anim-card-sub">${tagHtml} ${item.frames ? item.frames + '帧' : (item.duration ? item.duration + 's' : '')}</div>
         `;
         grid.appendChild(card);
       });
@@ -5082,9 +5217,11 @@
         const options = refinedOptions();
         const gridSet = refinedFrame(anim.id, curF, options);
         const pulse = anim.id === 'POWER_SAVER' ? 0.55 + 0.18 * Math.sin(curF / 48 * Math.PI * 2)
-          : anim.id === 'WAVE' && options.musicStyle === 'beatRing' ? beatRingBrightness(curF, options) : 1;
-        const flowers = anim.id === 'WAVE' ? (options.musicStyle === 'flowers' ? flowerPixels(curF, options)
-          : options.musicStyle === 'ripples' ? ripplePixels(curF, options) : null) : null;
+          : (anim.id === 'WAVE' && options.musicStyle === 'beatRing') ? beatRingBrightness(curF, options) : 1;
+        const flowers = (anim.id === 'WAVE' || anim.id === 'INFINIX_FLOWERS' || anim.id === 'INFINIX_RIPPLES')
+          ? ((options.musicStyle === 'flowers' || anim.id === 'INFINIX_FLOWERS') ? flowerPixels(curF, options)
+            : (options.musicStyle === 'ripples' || anim.id === 'INFINIX_RIPPLES') ? ripplePixels(curF, options) : null)
+          : null;
         PHYSICAL_POINTS.forEach((pt, idx) => {
           brightnessArray[idx] = flowers ? (flowers.get(pt.gridId) || 0) : (gridSet.has(pt.gridId) ? pulse : 0);
         });
@@ -6315,6 +6452,34 @@
           break;
         }
 
+        case 'INFINIX_FLOWERS': {
+          ctx.fillStyle = col;
+          ctx.shadowColor = col;
+          flowerPixels(curF, opt).forEach((alpha, id) => {
+            ctx.globalAlpha = alpha;
+            ctx.shadowBlur = 18 * alpha;
+            const x = id % 23, y = Math.floor(id / 23);
+            ctx.fillRect(cx + (x - 11.35) * scale, cy + (y - 11.35) * scale, scale * 0.7, scale * 0.7);
+          });
+          ctx.globalAlpha = 1;
+          ctx.shadowBlur = 0;
+          break;
+        }
+        case 'INFINIX_RIPPLES': {
+          ctx.strokeStyle = col;
+          ctx.shadowColor = col;
+          rippleWaves(curF, opt).forEach(wave => {
+            ctx.beginPath();
+            ctx.arc(cx, cy, wave.radius * scale, 0, Math.PI * 2);
+            ctx.lineWidth = Math.max(1, wave.power * 5);
+            ctx.globalAlpha = Math.min(1, wave.power * 1.2);
+            ctx.shadowBlur = 12 * wave.power;
+            ctx.stroke();
+          });
+          ctx.globalAlpha = 1;
+          ctx.shadowBlur = 0;
+          break;
+        }
         case 'WAVE': {
           const scale = (cx - 18) / 11;
           if (opt.musicStyle === 'ripples') {
@@ -7509,9 +7674,10 @@
         let raw = localStorage.getItem(STORAGE_KEY_ANIMATIONS);
         if (!raw) {
           // 向上迁移：兼容旧版存储并主动过滤游戏分类
+          const oldV9 = localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V9');
           const oldV8 = localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V8');
           const oldV7 = localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V7') || localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V2') || localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
-          raw = oldV8 || oldV7;
+          raw = oldV9 || oldV8 || oldV7;
         }
         if (!raw) {
           ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
@@ -7543,6 +7709,12 @@
               if (item.id === 'SAND' && !item.customFrames) { item.name = def.name; item.icon = def.icon; item.frames = (countdownMinutes * 60 + 1) * 12; item.fps = def.fps; item.cat = def.cat; item.subcat = def.subcat; item.no = def.no; }
               if (item.id === 'MAIL' && !item.customFrames) { item.name = def.name; item.icon = def.icon; item.frames = def.frames; }
               if (item.id === 'WAVE' && !item.customFrames) { item.frames = def.frames; item.fps = def.fps; }
+              // 始终同步内置动画的核心元数据与传音 Infinix 体系属性
+              if (def.infinixGroup) {
+                item.infinixGroup = def.infinixGroup;
+                item.infinixRole = def.infinixRole;
+                item.infinixPriority = def.infinixPriority;
+              }
               if (def.isAvatar && !item.customFrames) {
                 loaded.push({ ...def, ...item, eyes: def.eyes, gaze: def.gaze });
               } else {
