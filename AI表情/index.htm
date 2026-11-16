@@ -3848,429 +3848,436 @@
       break;
     }
 
-    /* ==========================================================================
-       📱 传音 Infinix Note 60 Pro (5G) 官方原厂 Active Matrix 动画套件
+        /* ==========================================================================
+       📱 传音 Infinix Note 60 Pro (5G) 官方原厂 Active Matrix 深度精雕动效套件
        ========================================================================== */
 
-    // 1. 🐱 传音像素猫 · Kiki (待机呼吸、晃耳眨眼、弓身伸懒腰、Zzz打呼)
+    // 1. 🐱 传音像素猫 · Kiki (待机呼吸、晃耳眨眼、弓身伸腰、张嘴喵叫、Zzz入睡)
     case 'INF_PET_KIKI': {
       const f = t % 32;
-      const breath = (f < 16) ? 0 : -1;
-      const earTwitch = (f >= 12 && f <= 18) ? ((f % 2 === 0) ? -1 : 1) : 0;
+      const breath = (f < 16) ? 0 : (f % 2 === 0 ? 0 : -1);
       const isSleep = (f >= 26);
       const isMeow = (f >= 14 && f <= 20);
+      const twitch = (f >= 10 && f <= 13) ? (f % 2 === 0 ? -1 : 0) : 0;
 
-      // 猫耳 (尖耳造型，带晃动)
-      // 左耳
-      line(6 + earTwitch, 4 + breath, 7, 7 + breath);
-      line(5, 7 + breath, 6 + earTwitch, 4 + breath);
-      put(6 + earTwitch, 5 + breath);
-      // 右耳
-      line(16 - earTwitch, 4 + breath, 15, 7 + breath);
-      line(17, 7 + breath, 16 - earTwitch, 4 + breath);
-      put(16 - earTwitch, 5 + breath);
+      // 尖猫耳高耸轮廓 (外轮廓立挺，内部透光空灵)
+      line(6 + twitch, 4 + breath, 8, 7 + breath);
+      line(5, 7 + breath, 6 + twitch, 4 + breath);
+      put(6 + twitch, 5 + breath);
 
-      // 猫头轮廓 (圆润饱满猫脸)
-      box(6, 7 + breath, 11, 8);
-      put(5, 9 + breath); put(5, 10 + breath); put(5, 11 + breath); put(5, 12 + breath);
-      put(17, 9 + breath); put(17, 10 + breath); put(17, 11 + breath); put(17, 12 + breath);
+      line(16 - twitch, 4 + breath, 14, 7 + breath);
+      line(17, 7 + breath, 16 - twitch, 4 + breath);
+      put(16 - twitch, 5 + breath);
 
-      // 眼睛
+      // 头顶平缓过渡弧线
+      line(8, 7 + breath, 14, 7 + breath);
+
+      // 猫腮脸庞轮廓 (饱满萌态，非生硬方块)
+      line(5, 8 + breath, 4, 11 + breath);
+      line(4, 11 + breath, 5, 14 + breath);
+      line(17, 8 + breath, 18, 11 + breath);
+      line(18, 11 + breath, 17, 14 + breath);
+
+      // 下巴与两腮连接线
+      line(5, 14 + breath, 8, 16 + breath);
+      line(17, 14 + breath, 14, 16 + breath);
+      line(8, 16 + breath, 14, 16 + breath);
+
+      // 灵眸大眼 (3x3镂空黑瞳内嵌高光点)
       if (isSleep) {
-        // 闭眼安睡线
-        line(7, 10 + breath, 9, 10 + breath);
-        line(13, 10 + breath, 15, 10 + breath);
-        // 头顶浮动 Zzz
-        const zStep = (f - 26);
-        if (zStep >= 1) mask('111/010/111', 16, 3);
-        if (zStep >= 3) mask('11/01/11', 19, 1);
-      } else if (f >= 8 && f <= 11) {
-        // 眨眼
-        line(7, 10 + breath, 9, 10 + breath);
-        line(13, 10 + breath, 15, 10 + breath);
+        line(6, 11 + breath, 9, 11 + breath);
+        line(13, 11 + breath, 16, 11 + breath);
+        if (f >= 27) mask('11/01/11', 17, 3);
+        if (f >= 29) mask('111/010/111', 18, 1);
+      } else if (f >= 8 && f <= 10) {
+        line(6, 11 + breath, 9, 11 + breath);
+        line(13, 11 + breath, 16, 11 + breath);
       } else {
-        // 晶亮圆眼与高光
-        box(7, 9 + breath, 3, 3, true);
-        put(7, 9 + breath, false); // 留出高光
-        box(13, 9 + breath, 3, 3, true);
-        put(13, 9 + breath, false);
+        box(6, 9 + breath, 4, 4, false);
+        box(13, 9 + breath, 4, 4, false);
+        put(7, 10 + breath); // 晶莹高光点
+        put(14, 10 + breath);
       }
 
-      // 鼻子与小嘴
-      put(11, 11 + breath);
+      // 鼻子与萌态猫嘴 (ω 形态)
+      put(11, 12 + breath);
       if (isMeow) {
-        // 张嘴喵喵叫
-        box(10, 12 + breath, 3, 2, true);
+        box(10, 13 + breath, 3, 2, false);
       } else {
-        put(10, 12 + breath); put(12, 12 + breath);
+        put(10, 14 + breath); put(12, 14 + breath);
+        put(11, 13 + breath);
       }
 
-      // 胡须
-      line(3, 10 + breath, 5, 10 + breath);
-      line(2, 12 + breath, 5, 12 + breath);
-      line(17, 10 + breath, 19, 10 + breath);
-      line(17, 12 + breath, 20, 12 + breath);
+      // 纤巧微翘胡须
+      line(1, 11 + breath, 3, 11 + breath);
+      line(2, 13 + breath, 4, 14 + breath);
+      line(19, 11 + breath, 21, 11 + breath);
+      line(18, 14 + breath, 20, 13 + breath);
 
-      // 猫爪与下巴
-      put(8, 15 + breath); put(9, 15 + breath);
-      put(13, 15 + breath); put(14, 15 + breath);
+      // 萌爪微搭
+      line(8, 17 + breath, 10, 17 + breath);
+      line(12, 17 + breath, 14, 17 + breath);
 
-      // 尾巴轻轻摇动
+      // S形轻盈摇摆猫尾
       const tailX = 18 + Math.round(Math.sin(f * 0.4) * 2);
-      line(16, 14, tailX, 17);
-      put(tailX + 1, 16);
+      line(16, 15, tailX, 18);
+      put(tailX + 1, 17);
       break;
     }
 
-    // 2. 🐶 传音像素狗 · Woofie (欢快吐舌摇尾、竖耳警觉、扑腾跳跃、趴爪打盹)
+    // 2. 🐶 传音像素狗 · Woofie (自然垂耳摆动、清澈双眸、吐舌哈气、欢快摇尾)
     case 'INF_PET_WOOFIE': {
       const f = t % 32;
       const isJump = (f >= 18 && f <= 24);
       const isAlert = (f >= 12 && f <= 17);
       const dy = isJump ? -2 : 0;
-      const tailWag = Math.round(Math.sin(f * 1.2) * 2);
+      const wag = Math.round(Math.sin(f * 1.2) * 2);
 
-      // 狗耳朵 (两侧大垂耳，警觉时竖起)
+      // 头顶平缓与脸廓 (轮廓清晰透气，无死白硬块)
+      line(8, 6 + dy, 14, 6 + dy);
+      line(7, 7 + dy, 6, 9 + dy);
+      line(15, 7 + dy, 16, 9 + dy);
+      line(6, 9 + dy, 6, 13 + dy);
+      line(16, 9 + dy, 16, 13 + dy);
+      line(6, 13 + dy, 8, 15 + dy);
+      line(16, 13 + dy, 14, 15 + dy);
+      line(8, 15 + dy, 14, 15 + dy);
+
+      // 两侧灵动垂耳
       if (isAlert) {
-        // 竖耳！
-        line(6, 4 + dy, 7, 7 + dy);
-        line(5, 7 + dy, 6, 4 + dy);
-        line(16, 4 + dy, 15, 7 + dy);
-        line(17, 7 + dy, 16, 4 + dy);
+        line(6, 5 + dy, 4, 2 + dy); line(4, 2 + dy, 7, 5 + dy);
+        line(16, 5 + dy, 18, 2 + dy); line(18, 2 + dy, 15, 5 + dy);
+        put(5, 3 + dy); put(17, 3 + dy);
       } else {
-        // 垂耳摆动
-        box(4, 7 + dy, 3, 5, true);
-        box(16, 7 + dy, 3, 5, true);
+        line(5, 7 + dy, 3, 9 + dy);
+        line(3, 9 + dy, 3, 13 + dy);
+        line(3, 13 + dy, 5, 14 + dy);
+        line(5, 14 + dy, 5, 8 + dy);
+        put(4, 10 + dy); put(4, 12 + dy);
+
+        line(17, 7 + dy, 19, 9 + dy);
+        line(19, 9 + dy, 19, 13 + dy);
+        line(19, 13 + dy, 17, 14 + dy);
+        line(17, 14 + dy, 17, 8 + dy);
+        put(18, 10 + dy); put(18, 12 + dy);
       }
 
-      // 狗头轮廓
-      box(6, 6 + dy, 11, 9, false);
-      for (let y = 7; y <= 13; y++) {
-        line(7, y + dy, 15, y + dy);
-      }
-
-      // 眼睛
+      // 清澈闪亮双眸 (镂空黑瞳内嵌单点高光)
       if (f >= 6 && f <= 8) {
-        // 眨眼
-        line(8, 9 + dy, 9, 9 + dy);
-        line(13, 9 + dy, 14, 9 + dy);
+        line(8, 9 + dy, 10, 9 + dy);
+        line(12, 9 + dy, 14, 9 + dy);
       } else {
-        box(8, 8 + dy, 2, 2, true);
-        box(13, 8 + dy, 2, 2, true);
+        box(8, 8 + dy, 3, 3, false);
+        box(12, 8 + dy, 3, 3, false);
+        put(9, 9 + dy); put(13, 9 + dy);
       }
 
-      // 大黑鼻头
-      box(10, 10 + dy, 3, 2, true);
+      // 圆润黑鼻头
+      box(10, 11 + dy, 3, 2, true);
 
-      // 吐舌头欢快大笑
+      // 欢快吐舌笑颜
       if (!isAlert && f < 28) {
-        // 吐舌头
-        const tongueDrop = (f % 4 < 2) ? 1 : 0;
-        put(11, 12 + dy);
-        box(10, 13 + dy, 3, 2 + tongueDrop, true);
+        line(9, 13 + dy, 13, 13 + dy);
+        const tDrop = (f % 4 < 2) ? 1 : 0;
+        line(10, 14 + dy, 12, 14 + dy);
+        line(10, 15 + dy + tDrop, 12, 15 + dy + tDrop);
+        put(11, 16 + dy + tDrop);
       } else {
-        // 萌嘴
-        line(10, 12 + dy, 12, 12 + dy);
+        line(9, 13 + dy, 13, 13 + dy);
+        put(9, 14 + dy); put(13, 14 + dy);
       }
 
-      // 欢快小爪
-      box(8, 16 + dy, 2, 2, true);
-      box(13, 16 + dy, 2, 2, true);
-
-      // 摇摆尾巴
-      line(4, 15, 2 + tailWag, 12);
-      put(2 + tailWag, 11);
+      // 小狗前爪与欢快尾巴
+      line(8, 17 + dy, 10, 17 + dy);
+      line(12, 17 + dy, 14, 17 + dy);
+      line(4, 15, 2 + wag, 12);
+      put(2 + wag, 11);
       break;
     }
 
-    // 3. 🦁 传音小幼狮 · Simbar (威风小吼、狮鬃抖动、音乐律动晃头、抬掌梳毛)
+    // 3. 🦁 传音小幼狮 · Simbar (放射形星芒狮鬃、随节拍晃头、张嘴微吼声波环)
     case 'INF_PET_SIMBAR': {
       const f = t % 32;
       const isRoar = (f >= 14 && f <= 22);
       const headBob = (f % 8 < 4) ? 0 : 1;
 
-      // 蓬松狮鬃 (围绕圆周的饱满鬃毛辐射波)
-      const manePts = [
-        [11, 2], [8, 3], [14, 3], [5, 5], [17, 5],
-        [3, 8], [19, 8], [3, 12], [19, 12], [4, 15], [18, 15],
-        [6, 18], [16, 18], [9, 19], [13, 19]
-      ];
-      manePts.forEach(([mx, my]) => {
-        const pulse = ((f + mx) % 4 === 0) ? 1 : 0;
-        put(mx, my + (pulse ? headBob : 0));
-        // 双层鬃毛
-        circle(mx, my, 1, false);
-      });
-
-      // 幼狮圆耳 (藏在鬃毛间)
-      box(6, 4 + headBob, 3, 2, true);
-      box(14, 4 + headBob, 3, 2, true);
-
-      // 幼狮脸盘
-      box(7, 6 + headBob, 9, 8, true);
-
-      // 灵动大眼
-      box(8, 8 + headBob, 2, 2, false);
-      box(13, 8 + headBob, 2, 2, false);
-
-      // 幼狮宽鼻
-      box(10, 10 + headBob, 3, 2, false);
-      put(11, 10 + headBob);
-
-      // 威风微吼或萌萌微笑
-      if (isRoar) {
-        // 张嘴微吼 + 小尖牙
-        box(9, 12 + headBob, 5, 3, false);
-        put(10, 12 + headBob); put(12, 12 + headBob); // 尖牙
-        // 吼声环状声波扩散
-        const rR = ((f - 14) * 1.5) % 8 + 3;
-        circle(11, 13, rR);
-      } else {
-        // 呆萌小嘴
-        line(10, 13 + headBob, 12, 13 + headBob);
+      // 放射花瓣形华丽星芒狮鬃 (12组放射花瓣，透气不粘连)
+      const maneAngles = 12;
+      for (let i = 0; i < maneAngles; i++) {
+        const a = (i / maneAngles) * Math.PI * 2 + (f * 0.05);
+        const rOuter = 8.5 + 0.8 * Math.sin(f * 0.4 + i);
+        const mx = Math.round(11 + Math.cos(a) * rOuter);
+        const my = Math.round(11 + Math.sin(a) * rOuter);
+        put(mx, my);
+        const rInner = rOuter - 1.2;
+        put(Math.round(11 + Math.cos(a + 0.15) * rInner), Math.round(11 + Math.sin(a + 0.15) * rInner));
       }
 
-      // 两只小狮掌
-      box(8, 16, 2, 2, true);
-      box(13, 16, 2, 2, true);
+      // 幼狮圆耳 (从鬃毛中探出)
+      circle(6, 5 + headBob, 1.5, false);
+      circle(16, 5 + headBob, 1.5, false);
+
+      // 幼狮圆脸轮廓
+      box(7, 7 + headBob, 9, 8, false);
+      put(7, 7 + headBob, false); put(15, 7 + headBob, false);
+      put(7, 14 + headBob, false); put(15, 14 + headBob, false);
+
+      // 萌态大眼与高光
+      box(8, 9 + headBob, 3, 3, false);
+      box(12, 9 + headBob, 3, 3, false);
+      put(9, 10 + headBob); put(13, 10 + headBob);
+
+      // 小狮鼻
+      line(10, 11 + headBob, 12, 11 + headBob);
+      put(11, 12 + headBob);
+
+      // 吼声或微笑
+      if (isRoar) {
+        box(9, 13 + headBob, 5, 3, false);
+        put(10, 13 + headBob); put(12, 13 + headBob); // 萌牙
+        const rR = ((f - 14) * 1.4) % 7 + 4;
+        circle(11, 13 + headBob, rR, false);
+      } else {
+        line(10, 14 + headBob, 12, 14 + headBob);
+        put(9, 13 + headBob); put(13, 13 + headBob);
+      }
+
+      // 小狮掌
+      line(8, 16 + headBob, 10, 16 + headBob);
+      line(12, 16 + headBob, 14, 16 + headBob);
       break;
     }
 
-    // 4. 🏃 传音小游戏 · Dot Dash (点阵跑酷小游戏：跑道流动、高低障碍柱、小人蓄力腾空越障)
+    // 4. 🏃 传音小游戏 · Dot Dash (点阵跑酷：双层跑道、赛博小人、跳跃残影、得分HUD)
     case 'INF_GAME_DOTDASH': {
       const f = t % 40;
-      // 1. 地面流水跑道 (持续向左流动的点阵地面)
+      // 1. 双层赛博跑道 (实线底线 + 流动测速线)
+      line(2, 18, 20, 18);
       for (let x = 2; x <= 20; x++) {
-        if ((x + f * 2) % 3 !== 0) {
-          put(x, 17);
-          put(x, 18);
-        }
+        if ((x + f * 2) % 4 < 2) put(x, 17);
       }
 
-      // 2. 障碍柱 (自右向左冲向小人)
-      const hurdleX = Math.round(23 - (f % 20) * 1.25);
+      // 2. 障碍立柱 (带顶部红外光警示灯)
+      const hurdleX = Math.round(22 - (f % 20) * 1.25);
       if (hurdleX >= 2 && hurdleX <= 20) {
         line(hurdleX, 16, hurdleX, 14);
         line(hurdleX + 1, 16, hurdleX + 1, 14);
+        put(hurdleX, 13); put(hurdleX + 1, 13);
       }
 
-      // 3. 跑酷小人动作：奔跑 vs 凌空腾空跃障
+      // 3. 跑酷角色 (头盔护目镜 + 倾斜躯干 + 4段奔跑与凌空越障)
       const isJump = (f >= 12 && f <= 26);
       let pY = 13;
       if (isJump) {
-        // 抛物线腾空跳跃
-        const jumpPhase = (f - 12) / 14;
-        const jumpH = Math.sin(jumpPhase * Math.PI) * 7.5;
+        const jumpH = Math.sin(((f - 12) / 14) * Math.PI) * 7.5;
         pY = Math.round(13 - jumpH);
       }
 
-      // 小人头部
-      box(6, pY - 3, 2, 2, true);
-      // 小人身躯
+      // 头盔护目镜 (镂空镜缝)
+      box(5, pY - 4, 3, 3, true);
+      put(6, pY - 3, false);
+
+      // 躯干
       line(6, pY - 1, 6, pY + 1);
-      // 小人四肢
+      put(7, pY - 1);
+
+      // 四肢
       if (isJump) {
-        // 屈膝跃过障碍
-        line(5, pY, 7, pY);
+        line(4, pY, 5, pY); line(7, pY, 8, pY);
         line(5, pY + 2, 7, pY + 2);
+        put(5, pY + 3); put(7, pY + 3);
+        // 腾空气流残影
+        put(3, pY + 1); put(2, pY + 3);
       } else {
-        // 跑步摆腿
-        const legStep = (f % 4 < 2);
-        line(5, pY, 7, pY); // 手臂
-        if (legStep) {
-          line(5, pY + 2, 6, pY + 3);
-          line(7, pY + 2, 7, pY + 3);
+        const legPhase = f % 4;
+        line(4, pY, 5, pY); line(7, pY, 8, pY);
+        if (legPhase === 0) {
+          line(5, pY + 2, 5, pY + 3); line(7, pY + 2, 8, pY + 3);
+        } else if (legPhase === 1) {
+          line(5, pY + 2, 4, pY + 3); line(7, pY + 2, 7, pY + 3);
+        } else if (legPhase === 2) {
+          line(6, pY + 2, 7, pY + 3); line(6, pY + 2, 5, pY + 3);
         } else {
-          line(6, pY + 2, 5, pY + 3);
-          line(6, pY + 2, 7, pY + 3);
+          line(5, pY + 2, 6, pY + 3); line(7, pY + 2, 6, pY + 3);
         }
       }
 
-      // 4. 顶部 HUD 得分与连击点阵
-      line(8, 3, 14, 3);
-      put(10 + (f % 3), 4);
+      // 4. 顶部 HUD 得分标牌
+      mask('1101/1010/1101/0101', 4, 2);
+      line(11, 2, 18, 2);
+      put(11 + (Math.floor(f / 5) % 8), 3);
       break;
     }
 
-    // 5. 🚀 传音小游戏 · Star Blast (太空星战射击：战机机动穿梭、双等离子激光向上连发、击碎陨石爆炸)
+    // 5. 🚀 传音小游戏 · Star Blast (太空星战：三角战机、双等离子光束、陨石裂变)
     case 'INF_GAME_STARBLAST': {
       const f = t % 36;
-      // 战机横向走位机动
       const shipX = Math.round(11 + Math.sin(f * 0.35) * 4);
       const shipY = 18;
 
-      // 战机机体 (三角星际战机)
-      put(shipX, shipY - 2); // 机头
-      box(shipX - 1, shipY - 1, 3, 2, true); // 机身
-      line(shipX - 3, shipY + 1, shipX + 3, shipY + 1); // 三角主翼
-      put(shipX - 3, shipY); put(shipX + 3, shipY); // 翼尖
-      // 引擎等离子尾焰
-      if (f % 2 === 0) put(shipX, shipY + 2);
+      // 战机机体 (针尖驾驶舱 + 三角后掠主翼 + 翼尖光炮 + 离子尾焰)
+      put(shipX, shipY - 3);
+      line(shipX - 1, shipY - 2, shipX + 1, shipY - 2);
+      put(shipX, shipY - 1, false); // 驾驶舱深色天窗
+      put(shipX - 1, shipY - 1); put(shipX + 1, shipY - 1);
+      line(shipX - 3, shipY, shipX + 3, shipY);
+      line(shipX - 4, shipY + 1, shipX + 4, shipY + 1);
+      put(shipX - 4, shipY); put(shipX + 4, shipY); // 翼尖炮塔
 
-      // 双路激光连发光束 (向天际发射)
-      const laser1Y = Math.round(15 - ((f * 2.2) % 13));
-      const laser2Y = Math.round(15 - (((f + 3) * 2.2) % 13));
-      if (laser1Y >= 3) {
-        put(shipX - 2, laser1Y); put(shipX + 2, laser1Y);
-      }
-      if (laser2Y >= 3) {
-        put(shipX - 2, laser2Y); put(shipX + 2, laser2Y);
+      // 脉冲离子尾焰
+      if (f % 2 === 0) {
+        put(shipX, shipY + 2);
+        put(shipX - 1, shipY + 3); put(shipX + 1, shipY + 3);
+      } else {
+        put(shipX, shipY + 2); put(shipX, shipY + 3);
       }
 
-      // 坠落的太空陨石与击中爆炸
+      // 双路聚能等离子激光
+      const lY1 = Math.round(14 - ((f * 2.5) % 13));
+      const lY2 = Math.round(14 - (((f + 3) * 2.5) % 13));
+      if (lY1 >= 2) {
+        put(shipX - 3, lY1); put(shipX + 3, lY1);
+        put(shipX - 3, lY1 + 1); put(shipX + 3, lY1 + 1);
+      }
+      if (lY2 >= 2) {
+        put(shipX - 3, lY2); put(shipX + 3, lY2);
+      }
+
+      // 空间陨石与击中裂变
       const rockX = Math.round(11 + Math.cos(f * 0.25) * 3);
-      const rockY = Math.round(3 + (f % 14) * 0.8);
-      const isHit = (f >= 12 && f <= 18);
+      const rockY = Math.round(2 + (f % 14) * 0.85);
+      const isHit = (f >= 12 && f <= 19);
 
       if (isHit) {
-        // 击中瞬间：8向粒子大爆炸
-        const bR = (f - 12) + 2;
-        circle(rockX, 6, bR, false);
-        put(rockX - bR, 6); put(rockX + bR, 6);
-        put(rockX, 6 - bR); put(rockX, 6 + bR);
+        const rad = (f - 12) + 2;
+        circle(rockX, 6, rad, false);
+        put(rockX - rad - 1, 6); put(rockX + rad + 1, 6);
+        put(rockX, 6 - rad - 1); put(rockX, 6 + rad + 1);
+        put(rockX - rad, 6 - rad); put(rockX + rad, 6 + rad);
       } else {
-        // 旋转陨石
-        box(rockX - 1, rockY, 3, 3, false);
+        circle(rockX, rockY + 1, 2, false);
         put(rockX, rockY + 1);
       }
       break;
     }
 
-    // 6. ⚡ 传音 90W 疾速闪充 · 能量矩阵 (全场景快充：双重外环光珠顺时针极速流光、中央90W裂变核心)
+    // 6. ⚡ 传音 90W 疾速闪充 · 能量矩阵 (环形粒子泵、高压折角闪电、90W数码字模)
     case 'INF_STUDIO_CHARGE': {
       const f = t % 36;
-      // 1. 双重同心极速外环流动光珠 (模拟 90W All-Round FastCharge 环形能量泵)
+      // 1. 双重同心粒子加速环 (带慧尾流光的真环形粒子泵)
       const angle = (f / 36) * Math.PI * 2;
-      for (let i = 0; i < 6; i++) {
-        const a = angle + (i * Math.PI / 3);
-        const r1 = 9.8;
-        const px = Math.round(11 + Math.cos(a) * r1);
-        const py = Math.round(11 + Math.sin(a) * r1);
-        put(px, py);
-        // 拖尾微光
-        const aTrail = a - 0.15;
-        put(Math.round(11 + Math.cos(aTrail) * r1), Math.round(11 + Math.sin(aTrail) * r1));
+      for (let i = 0; i < 4; i++) {
+        const a = angle + i * (Math.PI / 2);
+        put(Math.round(11 + Math.cos(a) * 9.8), Math.round(11 + Math.sin(a) * 9.8));
+        put(Math.round(11 + Math.cos(a - 0.12) * 9.8), Math.round(11 + Math.sin(a - 0.12) * 9.8));
+        put(Math.round(11 + Math.cos(a - 0.24) * 9.8), Math.round(11 + Math.sin(a - 0.24) * 9.8));
       }
 
-      // 2. 中央高能闪电裂变核心
-      const bolt = [
-        '00110',
-        '01100',
-        '11111',
-        '00110',
-        '01100',
-        '11000',
-        '10000'
+      // 2. 犀利锋锐的闪电核心 (高压折角造型)
+      const boltLines = [
+        [12, 3], [13, 3],
+        [11, 4], [12, 4],
+        [10, 5], [11, 5],
+        [9, 6], [10, 6], [11, 6], [12, 6], [13, 6], [14, 6],
+        [10, 7], [11, 7],
+        [9, 8], [10, 8],
+        [8, 9], [9, 9],
+        [7, 10], [8, 10],
+        [7, 11]
       ];
-      mask(bolt.join('/'), 9, 4);
+      boltLines.forEach(([bx, by]) => put(bx, by));
 
-      // 3. 底部 90W / 百分比数字精显 (3x5 细体)
-      // "90W"
-      mask('111/101/111/001/111', 5, 13);  // 9
-      mask('111/101/101/101/111', 9, 13);  // 0
-      mask('101/101/101/111/101', 13, 13); // W
+      // 3. "90W" 数码精显
+      mask('111/101/111/001/111', 5, 14);  // 9
+      mask('111/101/101/101/111', 9, 14);  // 0
+      mask('101/101/101/111/101', 13, 14); // W
 
-      // 能量爆发冲击环
-      const pulseR = (f % 12) * 0.75 + 2;
+      // 4. 能量冲击涟漪
+      const pulseR = (f % 12) * 0.8 + 2;
       circle(11, 7, pulseR, false);
       break;
     }
 
-    // 7. 📞 传音灵动来电 · Active Pulse (双重同心光环波纹扩散、中央高亮电话听筒振颤)
+    // 7. 📞 传音灵动来电 · Active Pulse (双重同心光环波纹扩散、中央振铃听筒)
     case 'INF_STUDIO_CALL': {
       const f = t % 32;
-      // 1. 双重同心扩散声波涟漪
-      const r1 = ((f * 0.7) % 10) + 2.5;
-      const r2 = (((f + 16) * 0.7) % 10) + 2.5;
+      const r1 = ((f * 0.75) % 10.5) + 2.5;
+      const r2 = (((f + 16) * 0.75) % 10.5) + 2.5;
       circle(11, 11, r1, false);
       circle(11, 11, r2, false);
 
-      // 2. 中央倾斜电话听筒 (振铃震动)
-      const shake = (f % 4 < 2) ? 1 : -1;
-      const ph = [
-        '011000',
-        '111100',
+      const shake = (f % 4 < 2) ? 1 : 0;
+      const phoneIcon = [
+        '011100',
+        '111110',
         '110110',
-        '000011',
         '000111',
-        '001100'
+        '001111',
+        '001110'
       ];
-      mask(ph.join('/'), 8 + shake, 8);
+      mask(phoneIcon.join('/'), 8 + shake, 8);
 
-      // 3. 顶部来电脉冲提示灯 (双点交替)
       put(11, 2);
       if (f % 2 === 0) {
-        put(10, 2); put(12, 2);
+        put(9, 2); put(13, 2);
       }
       break;
     }
 
-    // 8. 💬 传音灵动气泡 · 消息提醒 (信封展开为圆角气泡、三颗灵动像素点弹跳打字、外扩通知环)
+    // 8. 💬 传音灵动气泡 · 消息提醒 (圆角气泡、三颗正弦弹跳打字球)
     case 'INF_STUDIO_MSG': {
       const f = t % 32;
-      // 气泡主体 (13宽 x 9高 圆角矩形)
-      box(5, 6, 13, 9, false);
-      // 去掉直角并平滑圆角
-      put(5, 6, false); put(17, 6, false);
-      put(5, 14, false); put(17, 14, false);
-      put(6, 6); put(16, 6); put(6, 14); put(16, 14);
+      box(4, 5, 15, 10, false);
+      put(4, 5, false); put(18, 5, false);
+      put(4, 14, false); put(18, 14, false);
+      put(5, 5); put(17, 5); put(5, 14); put(17, 14);
 
-      // 气泡尾巴 (左下角小尾尖)
-      put(6, 15); put(7, 15); put(6, 16);
+      put(5, 15); put(6, 15); put(5, 16);
 
-      // 内部三颗打字跳动指示点 (逐点正弦弹跳)
-      const b0 = (f % 9 < 3) ? -1 : 0;
-      const b1 = ((f + 3) % 9 < 3) ? -1 : 0;
-      const b2 = ((f + 6) % 9 < 3) ? -1 : 0;
-      box(8, 10 + b0, 2, 2, true);
-      box(11, 10 + b1, 2, 2, true);
-      box(14, 10 + b2, 2, 2, true);
+      const b0 = Math.sin((f + 0) * 0.8) > 0.3 ? -1 : 0;
+      const b1 = Math.sin((f + 2) * 0.8) > 0.3 ? -1 : 0;
+      const b2 = Math.sin((f + 4) * 0.8) > 0.3 ? -1 : 0;
+      box(7, 9 + b0, 2, 2, true);
+      box(11, 9 + b1, 2, 2, true);
+      box(15, 9 + b2, 2, 2, true);
 
-      // 气泡外扩微光波
       if (f < 16) {
-        const ring = (f * 0.8) + 4;
+        const ring = (f * 0.85) + 3;
         circle(11, 10, ring, false);
       }
       break;
     }
 
-    // 9. ⏰ 传音摇摆闹钟 · 晨间唤醒 (闹钟左右30度高频摇摆、顶部双撞铃高频振颤、两侧声波光弧)
+    // 9. ⏰ 传音摇摆闹钟 · 晨间唤醒 (双撞铃、表针、±15度机械摇摆、声波弧纹)
     case 'INF_STUDIO_ALARM': {
       const f = t % 28;
       const tilt = Math.round(Math.sin(f * 0.8) * 1.5);
 
-      // 双顶撞铃
-      box(5 + tilt, 4, 3, 2, true);
-      box(15 + tilt, 4, 3, 2, true);
-      // 撞锤左右摇摆
-      put(11 + tilt, 3);
+      circle(5 + tilt, 4, 1.8, false);
+      circle(17 + tilt, 4, 1.8, false);
+      put(11 + tilt, 3); put(11 + tilt, 4);
 
-      // 钟表圆形表盘
       circle(11 + tilt, 12, 6, false);
-      // 中心指针
       put(11 + tilt, 12);
-      line(11 + tilt, 12, 11 + tilt, 9); // 分针
-      line(11 + tilt, 12, 13 + tilt, 12); // 时针
+      line(11 + tilt, 12, 11 + tilt, 9);
+      line(11 + tilt, 12, 13 + tilt, 12);
 
-      // 表脚支撑
-      put(7 + tilt, 18); put(6 + tilt, 19);
-      put(15 + tilt, 18); put(16 + tilt, 19);
+      line(6 + tilt, 18, 5 + tilt, 19);
+      line(16 + tilt, 18, 17 + tilt, 19);
 
-      // 闹铃震动弧纹 (两侧音波声浪)
       if (f % 2 === 0) {
-        line(2, 6, 2, 10);
-        line(20, 6, 20, 10);
+        line(1, 6, 2, 9);
+        line(21, 6, 20, 9);
       } else {
-        line(1, 5, 1, 11);
-        line(21, 5, 21, 11);
+        line(0, 5, 1, 10);
+        line(22, 5, 21, 10);
       }
       break;
     }
 
-    // 10. ✨ 传音跑马灯签名 · Studio Marquee (Note 60 Pro定制霓虹跑马灯：平滑走字、上下点缀)
+    // 10. ✨ 传音跑马灯签名 · Studio Marquee (平滑走字、微光边框)
     case 'INF_STUDIO_SIGNATURE': {
       const f = t % 60;
-      // 霓虹走字字模：I N F I N I X
       const font = {
         'I': ['111','010','010','010','111'],
         'N': ['101','111','111','101','101'],
@@ -4290,7 +4297,6 @@
       };
 
       const bannerText = 'INFINIX NOTE 60 PRO · 5G ACTIVE MATRIX ';
-      // 滚动起始偏移
       const scrollOffset = Math.round(4 - (f * 1.8));
 
       let curX = scrollOffset;
@@ -4308,7 +4314,6 @@
         curX += 4;
       }
 
-      // 上下微光边框流光点
       for (let x = 3; x <= 19; x += 2) {
         if ((x + Math.floor(f / 2)) % 4 === 0) {
           put(x, 6);
@@ -4318,20 +4323,19 @@
       break;
     }
 
-    // 11. 🎵 传音矩阵声波律动 · Active Matrix Music Groove (8组对称频段均衡器、低音重击爆发冲击环)
+    // 11. 🎵 传音矩阵声波律动 · Active Matrix Music Groove (8段音频频段、悬浮峰值针)
     case 'INF_STUDIO_MUSIC': {
       const f = t % 32;
-      // 8段对称音频均衡器柱
       const cols = [4, 6, 8, 10, 12, 14, 16, 18];
       const heights = [
-        3 + Math.round(Math.abs(Math.sin(f * 0.4)) * 5),
-        5 + Math.round(Math.abs(Math.sin(f * 0.6 + 1)) * 7),
-        7 + Math.round(Math.abs(Math.sin(f * 0.8 + 2)) * 8),
-        8 + Math.round(Math.abs(Math.sin(f * 0.5 + 3)) * 9),
-        8 + Math.round(Math.abs(Math.sin(f * 0.5 + 3)) * 9),
-        7 + Math.round(Math.abs(Math.sin(f * 0.8 + 2)) * 8),
-        5 + Math.round(Math.abs(Math.sin(f * 0.6 + 1)) * 7),
-        3 + Math.round(Math.abs(Math.sin(f * 0.4)) * 5)
+        3 + Math.round(Math.abs(Math.sin(f * 0.4)) * 4),
+        5 + Math.round(Math.abs(Math.sin(f * 0.6 + 1)) * 6),
+        7 + Math.round(Math.abs(Math.sin(f * 0.8 + 2)) * 7),
+        8 + Math.round(Math.abs(Math.sin(f * 0.5 + 3)) * 8),
+        8 + Math.round(Math.abs(Math.sin(f * 0.5 + 3)) * 8),
+        7 + Math.round(Math.abs(Math.sin(f * 0.8 + 2)) * 7),
+        5 + Math.round(Math.abs(Math.sin(f * 0.6 + 1)) * 6),
+        3 + Math.round(Math.abs(Math.sin(f * 0.4)) * 4)
       ];
 
       cols.forEach((colX, i) => {
@@ -4339,100 +4343,94 @@
         for (let dy = 0; dy < h; dy++) {
           put(colX, 17 - dy);
         }
-        // 峰值悬浮点
         put(colX, 17 - h - 1);
       });
 
-      // 重低音下沉时的外扩冲击环
       if (f % 16 < 8) {
-        const boomR = (f % 16) * 1.2 + 2;
+        const boomR = (f % 16) * 1.1 + 2;
         circle(11, 11, boomR, false);
       }
       break;
     }
 
-    // 12. 😎 传音像素酷墨镜 · Matrix Studio Sunglasses (潮酷墨镜镜片反光白光扫掠、自信嘴角微扬)
+    // 12. 😎 传音像素酷墨镜 · Matrix Studio Sunglasses (飞行员墨镜、45度反光扫光条)
     case 'INF_STUDIO_EMOJI_COOL': {
       const f = t % 28;
-      // 墨镜镜框 (左右双镜框 + 鼻梁横梁)
-      box(4, 7, 6, 6, true);
-      box(13, 7, 6, 6, true);
-      line(10, 8, 12, 8); // 鼻梁
+      // 墨镜镜框 (优雅镂空镜片，杜绝实白大块)
+      box(4, 7, 6, 6, false);
+      line(5, 7, 8, 7); line(5, 12, 8, 12);
+      box(13, 7, 6, 6, false);
+      line(14, 7, 17, 7); line(14, 12, 17, 12);
+      line(10, 8, 12, 8);
+      line(7, 6, 15, 6);
 
-      // 镜框镂空为黑色透光镜片
-      box(5, 8, 4, 4, false);
-      box(14, 8, 4, 4, false);
-
-      // 反光扫掠白光 (从左向右横穿两镜片)
-      const sweepX = Math.round(3 + (f / 28) * 16);
-      for (let y = 8; y <= 12; y++) {
-        put(sweepX - (y - 8), y);
+      // 45度反光扫光条
+      const sweepX = Math.round(2 + (f / 28) * 18);
+      for (let y = 8; y <= 11; y++) {
+        const sx = sweepX - (y - 8);
+        if ((sx >= 5 && sx <= 8) || (sx >= 14 && sx <= 17)) {
+          put(sx, y);
+        }
       }
 
       // 酷酷上扬嘴角
       line(8, 16, 12, 16);
-      put(13, 15); put(14, 14); // 翘起的酷嘴角
+      put(13, 15); put(14, 14);
       break;
     }
 
-    // 13. 💖 传音像素灵动心 · Heart Pulse (大小双心嵌套律动跳动、心尖脉冲微光扩散、迸发星辉)
+    // 13. 💖 传音像素灵动心 · Heart Pulse (优雅镂空双心、双拍心跳、迸发微星)
     case 'INF_STUDIO_EMOJI_HEART': {
       const f = t % 28;
-      // 双拍心跳节奏 (咚-咚--咚-咚)
       const isBeat = (f < 5 || (f >= 7 && f <= 11));
       const scale = isBeat ? 1 : 0;
 
-      // 外心 (大爱心)
-      const heartBig = [
+      const heartContour = [
         '011000110',
-        '111101111',
-        '111111111',
-        '011111110',
-        '001111100',
-        '000111000',
+        '100101001',
+        '100010001',
+        '010000010',
+        '001000100',
+        '000101000',
         '000010000'
       ];
-      mask(heartBig.join('/'), 7 - scale, 7 - scale);
+      mask(heartContour.join('/'), 7 - scale, 7 - scale);
 
-      // 内心高光与微星
+      mask('01010/11111/01110/00100', 9, 8);
+
       if (isBeat) {
-        // 心尖爆发微星
         put(11, 4); put(11, 16);
         put(5, 10); put(17, 10);
       }
       break;
     }
 
-    // 14. ⛅ 传音灵动天气台 · Weather Matrix (太阳金芒旋转、白云轻盈横穿、晶莹雨滴划落)
+    // 14. ⛅ 传音灵动天气台 · Weather Matrix (金黄旋转太阳、轻盈漂浮云朵、下落晶莹雨滴)
     case 'INF_STUDIO_WEATHER': {
       const f = t % 36;
-      // 1. 金黄旋转太阳
-      circle(6, 6, 2.5, true);
-      // 太阳 8 向射出光芒
+      circle(6, 6, 2, false);
+      put(6, 6);
       const sunAngle = (f / 36) * Math.PI * 2;
       for (let i = 0; i < 4; i++) {
         const a = sunAngle + (i * Math.PI / 2);
-        put(Math.round(6 + Math.cos(a) * 4), Math.round(6 + Math.sin(a) * 4));
+        put(Math.round(6 + Math.cos(a) * 3.8), Math.round(6 + Math.sin(a) * 3.8));
       }
 
-      // 2. 漂浮白云
-      const cloudX = Math.round(9 + Math.sin(f * 0.2) * 1.5);
-      box(cloudX, 10, 8, 4, true);
-      circle(cloudX + 2, 9, 2, true);
-      circle(cloudX + 5, 8, 2.5, true);
+      const cloudX = Math.round(8 + Math.sin(f * 0.2) * 1.5);
+      line(cloudX + 1, 14, cloudX + 10, 14);
+      circle(cloudX + 3, 12, 2, false);
+      circle(cloudX + 6, 11, 2.5, false);
+      circle(cloudX + 9, 13, 1.8, false);
 
-      // 3. 晶莹下落雨滴
-      const dropY1 = Math.round(14 + (f % 6));
-      const dropY2 = Math.round(14 + ((f + 2) % 6));
-      const dropY3 = Math.round(14 + ((f + 4) % 6));
-      if (dropY1 <= 20) put(cloudX + 1, dropY1);
-      if (dropY2 <= 20) put(cloudX + 4, dropY2);
-      if (dropY3 <= 20) put(cloudX + 7, dropY3);
+      const dropY1 = Math.round(15 + (f % 5));
+      const dropY2 = Math.round(15 + ((f + 2) % 5));
+      const dropY3 = Math.round(15 + ((f + 4) % 5));
+      if (dropY1 <= 20) put(cloudX + 3, dropY1);
+      if (dropY2 <= 20) put(cloudX + 6, dropY2);
+      if (dropY3 <= 20) put(cloudX + 9, dropY3);
       break;
     }
-
-
-  }
+    }
   if(kind === 'PERSON') {
     for(const id of [...out]) if(id % 23 > 11) out.delete(id);
     for(const id of [...out]) out.add(Math.floor(id / 23) * 23 + 22 - (id % 23));
@@ -6133,701 +6131,726 @@
     }
 
     /* 正常显示：灵动萌瞳大眼系列超清矢量渲染器 (实拍同款 8×11 比例胶囊大眼 + 深邃镂空瞳孔 + 单点晶莹高光) */
+        /* ==========================================================================
+       传音 Infinix Note 60 Pro (5G) 官方原厂超清矢量连续渲染系统 (商业级 AAA 动效)
+       ========================================================================== */
     function drawNormalInfinix(ctx, cx, cy, t, curF, anim, col) {
-  const id = anim.id;
-  ctx.save();
+      const id = anim.id;
+      ctx.save();
 
-  if (id === 'INF_PET_KIKI') {
-    const f = curF % 32;
-    const breath = 1 + 0.02 * Math.sin(t * 3.5);
-    const isSleep = (f >= 26);
-    const isMeow = (f >= 14 && f <= 20);
+      // 1. 🐱 像素猫 · Kiki
+      if (id === 'INF_PET_KIKI') {
+        const f = curF % 32;
+        const breath = 1 + 0.02 * Math.sin(t * 3.5);
+        const isSleep = (f >= 26);
+        const isMeow = (f >= 14 && f <= 20);
 
-    // 猫头外轮廓
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.scale(breath, breath);
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(breath, breath);
 
-    // 头部基底 (柔和浅色暗面)
-    ctx.fillStyle = '#1e293b';
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.roundRect(-80, -60, 160, 130, [40, 40, 50, 50]);
-    ctx.fill();
-    ctx.stroke();
+        // 柔和暗夜猫头渐变基底
+        const headGrad = ctx.createRadialGradient(0, -10, 20, 0, 10, 95);
+        headGrad.addColorStop(0, '#1e293b');
+        headGrad.addColorStop(0.7, '#0f172a');
+        headGrad.addColorStop(1, '#020617');
+        ctx.fillStyle = headGrad;
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.roundRect(-75, -55, 150, 120, [36, 36, 48, 48]);
+        ctx.fill();
+        ctx.stroke();
 
-    // 尖猫耳
-    const earTilt = (f >= 12 && f <= 18) ? Math.sin(f * 2) * 6 : 0;
-    // 左耳
-    ctx.beginPath();
-    ctx.moveTo(-70, -45);
-    ctx.lineTo(-85 + earTilt, -115);
-    ctx.lineTo(-25, -55);
-    ctx.closePath();
-    ctx.fillStyle = '#0f172a';
-    ctx.fill();
-    ctx.stroke();
-    // 右耳
-    ctx.beginPath();
-    ctx.moveTo(70, -45);
-    ctx.lineTo(85 - earTilt, -115);
-    ctx.lineTo(25, -55);
-    ctx.closePath();
-    ctx.fillStyle = '#0f172a';
-    ctx.fill();
-    ctx.stroke();
+        // 尖尖猫耳 (带内部柔粉色内耳)
+        const earTilt = (f >= 10 && f <= 13) ? Math.sin(f * 3) * 6 : 0;
+        // 左耳
+        ctx.beginPath();
+        ctx.moveTo(-65, -45);
+        ctx.lineTo(-80 + earTilt, -110);
+        ctx.lineTo(-25, -55);
+        ctx.closePath();
+        ctx.fillStyle = '#0f172a';
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        // 左耳粉色内耳
+        ctx.beginPath();
+        ctx.moveTo(-60, -50);
+        ctx.lineTo(-72 + earTilt, -98);
+        ctx.lineTo(-35, -58);
+        ctx.closePath();
+        ctx.fillStyle = '#f472b6';
+        ctx.fill();
 
-    // 眼睛
-    if (isSleep) {
-      // 闭眼弧线
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(-42, -5, 20, 0.2 * Math.PI, 0.8 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(42, -5, 20, 0.2 * Math.PI, 0.8 * Math.PI);
-      ctx.stroke();
-      // Zzz
-      ctx.font = 'bold 22px system-ui';
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillText('Zzz', 60, -90);
-    } else {
-      // 晶亮大圆眼
-      ctx.fillStyle = '#06b6d4';
-      ctx.shadowColor = '#06b6d4';
-      ctx.shadowBlur = 15;
-      ctx.beginPath();
-      ctx.ellipse(-42, -5, 24, 28, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.ellipse(42, -5, 24, 28, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      // 瞳孔高光
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(-48, -12, 8, 0, Math.PI * 2);
-      ctx.arc(36, -12, 8, 0, Math.PI * 2);
-      ctx.fill();
+        // 右耳
+        ctx.beginPath();
+        ctx.moveTo(65, -45);
+        ctx.lineTo(80 - earTilt, -110);
+        ctx.lineTo(25, -55);
+        ctx.closePath();
+        ctx.fillStyle = '#0f172a';
+        ctx.fill();
+        ctx.stroke();
+        // 右耳粉色内耳
+        ctx.beginPath();
+        ctx.moveTo(60, -50);
+        ctx.lineTo(72 - earTilt, -98);
+        ctx.lineTo(35, -58);
+        ctx.closePath();
+        ctx.fillStyle = '#f472b6';
+        ctx.fill();
+
+        // 眼睛
+        if (isSleep) {
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(-38, -5, 18, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(38, -5, 18, 0.2 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+          // Zzz
+          ctx.font = 'bold 22px system-ui';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText('Zzz', 55, -85);
+        } else {
+          // 晶莹灵动大眼
+          ctx.fillStyle = '#06b6d4';
+          ctx.shadowColor = '#06b6d4';
+          ctx.shadowBlur = 18;
+          ctx.beginPath();
+          ctx.ellipse(-38, -5, 22, 26, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(38, -5, 22, 26, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          // 深邃瞳孔与晶亮高光
+          ctx.fillStyle = '#083344';
+          ctx.beginPath();
+          ctx.ellipse(-38, -5, 12, 16, 0, 0, Math.PI * 2);
+          ctx.ellipse(38, -5, 12, 16, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(-42, -10, 6, 0, Math.PI * 2);
+          ctx.arc(34, -10, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 鼻子与嘴巴
+        ctx.fillStyle = '#f472b6';
+        ctx.beginPath();
+        ctx.moveTo(0, 16); ctx.lineTo(-7, 8); ctx.lineTo(7, 8);
+        ctx.closePath();
+        ctx.fill();
+
+        if (isMeow) {
+          ctx.fillStyle = '#f43f5e';
+          ctx.beginPath();
+          ctx.ellipse(0, 28, 10, 14, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(-7, 20, 8, 0.1 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(7, 20, 8, 0.2 * Math.PI, 0.9 * Math.PI);
+          ctx.stroke();
+        }
+
+        // 优雅胡须
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-55, 15); ctx.lineTo(-95, 10);
+        ctx.moveTo(-55, 25); ctx.lineTo(-90, 30);
+        ctx.moveTo(55, 15); ctx.lineTo(95, 10);
+        ctx.moveTo(55, 25); ctx.lineTo(90, 30);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // 2. 🐶 像素狗 · Woofie
+      else if (id === 'INF_PET_WOOFIE') {
+        const f = curF % 32;
+        const dy = (f >= 18 && f <= 24) ? -16 : 0;
+        const earBounce = Math.sin(t * 8) * 8;
+
+        ctx.save();
+        ctx.translate(cx, cy + dy);
+
+        // 头部基底
+        const dogGrad = ctx.createRadialGradient(0, 0, 20, 0, 5, 85);
+        dogGrad.addColorStop(0, '#334155');
+        dogGrad.addColorStop(0.7, '#1e293b');
+        dogGrad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = dogGrad;
+        ctx.strokeStyle = '#fbbf24';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.ellipse(0, 5, 78, 68, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // 柔和大垂耳
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.ellipse(-82, 10 + earBounce, 24, 44, -0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(82, 10 + earBounce, 24, 44, 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // 灵动狗眸
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.arc(-32, -8, 15, 0, Math.PI * 2);
+        ctx.arc(32, -8, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-35, -12, 6, 0, Math.PI * 2);
+        ctx.arc(29, -12, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 黑鼻头
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.ellipse(0, 14, 18, 13, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 欢快小舌头
+        ctx.fillStyle = '#f43f5e';
+        ctx.beginPath();
+        ctx.ellipse(0, 40, 13, 18, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // 3. 🦁 像素幼狮 · Simbar
+      else if (id === 'INF_PET_SIMBAR') {
+        const f = curF % 32;
+        const isRoar = (f >= 14 && f <= 22);
+        const manePulse = 1 + 0.04 * Math.sin(t * 6);
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // 华丽花瓣星芒狮鬃
+        ctx.save();
+        ctx.scale(manePulse, manePulse);
+        for (let i = 0; i < 16; i++) {
+          const a = (i / 16) * Math.PI * 2;
+          const r = 90;
+          ctx.beginPath();
+          ctx.arc(Math.cos(a) * r, Math.sin(a) * r, 24, 0, Math.PI * 2);
+          ctx.fillStyle = '#ea580c';
+          ctx.fill();
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // 幼狮脸庞
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(0, 0, 70, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 灵动大眼
+        ctx.fillStyle = '#1e1b4b';
+        ctx.beginPath();
+        ctx.arc(-28, -10, 13, 0, Math.PI * 2);
+        ctx.arc(28, -10, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-31, -13, 5, 0, Math.PI * 2);
+        ctx.arc(25, -13, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 幼狮宽鼻
+        ctx.fillStyle = '#9a3412';
+        ctx.beginPath();
+        ctx.ellipse(0, 12, 15, 11, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (isRoar) {
+          ctx.fillStyle = '#7f1d1d';
+          ctx.beginPath();
+          ctx.arc(0, 34, 20, 0, Math.PI * 2);
+          ctx.fill();
+          // 小尖牙
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.moveTo(-9, 18); ctx.lineTo(-5, 27); ctx.lineTo(-1, 18);
+          ctx.moveTo(1, 18); ctx.lineTo(5, 27); ctx.lineTo(9, 18);
+          ctx.fill();
+          // 声浪环
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.arc(0, 34, 42, -0.4 * Math.PI, 0.4 * Math.PI);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(0, 34, 60, -0.4 * Math.PI, 0.4 * Math.PI);
+          ctx.stroke();
+        } else {
+          ctx.strokeStyle = '#7c2d12';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(-9, 28, 11, 0.1 * Math.PI, 0.8 * Math.PI);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(9, 28, 11, 0.2 * Math.PI, 0.9 * Math.PI);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+
+      // 4. 🏃 点阵跑酷 · Dot Dash
+      else if (id === 'INF_GAME_DOTDASH') {
+        const f = curF % 40;
+        const isJump = (f >= 12 && f <= 26);
+        let pY = cy + 40;
+        if (isJump) {
+          const h = Math.sin(((f - 12) / 14) * Math.PI) * 110;
+          pY = cy + 40 - h;
+        }
+
+        // 赛博空间地面与透视网格
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx - 160, cy + 85);
+        ctx.lineTo(cx + 160, cy + 85);
+        ctx.stroke();
+
+        const scrollX = (t * 220) % 60;
+        for (let x = cx - 180 - scrollX; x < cx + 180; x += 30) {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+          ctx.beginPath();
+          ctx.moveTo(x, cy + 85);
+          ctx.lineTo(x - 20, cy + 130);
+          ctx.stroke();
+        }
+
+        // 障碍物
+        const hurdleX = cx + 160 - ((f % 20) / 20) * 320;
+        if (hurdleX > cx - 140 && hurdleX < cx + 140) {
+          ctx.fillStyle = '#ef4444';
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 18;
+          ctx.fillRect(hurdleX - 12, cy + 45, 24, 40);
+          ctx.shadowBlur = 0;
+        }
+
+        // 跳跃残影
+        if (isJump) {
+          ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+          ctx.beginPath();
+          ctx.arc(cx - 60, pY + 25, 14, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 跑者
+        ctx.fillStyle = '#38bdf8';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.arc(cx - 40, pY - 20, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillRect(cx - 46, pY - 4, 12, 32);
+
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        if (isJump) {
+          ctx.moveTo(cx - 46, pY + 28); ctx.lineTo(cx - 60, pY + 40);
+          ctx.moveTo(cx - 34, pY + 28); ctx.lineTo(cx - 20, pY + 40);
+        } else {
+          const legA = Math.sin(t * 16) * 20;
+          ctx.moveTo(cx - 46, pY + 28); ctx.lineTo(cx - 46 - legA, cy + 85);
+          ctx.moveTo(cx - 34, pY + 28); ctx.lineTo(cx - 34 + legA, cy + 85);
+        }
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        ctx.font = 'bold 16px system-ui';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('MINIPLAY · DOT DASH', cx - 90, cy - 100);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillText('SCORE 288', cx + 40, cy - 100);
+      }
+
+      // 5. 🚀 太空星战 · Star Blast
+      else if (id === 'INF_GAME_STARBLAST') {
+        const f = curF % 36;
+        const shipX = cx + Math.sin(t * 4) * 60;
+        const shipY = cy + 80;
+
+        // 星空
+        for (let i = 0; i < 24; i++) {
+          const sx = cx - 140 + ((i * 37) % 280);
+          const sy = cy - 140 + (((i * 47) + f * 4) % 280);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+          ctx.fillRect(sx, sy, 2, 2);
+        }
+
+        // 战机
+        ctx.fillStyle = '#06b6d4';
+        ctx.shadowColor = '#06b6d4';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.moveTo(shipX, shipY - 30);
+        ctx.lineTo(shipX - 25, shipY + 15);
+        ctx.lineTo(shipX, shipY + 5);
+        ctx.lineTo(shipX + 25, shipY + 15);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.moveTo(shipX - 10, shipY + 10);
+        ctx.lineTo(shipX, shipY + 30 + (f % 4) * 4);
+        ctx.lineTo(shipX + 10, shipY + 10);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // 双路激光
+        const laserY = cy + 40 - ((f * 18) % 180);
+        ctx.fillStyle = '#a855f7';
+        ctx.shadowColor = '#a855f7';
+        ctx.shadowBlur = 16;
+        ctx.fillRect(shipX - 18, laserY, 4, 25);
+        ctx.fillRect(shipX + 14, laserY, 4, 25);
+        ctx.shadowBlur = 0;
+
+        // 坠落陨石
+        const rockY = cy - 90 + ((f * 6) % 130);
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.arc(cx, rockY, 22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // 爆炸火花
+        if (f >= 12 && f <= 19) {
+          const rad = (f - 12) * 8 + 15;
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(cx, cy - 30, rad, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      // 6. ⚡ 90W 疾速闪充
+      else if (id === 'INF_STUDIO_CHARGE') {
+        const angle = t * 6;
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 120, 0, Math.PI * 2);
+        ctx.stroke();
+
+        for (let i = 0; i < 4; i++) {
+          const a = angle + i * (Math.PI / 2);
+          const px = cx + Math.cos(a) * 120;
+          const py = cy + Math.sin(a) * 120;
+          ctx.fillStyle = '#10b981';
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 25;
+          ctx.beginPath();
+          ctx.arc(px, py, 10, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+
+        // 90W 闪电核心
+        ctx.fillStyle = '#10b981';
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = 30;
+        ctx.beginPath();
+        ctx.moveTo(cx + 8, cy - 65);
+        ctx.lineTo(cx - 35, cy);
+        ctx.lineTo(cx - 5, cy);
+        ctx.lineTo(cx - 20, cy + 45);
+        ctx.lineTo(cx + 35, cy - 15);
+        ctx.lineTo(cx + 5, cy - 15);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.font = 'bold 36px system-ui';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.fillText('90W', cx, cy + 85);
+        ctx.font = '14px system-ui';
+        ctx.fillStyle = '#10b981';
+        ctx.fillText('ALL-ROUND FASTCHARGE 2.0', cx, cy + 110);
+      }
+
+      // 7. 📞 灵动来电
+      else if (id === 'INF_STUDIO_CALL') {
+        const r1 = ((t * 80) % 130) + 30;
+        const r2 = (((t * 80) + 65) % 130) + 30;
+        ctx.strokeStyle = `rgba(16, 185, 129, ${1 - r1 / 160})`;
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(cx, cy, r1, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = `rgba(16, 185, 129, ${1 - r2 / 160})`;
+        ctx.beginPath(); ctx.arc(cx, cy, r2, 0, Math.PI * 2); ctx.stroke();
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(Math.sin(t * 12) * 0.15);
+        ctx.fillStyle = '#10b981';
+        ctx.shadowColor = '#10b981';
+        ctx.shadowBlur = 25;
+        ctx.beginPath();
+        ctx.roundRect(-24, -40, 48, 80, 24);
+        ctx.fill();
+        ctx.fillStyle = '#064e3b';
+        ctx.beginPath();
+        ctx.roundRect(-16, -20, 32, 40, 12);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.restore();
+
+        ctx.font = 'bold 18px system-ui';
+        ctx.fillStyle = '#10b981';
+        ctx.textAlign = 'center';
+        ctx.fillText('INCOMING CALL', cx, cy + 95);
+      }
+
+      // 8. 💬 灵动气泡
+      else if (id === 'INF_STUDIO_MSG') {
+        ctx.fillStyle = '#0284c7';
+        ctx.shadowColor = '#0284c7';
+        ctx.shadowBlur = 25;
+        ctx.beginPath();
+        ctx.roundRect(cx - 90, cy - 60, 180, 100, 30);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(cx - 40, cy + 40);
+        ctx.lineTo(cx - 70, cy + 75);
+        ctx.lineTo(cx - 20, cy + 40);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        for (let i = 0; i < 3; i++) {
+          const dotBounce = Math.sin(t * 8 + i * 1.2) * 12;
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(cx - 45 + i * 45, cy - 10 + dotBounce, 12, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // 9. ⏰ 摇摆闹钟
+      else if (id === 'INF_STUDIO_ALARM') {
+        const tilt = Math.sin(t * 12) * 0.2;
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(tilt);
+
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.arc(-55, -60, 26, 0, Math.PI * 2);
+        ctx.arc(55, -60, 26, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#1e293b';
+        ctx.strokeStyle = '#f97316';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.arc(0, 0, 75, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(0, -45);
+        ctx.moveTo(0, 0); ctx.lineTo(30, 0);
+        ctx.stroke();
+
+        ctx.restore();
+
+        ctx.strokeStyle = 'rgba(249, 115, 22, 0.7)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx - 75, cy - 75, 25, 0.8 * Math.PI, 1.4 * Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(cx + 75, cy - 75, 25, -0.4 * Math.PI, 0.2 * Math.PI);
+        ctx.stroke();
+      }
+
+      // 10. ✨ 跑马灯签名
+      else if (id === 'INF_STUDIO_SIGNATURE') {
+        ctx.fillStyle = '#0f172a';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(cx - 130, cy - 45, 260, 90, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(cx - 125, cy - 40, 250, 80, 12);
+        ctx.clip();
+
+        const scrollX = cx + 120 - ((t * 80) % 450);
+        ctx.font = 'bold 22px system-ui';
+        ctx.fillStyle = '#38bdf8';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 15;
+        ctx.textAlign = 'left';
+        ctx.fillText('INFINIX NOTE 60 PRO (5G) · ACTIVE MATRIX', scrollX, cy + 8);
+        ctx.shadowBlur = 0;
+        ctx.restore();
+
+        ctx.font = '12px system-ui';
+        ctx.fillStyle = '#64748b';
+        ctx.textAlign = 'center';
+        ctx.fillText('MATRIX STUDIO TEXT SIGNATURE', cx, cy + 70);
+      }
+
+      // 11. 🎵 矩阵律动
+      else if (id === 'INF_STUDIO_MUSIC') {
+        const barW = 20;
+        const gap = 12;
+        const startX = cx - ((8 * barW + 7 * gap) / 2);
+
+        for (let i = 0; i < 8; i++) {
+          const h = 25 + Math.sin(t * 8 + i * 0.8) * 45 + 40;
+          const bx = startX + i * (barW + gap);
+          const by = cy + 60 - h;
+
+          const grad = ctx.createLinearGradient(0, by, 0, cy + 60);
+          grad.addColorStop(0, '#ec4899');
+          grad.addColorStop(0.5, '#a855f7');
+          grad.addColorStop(1, '#06b6d4');
+          ctx.fillStyle = grad;
+          ctx.fillRect(bx, by, barW, h);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(bx, by - 6, barW, 4);
+        }
+      }
+
+      // 12. 😎 像素酷墨镜
+      else if (id === 'INF_STUDIO_EMOJI_COOL') {
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 75, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.beginPath();
+        ctx.roundRect(cx - 65, cy - 25, 55, 42, [6, 6, 20, 20]);
+        ctx.roundRect(cx + 10, cy - 25, 55, 42, [6, 6, 20, 20]);
+        ctx.fill();
+        ctx.fillRect(cx - 15, cy - 20, 30, 8);
+
+        const sweep = ((t * 80) % 180) - 90;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(cx - 60 + sweep, cy - 20);
+        ctx.lineTo(cx - 45 + sweep, cy + 12);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(cx, cy + 20, 35, 0.2 * Math.PI, 0.8 * Math.PI);
+        ctx.stroke();
+      }
+
+      // 13. 💖 像素灵动心
+      else if (id === 'INF_STUDIO_EMOJI_HEART') {
+        const beat = 1 + 0.15 * Math.sin(t * 10) * (Math.sin(t * 10) > 0 ? 1 : 0);
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.scale(beat, beat);
+
+        ctx.fillStyle = '#ec4899';
+        ctx.shadowColor = '#ec4899';
+        ctx.shadowBlur = 30;
+        ctx.beginPath();
+        ctx.moveTo(0, 35);
+        ctx.bezierCurveTo(-60, -20, -50, -65, 0, -45);
+        ctx.bezierCurveTo(50, -65, 60, -20, 0, 35);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#fda4af';
+        ctx.beginPath();
+        ctx.moveTo(0, 20);
+        ctx.bezierCurveTo(-30, -10, -25, -40, 0, -28);
+        ctx.bezierCurveTo(25, -40, 30, -10, 0, 20);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // 14. ⛅ 灵动天气台
+      else if (id === 'INF_STUDIO_WEATHER') {
+        ctx.save();
+        ctx.translate(cx - 50, cy - 40);
+        ctx.rotate(t * 1.5);
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(0, 0, 28, 0, Math.PI * 2);
+        ctx.fill();
+        for (let i = 0; i < 8; i++) {
+          const a = (i / 8) * Math.PI * 2;
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(a) * 35, Math.sin(a) * 35);
+          ctx.lineTo(Math.cos(a) * 45, Math.sin(a) * 45);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.beginPath();
+        ctx.arc(cx + 20, cy - 10, 42, 0, Math.PI * 2);
+        ctx.arc(cx - 20, cy + 5, 30, 0, Math.PI * 2);
+        ctx.arc(cx + 55, cy + 10, 26, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let i = 0; i < 3; i++) {
+          const rx = cx - 10 + i * 35;
+          const ry = cy + 45 + ((t * 80 + i * 25) % 55);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(rx, ry);
+          ctx.lineTo(rx - 5, ry + 12);
+          ctx.stroke();
+        }
+      }
+
+      ctx.restore();
     }
-
-    // 鼻子与嘴巴
-    ctx.fillStyle = '#f472b6';
-    ctx.beginPath();
-    ctx.moveTo(0, 18);
-    ctx.lineTo(-8, 10);
-    ctx.lineTo(8, 10);
-    ctx.closePath();
-    ctx.fill();
-
-    if (isMeow) {
-      ctx.fillStyle = '#f43f5e';
-      ctx.beginPath();
-      ctx.ellipse(0, 32, 12, 16, 0, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      ctx.strokeStyle = '#cbd5e1';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(-8, 22, 10, 0.1 * Math.PI, 0.8 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(8, 22, 10, 0.2 * Math.PI, 0.9 * Math.PI);
-      ctx.stroke();
-    }
-
-    // 胡须
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(-60, 16); ctx.lineTo(-105, 12);
-    ctx.moveTo(-60, 26); ctx.lineTo(-100, 32);
-    ctx.moveTo(60, 16); ctx.lineTo(105, 12);
-    ctx.moveTo(60, 26); ctx.lineTo(100, 32);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-  else if (id === 'INF_PET_WOOFIE') {
-    const f = curF % 32;
-    const dy = (f >= 18 && f <= 24) ? -18 : 0;
-    const earBounce = Math.sin(t * 8) * 8;
-
-    ctx.save();
-    ctx.translate(cx, cy + dy);
-
-    // 头部基底
-    ctx.fillStyle = '#1e293b';
-    ctx.strokeStyle = '#fbbf24';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.ellipse(0, 5, 80, 70, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // 垂耳
-    ctx.fillStyle = '#b45309';
-    ctx.beginPath();
-    ctx.ellipse(-85, 10 + earBounce, 25, 45, -0.2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.ellipse(85, 10 + earBounce, 25, 45, 0.2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // 眼睛
-    ctx.fillStyle = '#0f172a';
-    ctx.beginPath();
-    ctx.arc(-35, -10, 16, 0, Math.PI * 2);
-    ctx.arc(35, -10, 16, 0, Math.PI * 2);
-    ctx.fill();
-    // 闪亮高光
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(-38, -14, 6, 0, Math.PI * 2);
-    ctx.arc(32, -14, 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 大黑鼻头
-    ctx.fillStyle = '#0f172a';
-    ctx.beginPath();
-    ctx.ellipse(0, 15, 20, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 吐出舌头
-    ctx.fillStyle = '#f43f5e';
-    ctx.beginPath();
-    ctx.ellipse(0, 42, 14, 20, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-  else if (id === 'INF_PET_SIMBAR') {
-    const f = curF % 32;
-    const isRoar = (f >= 14 && f <= 22);
-    const manePulse = 1 + 0.05 * Math.sin(t * 6);
-
-    ctx.save();
-    ctx.translate(cx, cy);
-
-    // 绚烂狮鬃
-    ctx.save();
-    ctx.scale(manePulse, manePulse);
-    for (let i = 0; i < 16; i++) {
-      const a = (i / 16) * Math.PI * 2;
-      const r = 95;
-      ctx.beginPath();
-      ctx.arc(Math.cos(a) * r, Math.sin(a) * r, 26, 0, Math.PI * 2);
-      ctx.fillStyle = '#ea580c';
-      ctx.fill();
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // 脸盘
-    ctx.fillStyle = '#f59e0b';
-    ctx.beginPath();
-    ctx.arc(0, 0, 72, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 眼睛
-    ctx.fillStyle = '#1e1b4b';
-    ctx.beginPath();
-    ctx.arc(-30, -10, 14, 0, Math.PI * 2);
-    ctx.arc(30, -10, 14, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(-34, -14, 5, 0, Math.PI * 2);
-    ctx.arc(26, -14, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 鼻子
-    ctx.fillStyle = '#9a3412';
-    ctx.beginPath();
-    ctx.ellipse(0, 12, 16, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 吼叫或微笑
-    if (isRoar) {
-      ctx.fillStyle = '#7f1d1d';
-      ctx.beginPath();
-      ctx.arc(0, 36, 22, 0, Math.PI * 2);
-      ctx.fill();
-      // 小尖牙
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.moveTo(-10, 20); ctx.lineTo(-6, 30); ctx.lineTo(-2, 20);
-      ctx.moveTo(2, 20); ctx.lineTo(6, 30); ctx.lineTo(10, 20);
-      ctx.fill();
-      // 声波弧环
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.7)';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(0, 36, 45, -0.4 * Math.PI, 0.4 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(0, 36, 65, -0.4 * Math.PI, 0.4 * Math.PI);
-      ctx.stroke();
-    } else {
-      ctx.strokeStyle = '#7c2d12';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(-10, 30, 12, 0.1 * Math.PI, 0.8 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(10, 30, 12, 0.2 * Math.PI, 0.9 * Math.PI);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-  else if (id === 'INF_GAME_DOTDASH') {
-    const f = curF % 40;
-    const isJump = (f >= 12 && f <= 26);
-    let pY = cy + 40;
-    if (isJump) {
-      const h = Math.sin(((f - 12) / 14) * Math.PI) * 110;
-      pY = cy + 40 - h;
-    }
-
-    // 霓虹网格与地面
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(cx - 160, cy + 85);
-    ctx.lineTo(cx + 160, cy + 85);
-    ctx.stroke();
-
-    // 跑酷地面流动线
-    const scrollX = (t * 220) % 60;
-    for (let x = cx - 180 - scrollX; x < cx + 180; x += 30) {
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
-      ctx.beginPath();
-      ctx.moveTo(x, cy + 85);
-      ctx.lineTo(x - 20, cy + 130);
-      ctx.stroke();
-    }
-
-    // 障碍柱
-    const hurdleX = cx + 160 - ((f % 20) / 20) * 320;
-    if (hurdleX > cx - 140 && hurdleX < cx + 140) {
-      ctx.fillStyle = '#ef4444';
-      ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 15;
-      ctx.fillRect(hurdleX - 12, cy + 45, 24, 40);
-      ctx.shadowBlur = 0;
-    }
-
-    // 跳跃残影
-    if (isJump) {
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
-      ctx.beginPath();
-      ctx.arc(cx - 60, pY + 25, 14, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // 跑酷小人
-    ctx.fillStyle = '#38bdf8';
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 15;
-    // 头部
-    ctx.beginPath();
-    ctx.arc(cx - 40, pY - 20, 16, 0, Math.PI * 2);
-    ctx.fill();
-    // 身体
-    ctx.fillRect(cx - 46, pY - 4, 12, 32);
-    // 腿部
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    if (isJump) {
-      ctx.moveTo(cx - 46, pY + 28); ctx.lineTo(cx - 60, pY + 40);
-      ctx.moveTo(cx - 34, pY + 28); ctx.lineTo(cx - 20, pY + 40);
-    } else {
-      const legA = Math.sin(t * 16) * 20;
-      ctx.moveTo(cx - 46, pY + 28); ctx.lineTo(cx - 46 - legA, cy + 85);
-      ctx.moveTo(cx - 34, pY + 28); ctx.lineTo(cx - 34 + legA, cy + 85);
-    }
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-
-    // HUD 成绩
-    ctx.font = 'bold 16px system-ui';
-    ctx.fillStyle = '#94a3b8';
-    ctx.fillText('MINIPLAY · DOT DASH', cx - 90, cy - 100);
-    ctx.fillStyle = '#38bdf8';
-    ctx.fillText('SCORE 288', cx + 40, cy - 100);
-  }
-  else if (id === 'INF_GAME_STARBLAST') {
-    const f = curF % 36;
-    const shipX = cx + Math.sin(t * 4) * 60;
-    const shipY = cy + 80;
-
-    // 背景繁星
-    for (let i = 0; i < 20; i++) {
-      const sx = cx - 140 + ((i * 37) % 280);
-      const sy = cy - 140 + (((i * 47) + f * 4) % 280);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.fillRect(sx, sy, 2, 2);
-    }
-
-    // 战机
-    ctx.fillStyle = '#06b6d4';
-    ctx.shadowColor = '#06b6d4';
-    ctx.shadowBlur = 20;
-    ctx.beginPath();
-    ctx.moveTo(shipX, shipY - 30);
-    ctx.lineTo(shipX - 25, shipY + 15);
-    ctx.lineTo(shipX, shipY + 5);
-    ctx.lineTo(shipX + 25, shipY + 15);
-    ctx.closePath();
-    ctx.fill();
-    // 尾焰
-    ctx.fillStyle = '#f97316';
-    ctx.beginPath();
-    ctx.moveTo(shipX - 10, shipY + 10);
-    ctx.lineTo(shipX, shipY + 30 + (f % 4) * 4);
-    ctx.lineTo(shipX + 10, shipY + 10);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // 激光束
-    const laserY = cy + 40 - ((f * 18) % 180);
-    ctx.fillStyle = '#a855f7';
-    ctx.shadowColor = '#a855f7';
-    ctx.shadowBlur = 15;
-    ctx.fillRect(shipX - 18, laserY, 4, 25);
-    ctx.fillRect(shipX + 14, laserY, 4, 25);
-    ctx.shadowBlur = 0;
-
-    // 坠落陨石
-    const rockY = cy - 90 + ((f * 6) % 130);
-    ctx.fillStyle = '#64748b';
-    ctx.beginPath();
-    ctx.arc(cx, rockY, 22, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // 爆炸火花
-    if (f >= 12 && f <= 18) {
-      const rad = (f - 12) * 8 + 15;
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(cx, cy - 30, rad, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-  }
-  else if (id === 'INF_STUDIO_CHARGE') {
-    const f = curF % 36;
-    // 极速环形粒子泵
-    const angle = t * 6;
-    ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
-    ctx.lineWidth = 8;
-    ctx.beginPath();
-    ctx.arc(cx, cy, 120, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 环形流光粒子
-    for (let i = 0; i < 4; i++) {
-      const a = angle + i * (Math.PI / 2);
-      const px = cx + Math.cos(a) * 120;
-      const py = cy + Math.sin(a) * 120;
-      ctx.fillStyle = '#10b981';
-      ctx.shadowColor = '#10b981';
-      ctx.shadowBlur = 25;
-      ctx.beginPath();
-      ctx.arc(px, py, 10, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.shadowBlur = 0;
-
-    // 90W 闪电核心
-    ctx.fillStyle = '#10b981';
-    ctx.shadowColor = '#10b981';
-    ctx.shadowBlur = 30;
-    ctx.beginPath();
-    ctx.moveTo(cx + 8, cy - 65);
-    ctx.lineTo(cx - 35, cy);
-    ctx.lineTo(cx - 5, cy);
-    ctx.lineTo(cx - 20, cy + 45);
-    ctx.lineTo(cx + 35, cy - 15);
-    ctx.lineTo(cx + 5, cy - 15);
-    ctx.closePath();
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // 90W 文字标示
-    ctx.font = 'bold 36px system-ui';
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.fillText('90W', cx, cy + 85);
-    ctx.font = '14px system-ui';
-    ctx.fillStyle = '#10b981';
-    ctx.fillText('ALL-ROUND FASTCHARGE', cx, cy + 110);
-  }
-  else if (id === 'INF_STUDIO_CALL') {
-    const f = curF % 32;
-    // 双重波纹
-    const r1 = ((t * 80) % 130) + 30;
-    const r2 = (((t * 80) + 65) % 130) + 30;
-    ctx.strokeStyle = `rgba(16, 185, 129, ${1 - r1 / 160})`;
-    ctx.lineWidth = 4;
-    ctx.beginPath(); ctx.arc(cx, cy, r1, 0, Math.PI * 2); ctx.stroke();
-    ctx.strokeStyle = `rgba(16, 185, 129, ${1 - r2 / 160})`;
-    ctx.beginPath(); ctx.arc(cx, cy, r2, 0, Math.PI * 2); ctx.stroke();
-
-    // 听筒
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(Math.sin(t * 12) * 0.15);
-    ctx.fillStyle = '#10b981';
-    ctx.shadowColor = '#10b981';
-    ctx.shadowBlur = 25;
-    ctx.beginPath();
-    ctx.roundRect(-24, -40, 48, 80, 24);
-    ctx.fill();
-    ctx.fillStyle = '#064e3b';
-    ctx.beginPath();
-    ctx.roundRect(-16, -20, 32, 40, 12);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.restore();
-
-    ctx.font = 'bold 18px system-ui';
-    ctx.fillStyle = '#10b981';
-    ctx.textAlign = 'center';
-    ctx.fillText('INCOMING CALL', cx, cy + 95);
-  }
-  else if (id === 'INF_STUDIO_MSG') {
-    const f = curF % 32;
-    // 圆角对话气泡
-    ctx.fillStyle = '#0284c7';
-    ctx.shadowColor = '#0284c7';
-    ctx.shadowBlur = 25;
-    ctx.beginPath();
-    ctx.roundRect(cx - 90, cy - 60, 180, 100, 30);
-    ctx.fill();
-    // 气泡尾巴
-    ctx.beginPath();
-    ctx.moveTo(cx - 40, cy + 40);
-    ctx.lineTo(cx - 70, cy + 75);
-    ctx.lineTo(cx - 20, cy + 40);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // 内部三颗跳动打字指示球
-    for (let i = 0; i < 3; i++) {
-      const dotBounce = Math.sin(t * 8 + i * 1.2) * 12;
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(cx - 45 + i * 45, cy - 10 + dotBounce, 12, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  else if (id === 'INF_STUDIO_ALARM') {
-    const tilt = Math.sin(t * 12) * 0.2;
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(tilt);
-
-    // 双铃铛
-    ctx.fillStyle = '#f97316';
-    ctx.beginPath();
-    ctx.arc(-55, -60, 26, 0, Math.PI * 2);
-    ctx.arc(55, -60, 26, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 闹钟圆盘
-    ctx.fillStyle = '#1e293b';
-    ctx.strokeStyle = '#f97316';
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.arc(0, 0, 75, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    // 指针
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(0, 0); ctx.lineTo(0, -45);
-    ctx.moveTo(0, 0); ctx.lineTo(30, 0);
-    ctx.stroke();
-
-    ctx.restore();
-
-    // 声浪波
-    ctx.strokeStyle = 'rgba(249, 115, 22, 0.7)';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.arc(cx - 75, cy - 75, 25, 0.8 * Math.PI, 1.4 * Math.PI);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(cx + 75, cy - 75, 25, -0.4 * Math.PI, 0.2 * Math.PI);
-    ctx.stroke();
-  }
-  else if (id === 'INF_STUDIO_SIGNATURE') {
-    // 霓虹走马灯
-    ctx.fillStyle = '#0f172a';
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.roundRect(cx - 130, cy - 45, 260, 90, 16);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(cx - 125, cy - 40, 250, 80, 12);
-    ctx.clip();
-
-    const scrollX = cx + 120 - ((t * 80) % 450);
-    ctx.font = 'bold 22px system-ui';
-    ctx.fillStyle = '#38bdf8';
-    ctx.shadowColor = '#38bdf8';
-    ctx.shadowBlur = 15;
-    ctx.textAlign = 'left';
-    ctx.fillText('INFINIX NOTE 60 PRO (5G) · ACTIVE MATRIX', scrollX, cy + 8);
-    ctx.shadowBlur = 0;
-    ctx.restore();
-
-    ctx.font = '12px system-ui';
-    ctx.fillStyle = '#64748b';
-    ctx.textAlign = 'center';
-    ctx.fillText('MATRIX STUDIO TEXT SIGNATURE', cx, cy + 70);
-  }
-  else if (id === 'INF_STUDIO_MUSIC') {
-    // 8段音频均衡器
-    const barW = 20;
-    const gap = 12;
-    const startX = cx - ((8 * barW + 7 * gap) / 2);
-
-    for (let i = 0; i < 8; i++) {
-      const h = 25 + Math.sin(t * 8 + i * 0.8) * 45 + 40;
-      const bx = startX + i * (barW + gap);
-      const by = cy + 60 - h;
-
-      const grad = ctx.createLinearGradient(0, by, 0, cy + 60);
-      grad.addColorStop(0, '#ec4899');
-      grad.addColorStop(0.5, '#a855f7');
-      grad.addColorStop(1, '#06b6d4');
-      ctx.fillStyle = grad;
-      ctx.fillRect(bx, by, barW, h);
-
-      // 顶部悬浮峰值
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(bx, by - 6, barW, 4);
-    }
-  }
-  else if (id === 'INF_STUDIO_EMOJI_COOL') {
-    // 酷墨镜
-    ctx.fillStyle = '#fbbf24';
-    ctx.beginPath();
-    ctx.arc(cx, cy, 75, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 墨镜
-    ctx.fillStyle = '#0f172a';
-    ctx.beginPath();
-    ctx.roundRect(cx - 65, cy - 25, 55, 42, [6, 6, 20, 20]);
-    ctx.roundRect(cx + 10, cy - 25, 55, 42, [6, 6, 20, 20]);
-    ctx.fill();
-    ctx.fillRect(cx - 15, cy - 20, 30, 8); // 鼻梁
-
-    // 镜面扫光反光
-    const sweep = ((t * 80) % 180) - 90;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(cx - 60 + sweep, cy - 20);
-    ctx.lineTo(cx - 45 + sweep, cy + 12);
-    ctx.stroke();
-
-    // 自信微笑
-    ctx.strokeStyle = '#78350f';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.arc(cx, cy + 20, 35, 0.2 * Math.PI, 0.8 * Math.PI);
-    ctx.stroke();
-  }
-  else if (id === 'INF_STUDIO_EMOJI_HEART') {
-    const beat = 1 + 0.15 * Math.sin(t * 10) * (Math.sin(t * 10) > 0 ? 1 : 0);
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.scale(beat, beat);
-
-    ctx.fillStyle = '#ec4899';
-    ctx.shadowColor = '#ec4899';
-    ctx.shadowBlur = 30;
-    ctx.beginPath();
-    ctx.moveTo(0, 35);
-    ctx.bezierCurveTo(-60, -20, -50, -65, 0, -45);
-    ctx.bezierCurveTo(50, -65, 60, -20, 0, 35);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    // 内心
-    ctx.fillStyle = '#fda4af';
-    ctx.beginPath();
-    ctx.moveTo(0, 20);
-    ctx.bezierCurveTo(-30, -10, -25, -40, 0, -28);
-    ctx.bezierCurveTo(25, -40, 30, -10, 0, 20);
-    ctx.fill();
-
-    ctx.restore();
-  }
-  else if (id === 'INF_STUDIO_WEATHER') {
-    // 太阳
-    ctx.save();
-    ctx.translate(cx - 50, cy - 40);
-    ctx.rotate(t * 1.5);
-    ctx.fillStyle = '#f59e0b';
-    ctx.beginPath();
-    ctx.arc(0, 0, 28, 0, Math.PI * 2);
-    ctx.fill();
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2;
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a) * 35, Math.sin(a) * 35);
-      ctx.lineTo(Math.cos(a) * 45, Math.sin(a) * 45);
-      ctx.stroke();
-    }
-    ctx.restore();
-
-    // 白云
-    ctx.fillStyle = '#94a3b8';
-    ctx.beginPath();
-    ctx.arc(cx + 20, cy - 10, 42, 0, Math.PI * 2);
-    ctx.arc(cx - 20, cy + 5, 30, 0, Math.PI * 2);
-    ctx.arc(cx + 55, cy + 10, 26, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 雨滴
-    for (let i = 0; i < 3; i++) {
-      const rx = cx - 10 + i * 35;
-      const ry = cy + 45 + ((t * 80 + i * 25) % 55);
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(rx, ry);
-      ctx.lineTo(rx - 5, ry + 12);
-      ctx.stroke();
-    }
-  }
-
-  ctx.restore();
-}
 
     /* ==========================================================================
        灵动大眼超清矢量绘制
