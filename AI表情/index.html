@@ -4106,7 +4106,7 @@
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
     const EMPTY_ANIMATION = { id: 'EMPTY', name: '暂无动画', cat: 'emotion', frames: 1 };
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V8';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V9';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 官方线上基准待修改动画清单 (内置代码库，保障全网部署、移动端无缓存与初次加载 100% 永久在线可见) */
@@ -4424,6 +4424,13 @@
       if (!isExport) {
         renderSubcatPills();
         renderAnimationsList();
+        const matches = ALL_ANIMATIONS.filter(item => {
+          if (state.currentCat === 'pending') return isPendingModify(item.id);
+          return item.cat === state.currentCat;
+        });
+        if (matches.length > 0 && (!state.currentAnim || !matches.some(m => m.id === state.currentAnim.id))) {
+          selectAnimation(matches[0]);
+        }
       } else {
         updateCodeExports();
       }
@@ -4455,6 +4462,14 @@
             document.querySelectorAll('.subcat-pill').forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
             renderAnimationsList();
+            const matches = ALL_ANIMATIONS.filter(item => {
+              if (!isPendingModify(item.id)) return false;
+              if (state.currentSubcat !== 'all' && item.cat !== state.currentSubcat) return false;
+              return true;
+            });
+            if (matches.length > 0 && (!state.currentAnim || !matches.some(m => m.id === state.currentAnim.id))) {
+              selectAnimation(matches[0]);
+            }
           };
           container.appendChild(pill);
         });
@@ -4469,7 +4484,12 @@
 
       const pillsToRender = [];
       catDef.subcats.forEach((sub, idx) => {
-        pillsToRender.push(sub);
+        let displayName = sub.name;
+        if (sub.id !== 'all') {
+          const count = ALL_ANIMATIONS.filter(a => a.cat === state.currentCat && a.subcat === sub.id).length;
+          displayName = sub.name.replace(/\s*\(\d+\)/, '') + ` (${count})`;
+        }
+        pillsToRender.push({ id: sub.id, name: displayName });
         // 在“全部”胶囊之后紧接着插入“🚩 待修改”快捷分类胶囊
         if (idx === 0) {
           pillsToRender.push({
@@ -4490,6 +4510,16 @@
           document.querySelectorAll('.subcat-pill').forEach(p => p.classList.remove('active'));
           pill.classList.add('active');
           renderAnimationsList();
+
+          const matches = ALL_ANIMATIONS.filter(item => {
+            if (state.currentCat !== 'all' && item.cat !== state.currentCat) return false;
+            if (state.currentSubcat === 'pending_in_cat') return isPendingModify(item.id);
+            if (state.currentSubcat !== 'all' && item.subcat !== state.currentSubcat) return false;
+            return true;
+          });
+          if (matches.length > 0 && (!state.currentAnim || !matches.some(m => m.id === state.currentAnim.id))) {
+            selectAnimation(matches[0]);
+          }
         };
         container.appendChild(pill);
       });
@@ -7479,11 +7509,13 @@
         let raw = localStorage.getItem(STORAGE_KEY_ANIMATIONS);
         if (!raw) {
           // 向上迁移：兼容旧版存储并主动过滤游戏分类
+          const oldV8 = localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V8');
           const oldV7 = localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V7') || localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V2') || localStorage.getItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
-          if (oldV7) raw = oldV7;
+          raw = oldV8 || oldV7;
         }
         if (!raw) {
           ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+          saveAnimationsToStorage();
           return;
         }
         const data = JSON.parse(raw);
@@ -7521,24 +7553,30 @@
               loaded.push(item);
             }
           }
-          // 只向旧缓存引入本次新增功能；已知动画的删除状态保持不变。
-          const known = data.knownBuiltinIds;
+          // 确保所有官方内置动画（全部 106 款，尤其是实拍同款灵动大眼 #91~#106）全部无缝补齐，绝不被旧版缓存遗漏
           for (const def of DEFAULT_ANIMATIONS) {
-            const isNew = (Array.isArray(known) ? !known.includes(def.id) : def.id === 'SYSTEM_NOTICE')
-              || (def.id === 'SAND' && data.systemCountdownVersion !== 1);
-            if (isNew && !loaded.some(a => a.id === def.id)) loaded.push({ ...def });
+            if (!loaded.some(a => a.id === def.id)) {
+              loaded.push({ ...def });
+            }
           }
-          // 已保存清单是用户的有效清单；缺少的内置动画表示已删除，不自动补回。
+          // 排序：优先按 DEFAULT_ANIMATIONS 的官方标准索引排列，保证顺序整洁规范
+          const orderMap = new Map();
+          DEFAULT_ANIMATIONS.forEach((d, i) => orderMap.set(d.id, i));
+          loaded.sort((a, b) => {
+            const ia = orderMap.has(a.id) ? orderMap.get(a.id) : 9999;
+            const ib = orderMap.has(b.id) ? orderMap.get(b.id) : 9999;
+            return ia - ib;
+          });
           ALL_ANIMATIONS = loaded;
-          if (data.systemCountdownVersion !== 1) {
-            localStorage.setItem(STORAGE_KEY_ANIMATIONS, JSON.stringify({ ...data, systemCountdownVersion: 1, animations: loaded }));
-          }
+          saveAnimationsToStorage();
         } else {
           ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+          saveAnimationsToStorage();
         }
       } catch (e) {
         console.warn('Failed to parse animations from localStorage:', e);
         ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+        saveAnimationsToStorage();
       }
     }
 
@@ -7574,9 +7612,11 @@
     function resetAnimationsToDefault() {
       if (confirm('确定要恢复为官方默认动画库吗？\n所有自定义新增或修改的动画将被重置，官方全部 106 款动画将完整还原。')) {
         localStorage.removeItem(STORAGE_KEY_ANIMATIONS);
+        localStorage.removeItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V8');
         localStorage.removeItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V7');
         localStorage.removeItem('DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V1');
         ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+        saveAnimationsToStorage();
         state.currentAnim = ALL_ANIMATIONS[0];
         initUI();
         selectAnimation(ALL_ANIMATIONS[0]);
