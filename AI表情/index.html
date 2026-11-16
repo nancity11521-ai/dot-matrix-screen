@@ -2222,112 +2222,134 @@
   const heart = '0011100011100/0111110111110/1111111111111/1111111111111/1111111111111/0111111111110/0011111111100/0001111111000/0000111110000/0000011100000/0000001000000';
   const head = (x = 11, y = 4) => circle(x, y, 2.2, true);
 
-  // 灵动萌瞳超大眼专用点阵渲染核心 (15行高×9列宽大范围覆盖，深邃镂空瞳孔，晶莹双重高光，支持丰富微表情与面部特征)
-  const drawBigEye = (isRight, pdx = 0, pdy = 0, lidTop = 0, lidBot = 0, style = 'normal', wink = false, opt = {}) => {
-    const lxStart = isRight ? 13 : 1;
-    const lxEnd = isRight ? 21 : 9;
-    const cx = isRight ? 17 : 5;
-    const cy = 11;
+  // 灵动萌瞳大眼系列专用点阵渲染核心 (实拍同款 8列宽×11行高胶囊大眼，原生适配 393 圆阵 23×23)
+  const drawBigEye = (isRight, pdx = 0, pdy = 0, lidTop = 0, lidBot = 0, style = 'normal', wink = false, frame = 0) => {
+    const lx = isRight ? 13 : 2;
+    const ty = 6;
 
-    // 眨眼或安睡或完全合眼闭线
-    if (wink || style === 'sleep' || (lidTop + lidBot >= 14)) {
-      for (let x = lxStart + 1; x <= lxEnd - 1; x++) {
-        const dist = Math.abs(x - cx);
-        const wy = 11 + (dist >= 2 ? 1 : 0);
-        put(x, wy, true);
-        put(x, wy + 1, true);
+    // 眨眼完全合上或安眠或深度闭眼
+    if (wink || style === 'sleep' || (lidTop + lidBot >= 10)) {
+      for (let dx = 1; dx <= 6; dx++) {
+        const dy = (dx >= 2 && dx <= 5) ? 6 : 5;
+        put(lx + dx, ty + dy, true);
       }
       return;
     }
 
-    // 弯月笑眼 (饱满弧度上弦月)
+    // 弯月笑眼
     if (style === 'happy') {
-      for (let x = lxStart; x <= lxEnd; x++) {
-        const dist = Math.abs(x - cx);
-        const wy = 9 - Math.floor(dist * 0.75);
-        put(x, wy, true);
-        put(x, wy + 1, true);
-        put(x, wy + 2, true);
+      for (let dx = 0; dx < 8; dx++) {
+        const dist = Math.abs(dx - 3.5);
+        const baseDy = 3 + Math.floor(dist * 0.7);
+        for (let ddy = 0; ddy < 3; ddy++) {
+          put(lx + dx, ty + baseDy + ddy, true);
+        }
       }
       return;
     }
 
-    // 白眼球大胶囊轮廓 (y=4..18，共 15 行极高占比覆盖)
-    for (let r = 0; r < 15; r++) {
-      const y = 4 + r;
-      if (r < lidTop || r >= 15 - lidBot) continue;
-
-      let xs;
-      if (r === 0 || r === 14) xs = [lxStart + 2, lxStart + 3, lxStart + 4, lxStart + 5, lxStart + 6];
-      else if (r === 1 || r === 13) xs = [lxStart + 1, lxStart + 2, lxStart + 3, lxStart + 4, lxStart + 5, lxStart + 6, lxStart + 7];
-      else {
-        xs = [];
-        for (let x = lxStart; x <= lxEnd; x++) xs.push(x);
-      }
-
-      for (const x of xs) {
-        if (style === 'angry') {
-          const tilt = (x - cx) * (isRight ? 0.8 : -0.8);
-          if ((r - lidTop) < 3 + tilt) continue;
-        } else if (style === 'sad') {
-          const tilt = (x - cx) * (isRight ? -0.75 : 0.75);
-          if ((r - lidTop) < 2.5 + tilt) continue;
-        } else if (style === 'smug') {
-          if (r < (isRight ? 4 : 2)) continue;
-        }
-
-        put(x, y, true);
-      }
-    }
-
-    // 瞳孔与高光点
-    const dilated = opt.dilated || 0;
-    const pw = Math.max(3, 5 + dilated);
-    const ph = Math.max(5, 7 + dilated);
-    const p_cx = cx + pdx;
-    const p_cy = cy + pdy;
-
-    const pyMin = Math.floor(p_cy - (ph - 1) / 2);
-    const pyMax = Math.floor(p_cy + (ph - 1) / 2);
-    const pxMin = Math.floor(p_cx - (pw - 1) / 2);
-    const pxMax = Math.floor(p_cx + (pw - 1) / 2);
-
-    for (let py = pyMin; py <= pyMax; py++) {
-      const r = py - 4;
-      if (r < lidTop || r >= 15 - lidBot || py < 4 || py > 18) continue;
-      for (let px = pxMin; px <= pxMax; px++) {
-        const dx = Math.abs(px - p_cx);
-        const dy = Math.abs(py - p_cy);
-        if (dx >= (pw - 1) / 2 - 0.1 && dy >= (ph - 1) / 2 - 0.1) continue;
-
-        if (style === 'heart') {
-          const hr = py - pyMin;
-          const hc = px - pxMin;
-          const isH = (hr === 1 && (hc === 1 || hc === 3)) || (hr === 2 || hr === 3) || (hr === 4 && (hc >= 1 && hc <= 3)) || (hr === 5 && hc === 2);
-          if (!isH) put(px, py, false);
-        } else {
-          put(px, py, false);
-          const glint = opt.glint || 'normal';
-          if (glint === 'star') {
-            if ((px === Math.round(p_cx) && Math.abs(py - Math.round(p_cy - 1)) <= 1) || (py === Math.round(p_cy - 1) && Math.abs(px - Math.round(p_cx)) <= 1)) {
-              put(px, py, true);
-            }
-          } else if (glint === 'watery') {
-            if ((px === Math.round(p_cx - 1) || px === Math.round(p_cx)) && py === Math.round(p_cy - 2)) put(px, py, true);
-            if ((px === Math.round(p_cx - 1) || px === Math.round(p_cx + 1)) && py === Math.round(p_cy + 2)) put(px, py, true);
-          } else {
-            // 经典超清双重晶莹高光 (主高光 2 像素 + 次高光 1 像素)
-            if ((px === Math.round(p_cx - 1) || px === Math.round(p_cx)) && py === Math.round(p_cy - 2)) put(px, py, true);
-            if (px === Math.round(p_cx + 1) && py === Math.round(p_cy + 1)) put(px, py, true);
+    // 圈圈眩晕
+    if (style === 'dizzy') {
+      const phase = frame % 4;
+      const swirlPatterns = [
+        [[2,3],[3,3],[4,3],[5,4],[5,5],[4,6],[3,6],[2,5],[3,4]],
+        [[3,2],[4,2],[5,3],[5,4],[4,5],[3,5],[2,4],[2,3],[4,3]],
+        [[4,3],[5,3],[5,4],[4,5],[3,5],[2,4],[2,3],[3,2],[3,4]],
+        [[5,4],[5,5],[4,6],[3,6],[2,5],[2,4],[3,3],[4,3],[4,5]]
+      ];
+      for (let r = 0; r < 11; r++) {
+        for (let c = 0; c < 8; c++) {
+          if ((r === 0 || r === 10) && !(c >= 2 && c <= 5)) continue;
+          if ((r === 1 || r === 9) && !(c >= 1 && c <= 6)) continue;
+          if (r === 0 || r === 10 || c === 0 || c === 7) {
+            put(lx + c, ty + r, true);
           }
         }
       }
+      for (const [sc, sr] of swirlPatterns[phase]) {
+        put(lx + sc, ty + sr, true);
+      }
+      return;
     }
 
-    // 辅助特征：粉嫩腮红
-    if (opt.blush) {
-      const bxStart = isRight ? 16 : 4;
-      for (let bx = bxStart; bx <= bxStart + 2; bx++) put(bx, 19, true);
+    // 1. 巩膜胶囊轮廓 (8列×11行，圆润四角，与实拍照片完全吻合)
+    for (let r = 0; r < 11; r++) {
+      if (r < lidTop || r >= 11 - lidBot) continue;
+      for (let c = 0; c < 8; c++) {
+        if ((r === 0 || r === 10) && !(c >= 2 && c <= 5)) continue;
+        if ((r === 1 || r === 9) && !(c >= 1 && c <= 6)) continue;
+
+        if (style === 'angry') {
+          const tilt = (isRight ? c : (7 - c)) * 0.7;
+          if ((r - lidTop) < 2 + tilt) continue;
+        } else if (style === 'sad') {
+          const tilt = (isRight ? (7 - c) : c) * 0.7;
+          if ((r - lidTop) < 1.8 + tilt) continue;
+        } else if (style === 'smug') {
+          if (r < (lidTop + (isRight ? 2 : 4))) continue;
+        }
+
+        put(lx + c, ty + r, true);
+      }
+    }
+
+    // 2. 瞳孔与高光点
+    if (style === 'surprise') {
+      // 惊呆微缩瞳孔
+      for (let r = 4; r <= 6; r++) {
+        for (let c = 3; c <= 4; c++) {
+          put(lx + c, ty + r, false);
+        }
+      }
+      put(lx + 3, ty + 4, true);
+      return;
+    }
+
+    // 标准深邃镂空瞳孔 (4列×6行，圆润边缘，静息状态左右双眼各精确 57 颗点亮，合计 114 颗)
+    const pupilCells = [
+      [2, 3], [3, 3],
+      [1, 4], [2, 4], [3, 4], [4, 4],
+      [1, 5], [2, 5], [3, 5], [4, 5],
+      [1, 6], [2, 6], [3, 6], [4, 6],
+      [1, 7], [2, 7], [3, 7], [4, 7],
+      [2, 8], [3, 8]
+    ];
+
+    for (const [pc, pr] of pupilCells) {
+      const r = pr + pdy;
+      const c = pc + pdx;
+      if (r >= 0 && r < 11 && c >= 0 && c < 8) {
+        if (r >= lidTop && r < 11 - lidBot) {
+          put(lx + c, ty + r, false);
+        }
+      }
+    }
+
+    if (style === 'heart') {
+      // 瞳孔内爱心点亮
+      const hrCenter = 5 + pdy;
+      const hcCenter = 3 + pdx;
+      const heartDots = [
+        [hcCenter - 1, hrCenter - 1], [hcCenter + 1, hrCenter - 1],
+        [hcCenter - 1, hrCenter], [hcCenter, hrCenter], [hcCenter + 1, hrCenter],
+        [hcCenter, hrCenter + 1]
+      ];
+      for (const [hx, hy] of heartDots) {
+        if (hy >= 0 && hy < 11 && hx >= 0 && hx < 8) {
+          if (hy >= lidTop && hy < 11 - lidBot) {
+            put(lx + hx, ty + hy, true);
+          }
+        }
+      }
+    } else {
+      // 实拍同款单点高光点 (位于瞳孔左上方 c=2, r=4)
+      const gr = 4 + pdy;
+      const gc = 2 + pdx;
+      if (gr >= 0 && gr < 11 && gc >= 0 && gc < 8) {
+        if (gr >= lidTop && gr < 11 - lidBot) {
+          put(lx + gc, ty + gr, true);
+        }
+      }
     }
   };
 
@@ -3641,212 +3663,139 @@
       break;
     }
 
-    /* --- 灵动萌瞳大眼系列 (16款，大范围高占比覆盖，深邃双重高光，丰富微表情) --- */
+    /* --- 灵动萌瞳大眼系列 (16款，实拍同款 8列宽×11行高胶囊大眼，动作参考经典表情) --- */
     case 'BIG_NEUTRAL': {
-      // #91 · EMO-37 大眼 · 平常萌视 (32帧自然长呼吸 + 微视线漫游浮动 + 平滑双眼皮眨眼)
+      // #91 · EMO-37 大眼 · 平常萌视 (32帧自然长呼吸 + 微视线漫游浮动 + 平滑闭眼眨动)
       const f = t % 32;
-      const lid = (f >= 20 && f <= 26) ? [2, 5, 7, 7, 5, 2, 0][f - 20] : 0;
+      const lid = (f >= 20 && f <= 26) ? [2, 5, 8, 8, 5, 2, 0][f - 20] : 0;
       const pdx = (f >= 6 && f <= 14) ? -1 : 0;
-      const blushOn = (f % 8 < 4);
-      drawBigEye(false, pdx, 0, lid, lid, 'normal', false, { blush: blushOn });
-      drawBigEye(true, pdx, 0, lid, lid, 'normal', false, { blush: blushOn });
+      drawBigEye(false, pdx, 0, lid, lid, 'normal');
+      drawBigEye(true, pdx, 0, lid, lid, 'normal');
       break;
     }
     case 'BIG_LOOK_LEFT': {
-      // #92 · EMO-38 大眼 · 灵眸望左 (瞳孔大幅向左滑移 -2 + 挑起灵动眉毛 + 自然微眨)
+      // #92 · EMO-38 大眼 · 灵眸望左 (瞳孔向左侧滑移 -1 + 自然微眨)
       const f = t % 32;
-      const pdx = (f >= 3 && f <= 28) ? -2 : 0;
-      const lid = (f >= 23 && f <= 27) ? [2, 6, 6, 3, 0][f - 23] : 0;
+      const pdx = (f >= 3 && f <= 28) ? -1 : 0;
+      const lid = (f >= 23 && f <= 27) ? [2, 6, 6, 2, 0][f - 23] : 0;
       drawBigEye(false, pdx, 0, lid, lid);
       drawBigEye(true, pdx, 0, lid, lid);
-      if (f >= 3 && f <= 28) {
-        for (let bx = 5; bx <= 8; bx++) put(bx, 2);
-      }
       break;
     }
     case 'BIG_LOOK_RIGHT': {
-      // #93 · EMO-39 大眼 · 灵眸望右 (瞳孔大幅向右滑移 +2 + 右侧挑眉 + 自然微眨)
+      // #93 · EMO-39 大眼 · 灵眸望右 (瞳孔向右侧滑移 +1 + 自然微眨)
       const f = t % 32;
-      const pdx = (f >= 3 && f <= 28) ? 2 : 0;
-      const lid = (f >= 23 && f <= 27) ? [2, 6, 6, 3, 0][f - 23] : 0;
+      const pdx = (f >= 3 && f <= 28) ? 1 : 0;
+      const lid = (f >= 23 && f <= 27) ? [2, 6, 6, 2, 0][f - 23] : 0;
       drawBigEye(false, pdx, 0, lid, lid);
       drawBigEye(true, pdx, 0, lid, lid);
-      if (f >= 3 && f <= 28) {
-        for (let bx = 14; bx <= 17; bx++) put(bx, 2);
-      }
       break;
     }
     case 'BIG_CURIOUS': {
-      // #94 · EMO-40 大眼 · 环顾探索 (48帧大范围圆弧环顾：左 -> 上左 -> 正上 -> 右 -> 下 -> 眨眼回中 + 漂浮问号)
+      // #94 · EMO-40 大眼 · 环顾探索 (48帧大眼环视探索：左 -> 上左 -> 正上 -> 右 -> 下 -> 眨眼回中)
       const f = t % 48;
-      let pdx = 0, pdy = 0, lid = 0;
-      if (f < 10) { pdx = -2; pdy = 0; }
-      else if (f < 20) { pdx = -1; pdy = -2; }
-      else if (f < 30) { pdx = 0; pdy = -2; }
-      else if (f < 38) { pdx = 2; pdy = 0; }
-      else if (f < 43) { pdx = 0; pdy = 1; lid = [2, 6, 6, 3, 0][f - 38]; }
+      const coords = [[0,0], [-1,-1], [0,-1], [1,-1], [1,0], [1,1], [0,1], [-1,1]];
+      const [pdx, pdy] = coords[Math.floor(f / 5) % coords.length];
+      const lid = (f >= 40 && f <= 44) ? [2, 5, 5, 2, 0][f - 40] : 0;
       drawBigEye(false, pdx, pdy, lid, lid);
       drawBigEye(true, pdx, pdy, lid, lid);
-      if (f >= 15 && f <= 32) {
-        put(19, 2); put(20, 2); put(20, 3); put(19, 4); put(19, 6);
-        for (let bx = 5; bx <= 8; bx++) put(bx, 2);
-      }
       break;
     }
     case 'BIG_HAPPY': {
-      // #95 · EMO-41 大眼 · 弯月微笑 (大月牙微笑弯月笑弧 + 饱满双颊腮红 + 快乐起伏微震)
+      // #95 · EMO-41 大眼 · 弯月微笑 (弯月笑眼弧度 + 愉悦垂直起伏微震)
       const f = t % 24;
-      const bob = (f % 6 < 3) ? -1 : 0;
-      drawBigEye(false, 0, bob, 0, 0, 'happy', false, { blush: true });
-      drawBigEye(true, 0, bob, 0, 0, 'happy', false, { blush: true });
-      if (f % 4 < 2) { put(11, 2); put(10, 3); put(12, 3); }
+      const bob = (f % 12 < 6) ? -1 : 0;
+      drawBigEye(false, 0, bob, 0, 0, 'happy');
+      drawBigEye(true, 0, bob, 0, 0, 'happy');
       break;
     }
     case 'BIG_WINK': {
-      // #96 · EMO-42 大眼 · 俏皮单眨 (左眼大睁星芒闪烁，右眼俏皮眨眼弯弧 + 腮红 + 闪光星辰)
+      // #96 · EMO-42 大眼 · 俏皮单眨 (左眼俏皮单眨，右眼灵眸注视)
       const f = t % 28;
-      const winking = f >= 6 && f <= 20;
-      drawBigEye(false, 0, 0, 0, 0, 'normal', false, { glint: 'star' });
-      if (winking) {
-        drawBigEye(true, 0, 0, 0, 0, 'normal', true, { blush: true });
-        put(19, 3); put(20, 2); put(20, 4); put(21, 3);
-      } else {
-        const lid = f < 6 ? Math.floor(f / 2) : Math.floor((27 - f) / 2);
-        drawBigEye(true, 0, 0, lid, lid);
-      }
+      const isWink = (f >= 6 && f <= 20);
+      drawBigEye(false, 0, 0, 0, 0, 'normal', isWink);
+      drawBigEye(true, isWink ? 1 : 0, 0, 0, 0, 'normal');
       break;
     }
     case 'BIG_FOCUS': {
-      // #97 · EMO-43 大眼 · 专注凝视 (眼帘聚精微缩 + 锐利聚光眉 + 科技感垂直激光扫描线)
+      // #97 · EMO-43 大眼 · 聚精凝神 (眼皮半阖聚焦 + 瞳孔内聚微聚焦)
       const f = t % 24;
-      drawBigEye(false, 0, 0, 3, 1);
-      drawBigEye(true, 0, 0, 3, 1);
-      for (let bx = 5; bx <= 8; bx++) put(bx, 3);
-      for (let bx = 14; bx <= 17; bx++) put(bx, 3);
-      const sx = 3 + (f % 16);
-      for (let sy = 9; sy <= 13; sy++) put(sx, sy);
+      const lid = 2 + (f % 8 < 4 ? 1 : 0);
+      drawBigEye(false, 1, 0, lid, lid);
+      drawBigEye(true, -1, 0, lid, lid);
       break;
     }
     case 'BIG_SURPRISE': {
-      // #98 · EMO-44 大眼 · 惊讶瞪大 (瞬间暴睁，瞳孔惊吓微缩 + 额头冷汗滴 + 高挑惊疑眉)
+      // #98 · EMO-44 大眼 · 萌趣惊呆 (大白眼框瞬时放大，中心微缩瞳孔震颤)
       const f = t % 24;
-      if (f >= 3 && f <= 16) {
-        const jit = (f % 2 === 0) ? 1 : -1;
-        drawBigEye(false, jit, 0, 0, 0, 'normal', false, { dilated: -2 });
-        drawBigEye(true, jit, 0, 0, 0, 'normal', false, { dilated: -2 });
-        for (let bx = 6; bx <= 9; bx++) put(bx, 1);
-        for (let bx = 13; bx <= 16; bx++) put(bx, 1);
-        put(19, 2); put(20, 3);
-      } else {
-        const lid = (f >= 17 && f <= 21) ? [2, 6, 4, 1, 0][f - 17] : 0;
-        drawBigEye(false, 0, 0, lid, lid);
-        drawBigEye(true, 0, 0, lid, lid);
-      }
+      const shock = (f >= 4 && f <= 18);
+      const style = shock ? 'surprise' : 'normal';
+      drawBigEye(false, 0, 0, 0, 0, style);
+      drawBigEye(true, 0, 0, 0, 0, style);
       break;
     }
     case 'BIG_SLEEPY': {
-      // #99 · EMO-45 大眼 · 困倦打盹 (眼皮重重垂落 -> 点头沉入睡梦 -> 猛然惊醒睁大 -> 再次缓缓入眠)
-      const f = t % 48;
-      if (f < 16) {
-        const lid = Math.min(6, Math.floor(f / 2.5));
-        drawBigEye(false, 0, 1, lid, 0);
-        drawBigEye(true, 0, 1, lid, 0);
-      } else if (f < 28) {
-        drawBigEye(false, 0, 1, 6, 6, 'sleep');
-        drawBigEye(true, 0, 1, 6, 6, 'sleep');
-        if (f % 6 < 3) { put(18, 3); put(19, 3); put(18, 4); put(19, 4); }
-      } else if (f < 32) {
-        drawBigEye(false, 0, 0, 0, 0);
-        drawBigEye(true, 0, 0, 0, 0);
-      } else {
-        const lid = Math.min(6, Math.floor((f - 32) / 2.5));
-        drawBigEye(false, 0, 1, lid, 0);
-        drawBigEye(true, 0, 1, lid, 0);
-      }
+      // #99 · EMO-45 大眼 · 困倦微眨 (沉重眼皮垂落 -> 沉睡闭合 -> 猛然眨醒)
+      const f = t % 36;
+      const cycle = f % 18;
+      const lid = cycle < 14 ? Math.min(6, Math.floor(cycle / 2)) : [4, 1, 0, 0][cycle - 14];
+      const pdy = lid >= 3 ? 1 : 0;
+      drawBigEye(false, 0, pdy, lid, 1);
+      drawBigEye(true, 0, pdy, lid, 1);
       break;
     }
     case 'BIG_SAD': {
-      // #100 · EMO-46 大眼 · 委屈难过 (八字倒垂委屈眉 + 泪光闪闪波光瞳孔 + 真实泪滴缓缓滑落)
+      // #100 · EMO-46 大眼 · 委屈难过 (倒八字垂落眼帘 + 泪光低垂视线)
       const f = t % 32;
-      drawBigEye(false, 0, 1, 0, 0, 'sad', false, { glint: 'watery' });
-      drawBigEye(true, 0, 1, 0, 0, 'sad', false, { glint: 'watery' });
-      put(5, 3); put(6, 2); put(7, 2); put(8, 1);
-      put(14, 1); put(15, 2); put(16, 2); put(17, 3);
-      const ty = 13 + Math.floor((f % 16) / 2);
-      if (ty <= 19) put(7, ty);
+      drawBigEye(false, 0, 1, 1, 0, 'sad');
+      drawBigEye(true, 0, 1, 1, 0, 'sad');
       break;
     }
     case 'BIG_ANGRY': {
-      // #101 · EMO-47 大眼 · 严肃生气 (倒八字压迫感浓眉 + 怒火瞳孔颤动 + 右上角脉动怒气十字青筋 💢)
+      // #101 · EMO-47 大眼 · 气鼓瞪视 (八字锐利眼帘 + 怒视瞳孔微抬)
       const f = t % 24;
-      const shake = (f % 4 < 2) ? 1 : 0;
-      drawBigEye(false, 0, 0, shake, 0, 'angry');
-      drawBigEye(true, 0, 0, shake, 0, 'angry');
-      put(5, 1); put(6, 2); put(7, 2); put(8, 3);
-      put(14, 3); put(15, 2); put(16, 2); put(17, 1);
-      if (f % 6 < 3) {
-        put(19, 1); put(18, 2); put(20, 2); put(19, 3);
-      }
+      const pulse = (f % 8 < 4) ? 1 : 0;
+      drawBigEye(false, 0, -1, 1 + pulse, 0, 'angry');
+      drawBigEye(true, 0, -1, 1 + pulse, 0, 'angry');
       break;
     }
     case 'BIG_SMUG': {
-      // #102 · EMO-48 大眼 · 得意傲娇 (大小眼半眯慵懒神气 + 斜视自信 + 单颊粉红 + 嘴角闪光)
-      const f = t % 28;
-      drawBigEye(false, 2, 0, 0, 0, 'smug', false, { blush: true });
-      drawBigEye(true, 2, 0, 0, 0, 'smug', false, { blush: true });
-      if (f % 6 < 3) {
-        put(21, 8); put(20, 9); put(22, 9); put(21, 10);
-      }
+      // #102 · EMO-48 大眼 · 傲娇侧目 (高低眼半眯 + 斜睨自信视线)
+      drawBigEye(false, 1, 0, 3, 1, 'smug');
+      drawBigEye(true, 1, 0, 2, 1, 'smug');
       break;
     }
     case 'BIG_DIZZY': {
-      // #103 · EMO-49 大眼 · 晕眩转圈 (双瞳大幅度同心圆周转动 + 头顶盘旋星光环绕)
+      // #103 · EMO-49 大眼 · 圈圈眩晕 (经典四相旋转同心漩涡瞳孔)
       const f = t % 24;
-      const ang = (f / 24) * 2 * Math.PI;
-      const pdx = Math.round(Math.cos(ang) * 2);
-      const pdy = Math.round(Math.sin(ang) * 2);
-      drawBigEye(false, pdx, pdy);
-      drawBigEye(true, -pdx, -pdy);
-      const sx = Math.round(11 + Math.cos(-ang) * 4);
-      const sy = Math.round(2 + Math.sin(-ang) * 1);
-      put(sx, sy);
+      drawBigEye(false, 0, 0, 0, 0, 'dizzy', false, f);
+      drawBigEye(true, 0, 0, 0, 0, 'dizzy', false, f);
       break;
     }
     case 'BIG_ALERT': {
-      // #104 · EMO-50 大眼 · 警觉探寻 (急促极速左右警觉打量 + 警报高挑眉 + 四向信标光点交替脉冲)
-      const f = t % 24;
-      const pdx = f < 7 ? -2 : f < 14 ? 2 : 0;
-      drawBigEye(false, pdx, 0);
-      drawBigEye(true, pdx, 0);
-      for (let bx = 5; bx <= 8; bx++) put(bx, 1);
-      for (let bx = 14; bx <= 17; bx++) put(bx, 1);
-      if (f >= 14 && f % 4 < 2) {
-        put(0, 11); put(22, 11); put(11, 0); put(11, 22);
-      }
+      // #104 · EMO-50 大眼 · 戒备斜睨 (机敏左右快速扫视 + 戒备微眯)
+      const f = t % 28;
+      const side = (f % 14 < 7) ? -1 : 1;
+      drawBigEye(false, side, 0, 2, 1);
+      drawBigEye(true, side, 0, 2, 1);
       break;
     }
     case 'BIG_HEART': {
-      // #105 · EMO-51 大眼 · 满眼爱意 (大号立体爱心脉动瞳孔 + 真实扑通扑通双拍心跳 + 腮红与头顶飞心)
+      // #105 · EMO-51 大眼 · 冒心爱意 (胶囊眼内爱心瞳孔双节拍扑通扑通跳动)
       const f = t % 24;
-      const dil = (f % 12 <= 2 || (f % 12 >= 4 && f % 12 <= 5)) ? 1 : 0;
-      drawBigEye(false, 0, 0, 0, 0, 'heart', false, { dilated: dil, blush: true });
-      drawBigEye(true, 0, 0, 0, 0, 'heart', false, { dilated: dil, blush: true });
-      if (f % 12 < 4) {
-        put(11, 2); put(10, 3); put(12, 3);
-      }
+      const beat = (f % 12 < 6) ? -1 : 0;
+      drawBigEye(false, 0, beat, 0, 0, 'heart');
+      drawBigEye(true, 0, beat, 0, 0, 'heart');
       break;
     }
     case 'BIG_SLEEP': {
-      // #106 · EMO-52 大眼 · 安然睡眠 (温柔双闭月弧线 + 慢节奏深度沉睡呼吸 + 优雅斜向升腾 Z 字母)
+      // #106 · EMO-52 大眼 · 安详入眠 (平稳闭合睡眠弧线 + 鼻梁上方漂浮上升 Z 字)
       const f = t % 32;
-      const bob = Math.sin(f / 32 * Math.PI * 2) > 0 ? 0 : 1;
-      drawBigEye(false, 0, 0, 0, 0, 'sleep');
-      drawBigEye(true, 0, 0, 0, 0, 'sleep');
-      if (f % 16 < 8) {
-        put(18, 3 - bob); put(19, 3 - bob); put(18, 4 - bob); put(19, 4 - bob);
-      } else {
-        put(16, 5 - bob); put(17, 5 - bob);
-      }
+      const floatY = (f % 16 < 8) ? -1 : 0;
+      drawBigEye(false, 0, floatY, 0, 0, 'sleep');
+      drawBigEye(true, 0, floatY, 0, 0, 'sleep');
+      const zy = 5 - (f % 6);
+      if (zy >= 1 && zy <= 5) put(11, zy);
       break;
     }
 
@@ -5414,96 +5363,79 @@
       }
     }
 
-    /* 正常显示：灵动萌瞳大眼系列超清矢量渲染器 (大号饱满胶囊大眼 + 深邃瞳孔 + 双重晶莹高光 + 丰富微表情) */
+    /* 正常显示：灵动萌瞳大眼系列超清矢量渲染器 (实拍同款 8×11 比例胶囊大眼 + 深邃镂空瞳孔 + 单点晶莹高光) */
     function drawNormalBigEyes(ctx, cx, cy, t, curF, anim, col) {
       const id = anim.id;
-      const breath = 1 + 0.02 * Math.sin(t * 3);
-      const ew = 132 * breath, eh = 224 * breath, cornerR = 56 * breath;
-      const leftCx = cx - 80, rightCx = cx + 80, eyeCy = cy;
+      const breath = 1 + 0.015 * Math.sin(t * 3);
+      // 与 393 点阵 8列×11行、鼻梁3列、居中(11,11) 严格等比映射
+      const ew = 96 * breath, eh = 142 * breath, cornerR = 38 * breath;
+      const leftCx = cx - 74, rightCx = cx + 74, eyeCy = cy;
 
-      let pdx = 0, pdy = 0, lidTop = 0, lidBot = 0, style = 'normal', rightWink = false;
-      let blush = false, brow = 'none', glint = 'normal', dilated = 0;
-      let sweat = false, question = false, angerMark = false, starGlint = false, scanBeam = false, tear = false;
+      let pdx = 0, pdy = 0, lidTop = 0, lidBot = 0, style = 'normal', leftWink = false, isSleep = false;
 
       if (id === 'BIG_NEUTRAL') {
         const f = curF % 32;
-        if (f >= 20 && f <= 26) lidTop = lidBot = [0.25, 0.6, 0.95, 0.95, 0.6, 0.25, 0][f - 20];
+        if (f >= 20 && f <= 26) lidTop = lidBot = [0.25, 0.6, 1.0, 1.0, 0.6, 0.25, 0][f - 20];
         pdx = (f >= 6 && f <= 14) ? -0.8 : 0;
-        blush = (f % 8 < 4);
       } else if (id === 'BIG_LOOK_LEFT') {
         const f = curF % 32;
-        pdx = (f >= 3 && f <= 28) ? -1.8 : 0;
-        if (f >= 23 && f <= 27) lidTop = lidBot = [0.3, 0.95, 0.95, 0.5, 0.15][f - 23];
-        brow = 'curious_left';
+        pdx = (f >= 3 && f <= 28) ? -1.2 : 0;
+        if (f >= 23 && f <= 27) lidTop = lidBot = [0.25, 0.8, 0.8, 0.3, 0][f - 23];
       } else if (id === 'BIG_LOOK_RIGHT') {
         const f = curF % 32;
-        pdx = (f >= 3 && f <= 28) ? 1.8 : 0;
-        if (f >= 23 && f <= 27) lidTop = lidBot = [0.3, 0.95, 0.95, 0.5, 0.15][f - 23];
-        brow = 'curious_right';
+        pdx = (f >= 3 && f <= 28) ? 1.2 : 0;
+        if (f >= 23 && f <= 27) lidTop = lidBot = [0.25, 0.8, 0.8, 0.3, 0][f - 23];
       } else if (id === 'BIG_CURIOUS') {
         const f = curF % 48;
-        if (f < 10) { pdx = -1.8; pdy = 0; }
-        else if (f < 20) { pdx = -1; pdy = -1.6; }
-        else if (f < 30) { pdx = 0; pdy = -1.8; question = true; }
-        else if (f < 38) { pdx = 1.8; pdy = 0; }
-        else if (f < 43) { pdx = 0; pdy = 1; lidTop = lidBot = [0.3, 0.95, 0.95, 0.5, 0.15][f - 38]; }
-        brow = 'curious';
+        const coords = [[0,0], [-1,-1], [0,-1], [1,-1], [1,0], [1,1], [0,1], [-1,1]];
+        const [dx, dy] = coords[Math.floor(f / 5) % coords.length];
+        pdx = dx * 1.2; pdy = dy * 1.0;
+        if (f >= 40 && f <= 44) lidTop = lidBot = [0.25, 0.7, 0.7, 0.25, 0][f - 40];
       } else if (id === 'BIG_HAPPY') {
-        style = 'happy'; blush = true;
+        style = 'happy';
+        pdy = (curF % 12 < 6) ? -6 : 0;
       } else if (id === 'BIG_WINK') {
         const f = curF % 28;
-        rightWink = f >= 6 && f <= 20;
-        glint = 'star'; blush = rightWink; starGlint = rightWink;
-        if (!rightWink) { lidTop = lidBot = (f < 6 ? f / 12 : (27 - f) / 12); }
+        leftWink = (f >= 6 && f <= 20);
+        pdx = leftWink ? 0.8 : 0;
       } else if (id === 'BIG_FOCUS') {
-        lidTop = 0.32; lidBot = 0.15; brow = 'focus'; scanBeam = true;
+        lidTop = lidBot = 0.32;
       } else if (id === 'BIG_SURPRISE') {
         const f = curF % 24;
-        if (f >= 3 && f <= 16) { style = 'surprise'; dilated = -2; sweat = true; brow = 'raised'; pdx = (f % 2 === 0 ? 0.3 : -0.3); }
-        else if (f >= 17 && f <= 21) { lidTop = lidBot = [0.35, 0.95, 0.55, 0.18, 0][f - 17]; }
+        if (f >= 4 && f <= 18) style = 'surprise';
       } else if (id === 'BIG_SLEEPY') {
-        const f = curF % 48;
-        if (f < 16) { lidTop = Math.min(0.85, f / 18); pdy = 0.5; }
-        else if (f < 28) { style = 'sleep'; pdy = 0.8; }
-        else if (f < 32) { lidTop = 0; pdy = 0; }
-        else { lidTop = Math.min(0.85, (f - 32) / 18); pdy = 0.5; }
+        const f = curF % 36;
+        const cycle = f % 18;
+        lidTop = cycle < 14 ? Math.min(0.75, cycle / 18) : [0.5, 0.15, 0, 0][cycle - 14];
+        pdy = lidTop >= 0.35 ? 1.2 : 0;
       } else if (id === 'BIG_SAD') {
-        style = 'sad'; pdy = 0.6; brow = 'sad'; glint = 'watery'; tear = true;
+        style = 'sad'; pdy = 1.0;
       } else if (id === 'BIG_ANGRY') {
-        style = 'angry'; brow = 'angry'; angerMark = true;
+        style = 'angry'; pdy = -0.8;
       } else if (id === 'BIG_SMUG') {
-        style = 'smug'; pdx = 1.6; blush = true; starGlint = true;
+        style = 'smug'; pdx = 1.2;
       } else if (id === 'BIG_DIZZY') {
-        const f = curF % 24; const ang = (f / 24) * Math.PI * 2;
-        pdx = Math.cos(ang) * 1.8; pdy = Math.sin(ang) * 1.6;
+        style = 'dizzy';
       } else if (id === 'BIG_ALERT') {
-        const f = curF % 24; pdx = f < 7 ? -1.8 : f < 14 ? 1.8 : 0; brow = 'raised';
+        const f = curF % 28;
+        pdx = (f % 14 < 7) ? -1.2 : 1.2;
+        lidTop = 0.25; lidBot = 0.12;
       } else if (id === 'BIG_HEART') {
-        style = 'heart'; blush = true;
+        style = 'heart';
+        pdy = (curF % 12 < 6) ? -4 : 0;
       } else if (id === 'BIG_SLEEP') {
-        style = 'sleep';
+        style = 'sleep'; isSleep = true;
       }
 
       const drawSingleEye = (ecx, ecy, isRight) => {
         ctx.save();
-        if (isRight && rightWink) {
-          ctx.beginPath();
-          ctx.arc(ecx, ecy + 20, 52, Math.PI * 1.15, Math.PI * 1.85);
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 16;
-          ctx.lineCap = 'round';
-          ctx.shadowColor = col;
-          ctx.shadowBlur = 24;
-          ctx.stroke();
-          ctx.restore();
-          return;
-        }
 
-        if (style === 'sleep') {
+        // 俏皮单眨
+        if (!isRight && leftWink) {
           ctx.beginPath();
-          ctx.arc(ecx, ecy + 18, 52, Math.PI * 1.15, Math.PI * 1.85);
+          ctx.arc(ecx, ecy + 12, 38, Math.PI * 1.15, Math.PI * 1.85);
           ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 14;
+          ctx.lineWidth = 12;
           ctx.lineCap = 'round';
           ctx.shadowColor = col;
           ctx.shadowBlur = 20;
@@ -5512,202 +5444,156 @@
           return;
         }
 
-        if (style === 'happy') {
+        // 安详入眠 / 闭眼
+        if (style === 'sleep' || (lidTop + lidBot >= 0.95)) {
           ctx.beginPath();
-          ctx.arc(ecx, ecy + 34, 60, Math.PI * 1.16, Math.PI * 1.84);
+          ctx.arc(ecx, ecy + 10, 36, Math.PI * 1.15, Math.PI * 1.85);
           ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 18;
+          ctx.lineWidth = 12;
           ctx.lineCap = 'round';
           ctx.shadowColor = col;
-          ctx.shadowBlur = 26;
+          ctx.shadowBlur = 18;
+          ctx.stroke();
+          ctx.restore();
+          return;
+        }
+
+        // 弯月笑眼
+        if (style === 'happy') {
+          ctx.beginPath();
+          ctx.arc(ecx, ecy + 16, 42, Math.PI * 1.16, Math.PI * 1.84);
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 14;
+          ctx.lineCap = 'round';
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 22;
           ctx.stroke();
           ctx.restore();
           return;
         }
 
         ctx.save();
+        if (style === 'angry') {
+          ctx.translate(ecx, ecy);
+          ctx.rotate(isRight ? -0.22 : 0.22);
+          ctx.translate(-ecx, -ecy);
+        } else if (style === 'sad') {
+          ctx.translate(ecx, ecy);
+          ctx.rotate(isRight ? 0.18 : -0.18);
+          ctx.translate(-ecx, -ecy);
+        }
+
+        // 胶囊外轮廓剪裁
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(ecx - ew/2, ecy - eh/2, ew, eh, cornerR);
         else ctx.rect(ecx - ew/2, ecy - eh/2, ew, eh);
 
-        if (style === 'angry') {
-          ctx.translate(ecx, ecy);
-          ctx.rotate(isRight ? -0.26 : 0.26);
-          ctx.translate(-ecx, -ecy);
-        } else if (style === 'sad') {
-          ctx.translate(ecx, ecy);
-          ctx.rotate(isRight ? 0.22 : -0.22);
-          ctx.translate(-ecx, -ecy);
-        }
-
+        // 填充白巩膜
         ctx.fillStyle = '#ffffff';
         ctx.shadowColor = col;
-        ctx.shadowBlur = 28;
+        ctx.shadowBlur = 22;
         ctx.fill();
+        ctx.clip();
 
-        // 瞳孔
-        const pw = Math.max(38, (style === 'surprise' ? 44 : 74) + dilated * 8);
-        const ph = Math.max(54, (style === 'surprise' ? 62 : 112) + dilated * 10);
-        const px = ecx + pdx * 24;
-        const py = ecy + pdy * 20;
-
-        if (style === 'heart') {
-          const heartScale = 1 + 0.15 * Math.sin(t * 12);
-          ctx.save();
-          ctx.translate(px, py);
-          ctx.scale(heartScale, heartScale);
-          ctx.fillStyle = '#f43f5e';
-          ctx.shadowColor = '#f43f5e';
-          ctx.shadowBlur = 24;
-          ctx.beginPath();
-          ctx.arc(-16, -10, 18, Math.PI, 0);
-          ctx.arc(16, -10, 18, Math.PI, 0);
-          ctx.lineTo(0, 32);
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
-        } else {
-          ctx.beginPath();
-          if (ctx.roundRect) ctx.roundRect(px - pw/2, py - ph/2, pw, ph, 24);
-          else ctx.rect(px - pw/2, py - ph/2, pw, ph);
-          ctx.fillStyle = '#05080c';
-          ctx.shadowBlur = 0;
-          ctx.fill();
-
-          // 晶莹高光点 (主高光椭圆 + 次高光星点)
-          if (glint === 'watery') {
-            // 水汪汪泪眼光泽
-            ctx.beginPath();
-            ctx.ellipse(px - pw * 0.2, py - ph * 0.22, 10, 14, -0.2, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff'; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 10; ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(px, py + ph * 0.28, pw * 0.32, 6, 0, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'; ctx.fill();
-          } else {
-            // 主高光
-            ctx.beginPath();
-            ctx.ellipse(px - pw * 0.22, py - ph * 0.24, 11, 15, -0.2, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = '#ffffff';
-            ctx.shadowBlur = 10;
-            ctx.fill();
-
-            // 次高光
-            ctx.beginPath();
-            ctx.arc(px + pw * 0.24, py + ph * 0.22, 6.5, 0, Math.PI * 2);
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = '#ffffff';
-            ctx.shadowBlur = 6;
-            ctx.fill();
-          }
-        }
-
-        // 眼帘遮罩
+        // 眨眼 / 眼睑遮挡
         if (lidTop > 0) {
-          ctx.fillStyle = '#060a0e';
-          ctx.fillRect(ecx - ew/2 - 8, ecy - eh/2 - 8, ew + 16, eh * lidTop);
+          ctx.fillStyle = '#0a0d14';
+          ctx.fillRect(ecx - ew, ecy - eh/2, ew * 2, eh * lidTop);
         }
         if (lidBot > 0) {
-          ctx.fillStyle = '#060a0e';
-          ctx.fillRect(ecx - ew/2 - 8, ecy + eh/2 - eh * lidBot, ew + 16, eh * lidBot + 8);
+          ctx.fillStyle = '#0a0d14';
+          ctx.fillRect(ecx - ew, ecy + eh/2 - eh * lidBot, ew * 2, eh * lidBot);
         }
 
-        ctx.restore();
+        // 瞳孔
+        const pupilCx = ecx + pdx * 12;
+        const pupilCy = ecy + pdy * 10;
+
+        if (style === 'dizzy') {
+          // 眩晕蚊香眼
+          ctx.strokeStyle = '#0a0d14';
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          const angOff = (curF % 24 / 24) * Math.PI * 2;
+          for (let a = 0; a < Math.PI * 5; a += 0.15) {
+            const rad = 4 + a * 4;
+            const sx = ecx + Math.cos(a + angOff) * rad * 0.8;
+            const sy = ecy + Math.sin(a + angOff) * rad * 1.1;
+            if (a === 0) ctx.moveTo(sx, sy);
+            else ctx.lineTo(sx, sy);
+          }
+          ctx.stroke();
+          ctx.restore();
+          return;
+        }
+
+        if (style === 'surprise') {
+          // 惊呆微缩瞳孔
+          ctx.fillStyle = '#0a0d14';
+          ctx.beginPath();
+          ctx.arc(pupilCx, pupilCy, 14, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(pupilCx - 3, pupilCy - 4, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          return;
+        }
+
+        if (style === 'heart') {
+          // 爱心瞳孔
+          ctx.fillStyle = '#ff2b54';
+          ctx.beginPath();
+          const hScale = 1 + (curF % 12 < 6 ? 0.15 : 0);
+          const hx = pupilCx, hy = pupilCy - 2;
+          ctx.save();
+          ctx.translate(hx, hy);
+          ctx.scale(hScale, hScale);
+          ctx.moveTo(0, 8);
+          ctx.bezierCurveTo(-18, -12, -26, 8, 0, 24);
+          ctx.bezierCurveTo(26, 8, 18, -12, 0, 8);
+          ctx.fill();
+          ctx.restore();
+          ctx.restore();
+          return;
+        }
+
+        // 标准深邃镂空瞳孔 (48宽×76高，等比胶囊)
+        const pw = 48, ph = 76, pcr = 20;
+        ctx.fillStyle = '#0a0d14';
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(pupilCx - pw/2, pupilCy - ph/2, pw, ph, pcr);
+        else ctx.rect(pupilCx - pw/2, pupilCy - ph/2, pw, ph);
+        ctx.fill();
+
+        // 照片同款单点圆形高光 (位于瞳孔左上方)
+        const gx = pupilCx - pw * 0.22;
+        const gy = pupilCy - ph * 0.26;
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#ffffff';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(gx, gy, 7.5, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.restore();
       };
 
-      drawSingleEye(leftCx, eyeCy, false);
-      drawSingleEye(rightCx, eyeCy, true);
+      drawSingleEye(leftCx, eyeCy + (style === 'happy' || style === 'heart' ? pdy : 0), false);
+      drawSingleEye(rightCx, eyeCy + (style === 'happy' || style === 'heart' ? pdy : 0), true);
 
-      // 腮红渲染
-      if (blush) {
+      // 安详入眠向上漂浮 Z
+      if (isSleep) {
         ctx.save();
-        ctx.fillStyle = 'rgba(244, 114, 182, 0.48)';
-        ctx.shadowColor = '#f472b6'; ctx.shadowBlur = 18;
-        ctx.beginPath(); ctx.ellipse(leftCx, eyeCy + 128, 28, 14, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(rightCx, eyeCy + 128, 28, 14, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-      }
-
-      // 灵动眉毛
-      if (brow !== 'none') {
-        ctx.save();
-        ctx.strokeStyle = col;
-        ctx.lineWidth = 7;
-        ctx.lineCap = 'round';
+        const f = curF % 32;
+        const zy = eyeCy - 30 - ((f % 16) * 3);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 20px monospace';
+        ctx.textAlign = 'center';
         ctx.shadowColor = col;
-        ctx.shadowBlur = 16;
-        if (brow === 'angry') {
-          ctx.beginPath(); ctx.moveTo(leftCx - 45, eyeCy - 138); ctx.lineTo(leftCx + 45, eyeCy - 118); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(rightCx - 45, eyeCy - 118); ctx.lineTo(rightCx + 45, eyeCy - 138); ctx.stroke();
-        } else if (brow === 'sad') {
-          ctx.beginPath(); ctx.moveTo(leftCx - 45, eyeCy - 118); ctx.lineTo(leftCx + 45, eyeCy - 138); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(rightCx - 45, eyeCy - 138); ctx.lineTo(rightCx + 45, eyeCy - 118); ctx.stroke();
-        } else if (brow === 'curious_left') {
-          ctx.beginPath(); ctx.moveTo(leftCx - 42, eyeCy - 142); ctx.quadraticCurveTo(leftCx, eyeCy - 156, leftCx + 42, eyeCy - 142); ctx.stroke();
-        } else if (brow === 'curious_right') {
-          ctx.beginPath(); ctx.moveTo(rightCx - 42, eyeCy - 142); ctx.quadraticCurveTo(rightCx, eyeCy - 156, rightCx + 42, eyeCy - 142); ctx.stroke();
-        } else if (brow === 'curious') {
-          ctx.beginPath(); ctx.moveTo(leftCx - 42, eyeCy - 142); ctx.quadraticCurveTo(leftCx, eyeCy - 156, leftCx + 42, eyeCy - 142); ctx.stroke();
-        } else if (brow === 'focus') {
-          ctx.beginPath(); ctx.moveTo(leftCx - 40, eyeCy - 122); ctx.lineTo(leftCx + 40, eyeCy - 122); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(rightCx - 40, eyeCy - 122); ctx.lineTo(rightCx + 40, eyeCy - 122); ctx.stroke();
-        } else if (brow === 'raised') {
-          ctx.beginPath(); ctx.moveTo(leftCx - 42, eyeCy - 146); ctx.quadraticCurveTo(leftCx, eyeCy - 160, leftCx + 42, eyeCy - 146); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(rightCx - 42, eyeCy - 146); ctx.quadraticCurveTo(rightCx, eyeCy - 160, rightCx + 42, eyeCy - 146); ctx.stroke();
-        }
-        ctx.restore();
-      }
-
-      // 丰富辅助微表情特征
-      if (question) {
-        ctx.save();
-        ctx.font = 'bold 36px system-ui'; ctx.fillStyle = col;
-        ctx.shadowColor = col; ctx.shadowBlur = 14;
-        ctx.fillText('?', rightCx + 80, eyeCy - 120);
-        ctx.restore();
-      }
-      if (sweat) {
-        ctx.save();
-        ctx.font = '32px system-ui'; ctx.fillText('💧', rightCx + 70, eyeCy - 110);
-        ctx.restore();
-      }
-      if (angerMark) {
-        ctx.save();
-        ctx.font = 'bold 34px system-ui'; ctx.fillStyle = '#ef4444';
-        ctx.shadowColor = '#ef4444'; ctx.shadowBlur = 18;
-        ctx.fillText('💢', rightCx + 72, eyeCy - 110);
-        ctx.restore();
-      }
-      if (starGlint) {
-        ctx.save();
-        ctx.font = 'bold 32px system-ui'; ctx.fillStyle = '#fde047';
-        ctx.shadowColor = '#fde047'; ctx.shadowBlur = 16;
-        ctx.fillText('✦', rightCx + 75, eyeCy - 50);
-        ctx.restore();
-      }
-      if (tear) {
-        ctx.save();
-        const ty = eyeCy + 40 + ((t * 40) % 90);
-        ctx.font = '28px system-ui'; ctx.fillText('💧', leftCx - 10, ty);
-        ctx.restore();
-      }
-      if (scanBeam) {
-        ctx.save();
-        const scanX = cx - 120 + ((t * 80) % 240);
-        ctx.beginPath(); ctx.moveTo(scanX, eyeCy - 80); ctx.lineTo(scanX, eyeCy + 80);
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.85)'; ctx.lineWidth = 4;
-        ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 14; ctx.stroke();
-        ctx.restore();
-      }
-      if (id === 'BIG_SLEEP' || id === 'BIG_SLEEPY') {
-        ctx.save();
-        ctx.fillStyle = col;
-        ctx.shadowColor = col; ctx.shadowBlur = 14;
-        ctx.font = 'bold 34px system-ui';
-        ctx.fillText('Z', rightCx + 80, eyeCy - 90 - ((t * 28) % 60));
-        ctx.font = 'bold 24px system-ui';
-        ctx.fillText('z', rightCx + 60, eyeCy - 60 - ((t * 28 + 20) % 60));
+        ctx.shadowBlur = 12;
+        ctx.fillText('z', cx, zy);
         ctx.restore();
       }
     }
