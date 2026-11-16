@@ -2446,6 +2446,71 @@
       artwork.dots.forEach(([x,y]) => put(x,y));
       break;
     }
+
+    // SYS-19 · 系统个性滚动标语 (Rugone 字体平滑横向循环滚动、上下科技感微光轨道边框)
+    case 'SYS_RUGONE': {
+      const f = t % 60;
+      const font = {
+        'R': ['1110','1001','1110','1010','1001'],
+        'U': ['1001','1001','1001','1001','0110'],
+        'G': ['0111','1000','1011','1001','0110'],
+        'O': ['0110','1001','1001','1001','0110'],
+        'N': ['1001','1101','1011','1001','1001'],
+        'E': ['1111','1000','1110','1000','1111'],
+        'u': ['101','101','101','101','011'],
+        'g': ['0110','1001','1001','0111','0001'],
+        'o': ['0110','1001','1001','1001','0110'],
+        'n': ['1110','1001','1001','1001','1001'],
+        'e': ['0110','1001','1111','1000','0110'],
+        ' ': ['00','00','00','00','00'],
+        '·': ['0','0','1','0','0'],
+        '★': ['010','111','010','101','000']
+      };
+
+      const bannerText = 'Rugone · RUGONE · ';
+      const glyphs = [];
+      let totalW = 0;
+      for (const ch of bannerText) {
+        const g = font[ch] || font[' '];
+        const gw = g[0].length;
+        glyphs.push({ ch, g, gw, offset: totalW });
+        totalW += gw + 1;
+      }
+
+      // 平滑滚动偏移量：60 帧无缝循环一周
+      const scroll = (f * (totalW / 60)) % totalW;
+
+      // 渲染两个完整周期，确保无论滚动到哪里屏幕内始终无缝充满
+      for (let cycle = 0; cycle < 2; cycle++) {
+        for (const item of glyphs) {
+          const startX = Math.round(item.offset + cycle * totalW - scroll);
+          if (startX > -item.gw && startX < 23) {
+            for (let gy = 0; gy < 5; gy++) {
+              for (let gx = 0; gx < item.gw; gx++) {
+                if (item.g[gy][gx] === '1') {
+                  put(startX + gx, 9 + gy);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // 顶部与底部科技微光轨道流光指示
+      for (let x = 4; x <= 18; x += 2) {
+        if ((x + Math.floor(f / 2)) % 4 === 0) {
+          put(x, 6);
+          put(x, 16);
+        }
+      }
+
+      // 左右两侧微光括号端子指示
+      if (f % 12 < 8) {
+        put(2, 11);
+        put(20, 11);
+      }
+      break;
+    }
     case 'RINGER_MODE': {
       const silent = isSilentPreview(frame, opt);
       const sway = !silent && frame % 24 < 12 ? [0,1,0,-1][Math.floor(frame / 2) % 4] : 0;
@@ -4557,7 +4622,8 @@
           { id: 'time', name: '时间日历' },
           { id: 'hardware', name: '硬件仪表' },
           { id: 'sensor', name: '传感连接' },
-          { id: 'alerts', name: '来电与提醒' }
+          { id: 'alerts', name: '来电与提醒' },
+          { id: 'marquee', name: '滚动标语 (1)' }
         ]
       },
       {
@@ -4696,6 +4762,9 @@
       { num: '#53', no: 'SYS-17', id: 'SAND', name: '数字倒计时', cat: 'system', subcat: 'time', icon: '⏱', frames: 3612, fps: 12 },
       { num: '#90', no: 'SYS-18', id: 'SYSTEM_NOTICE', name: '通知动画', cat: 'system', subcat: 'alerts', icon: '✉️', frames: 48 },
 
+      /* --- 系统 / 标语签名 --- */
+      { num: '#121', no: 'SYS-19', id: 'SYS_RUGONE', name: '滚动标语 · Rugone', cat: 'system', subcat: 'marquee', icon: '📜', frames: 60, duration: 5.0, desc: '系统个性滚动签名标语：Rugone 字体平滑横向循环滚动、双模排版展示、上下科技感微光轨道边框' },
+
       /* --- 活动 / 运动健康 --- */
       { num: '#48', no: 'ACT-01', id: 'RUNNER', name: '动感奔跑者', cat: 'activity', subcat: 'fitness', icon: '🏃', frames: 12 },
       { num: '#49', no: 'ACT-02', id: 'STEPS', name: '万步达成', cat: 'activity', subcat: 'fitness', icon: '👟', frames: 24 },
@@ -4780,7 +4849,7 @@
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
     const EMPTY_ANIMATION = { id: 'EMPTY', name: '暂无动画', cat: 'emotion', frames: 1 };
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V15';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V16';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 官方线上基准待修改动画清单 (内置代码库，保障全网部署、移动端无缓存与初次加载 100% 永久在线可见) */
@@ -7252,6 +7321,67 @@
           });
           artwork.dots.forEach(([x,y]) => { ctx.beginPath(); ctx.arc(x,y,0.48,0,Math.PI*2); ctx.fill(); });
           ctx.restore(); break;
+        }
+
+        /* ================= SYS-19 · Rugone 滚动标语 (超清矢量与霓虹 HUD) ================= */
+        case 'SYS_RUGONE': {
+          ctx.save();
+
+          // 1. 跑马灯外框金属护甲底板
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 2.5;
+          if (ctx.roundRect) ctx.roundRect(cx - 165, cy - 65, 330, 130, 18);
+          else ctx.rect(cx - 165, cy - 65, 330, 130);
+          ctx.fill();
+          ctx.stroke();
+
+          // 2. 上下微光轨道条
+          const beamGrad = ctx.createLinearGradient(cx - 145, 0, cx + 145, 0);
+          beamGrad.addColorStop(0, 'rgba(255, 212, 94, 0.1)');
+          beamGrad.addColorStop(0.5, '#ffd45e');
+          beamGrad.addColorStop(1, 'rgba(255, 212, 94, 0.1)');
+
+          ctx.fillStyle = beamGrad;
+          ctx.fillRect(cx - 140, cy - 50, 280, 3);
+          ctx.fillRect(cx - 140, cy + 47, 280, 3);
+
+          // 3. 科技小字与角标
+          ctx.font = 'bold 11px system-ui';
+          ctx.fillStyle = '#64748b';
+          ctx.textAlign = 'center';
+          ctx.fillText('RUGONE · ACTIVE SYSTEM MARQUEE', cx, cy - 30);
+
+          // 4. 动态横向平滑大字滚动
+          ctx.save();
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(cx - 145, cy - 20, 290, 56, 8);
+          else ctx.rect(cx - 145, cy - 20, 290, 56);
+          ctx.clip();
+
+          const bannerStr = 'Rugone  ·  RUGONE  ·  ';
+          ctx.font = '900 36px "SF Pro Display", -apple-system, system-ui, sans-serif';
+          const textMetric = ctx.measureText(bannerStr).width;
+          const scrollX = (t * 65) % textMetric;
+
+          for (let rep = -1; rep <= 2; rep++) {
+            const tx = cx - 140 + rep * textMetric - scrollX;
+            ctx.shadowColor = '#ffd45e';
+            ctx.shadowBlur = 18;
+            ctx.fillStyle = '#ffd45e';
+            ctx.textAlign = 'left';
+            ctx.fillText(bannerStr, tx, cy + 20);
+          }
+          ctx.restore();
+
+          // 5. 左右科技端子指示灯
+          const blink = (Math.sin(t * 8) > 0);
+          ctx.fillStyle = blink ? '#38bdf8' : '#0284c7';
+          ctx.beginPath(); ctx.arc(cx - 150, cy + 8, 4.5, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(cx + 150, cy + 8, 4.5, 0, Math.PI * 2); ctx.fill();
+
+          ctx.restore();
+          break;
         }
 
         case 'RINGER_MODE': {
