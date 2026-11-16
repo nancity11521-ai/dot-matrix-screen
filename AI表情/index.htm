@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>点阵屏项目 · 393 物理点阵全场景动画定制平台</title>
   <style>
     :root {
@@ -4777,7 +4780,7 @@
     /* 当前动画清单 (支持用户自定义编辑、逐帧涂抹、保存、删除，自动同步本地存储) */
     let ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
     const EMPTY_ANIMATION = { id: 'EMPTY', name: '暂无动画', cat: 'emotion', frames: 1 };
-    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V12';
+    const STORAGE_KEY_ANIMATIONS = 'DOT_MATRIX_CUSTOM_ANIMATIONS_DATA_V15';
     const RETIRED_GAME_IDS = new Set(['PACMAN', 'INVADER', 'SNAKE', 'TETRIS', 'HEART_PIXEL', 'DICE', 'DIAMOND']);
 
     /* 官方线上基准待修改动画清单 (内置代码库，保障全网部署、移动端无缓存与初次加载 100% 永久在线可见) */
@@ -5292,6 +5295,10 @@
       });
 
       if (list.length === 0) {
+        if (state.searchKeyword) {
+          grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--muted);font-size:12px">未搜索到匹配项“' + state.searchKeyword + '”</div>';
+          return;
+        }
         if (state.currentCat === 'pending' || state.currentSubcat === 'pending_in_cat') {
           grid.innerHTML = `
             <div style="grid-column:1/-1;text-align:center;padding:45px 12px;color:var(--muted);font-size:12px;line-height:1.7">
@@ -5302,10 +5309,17 @@
               </p>
             </div>
           `;
-        } else {
-          grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px 10px;color:var(--muted);font-size:12px">暂无匹配的动画效果</div>';
+          return;
         }
-        return;
+        // 自动自愈保护：非搜索、非待改视图下若出现空列表，立即自动重置为官方内置动画库
+        console.warn('检测到分类列表异常为空，自动激活防空列表自愈机制...');
+        ALL_ANIMATIONS = DEFAULT_ANIMATIONS.map(a => ({ ...a }));
+        saveAnimationsToStorage();
+        list = ALL_ANIMATIONS.filter(item => {
+          if (state.currentCat !== 'all' && item.cat !== state.currentCat) return false;
+          if (state.currentSubcat !== 'all' && item.subcat !== state.currentSubcat) return false;
+          return true;
+        });
       }
 
       list.forEach(item => {
@@ -9049,14 +9063,28 @@
               loaded.push(item);
             }
           }
-          // 确保所有官方内置动画（全部 106 款，尤其是实拍同款灵动大眼 #91~#106）全部无缝补齐，绝不被旧版缓存遗漏
+          // 确保所有官方内置动画（全量 121 款，尤其是实拍同款灵动大眼 #91~#106 与传音原厂 #107~#121）无缝补齐并强制校准层级
           for (const def of DEFAULT_ANIMATIONS) {
             const existingIdx = loaded.findIndex(a => a.id === def.id);
             if (existingIdx === -1) {
               loaded.push({ ...def });
-            } else if (!loaded[existingIdx].hasUserDrawnPixels && !loaded[existingIdx].isCustomCreated) {
-              // 自动无缝升级官方内置动画定义 (包含分类、子分类、图标与帧数)，杜绝旧版本地存储导致空列表
-              loaded[existingIdx] = { ...def, isPending: loaded[existingIdx].isPending };
+            } else {
+              // 始终无条件校准官方权威层级与元数据，杜绝任何旧版缓存导致分类错位或子分类为空
+              loaded[existingIdx].cat = def.cat;
+              loaded[existingIdx].subcat = def.subcat;
+              loaded[existingIdx].num = def.num;
+              loaded[existingIdx].no = def.no;
+              loaded[existingIdx].name = def.name;
+              loaded[existingIdx].icon = def.icon;
+              loaded[existingIdx].frames = def.frames;
+              if (def.infinixGroup) {
+                loaded[existingIdx].infinixGroup = def.infinixGroup;
+                loaded[existingIdx].infinixRole = def.infinixRole;
+                loaded[existingIdx].infinixPriority = def.infinixPriority;
+              }
+              if (!loaded[existingIdx].hasUserDrawnPixels && !loaded[existingIdx].isCustomCreated) {
+                loaded[existingIdx].isPending = loaded[existingIdx].isPending;
+              }
             }
           }
           // 排序：优先按 DEFAULT_ANIMATIONS 的官方标准索引排列，保证顺序整洁规范
