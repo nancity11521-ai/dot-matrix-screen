@@ -1177,16 +1177,16 @@
         </svg>
       </div>
       <div class="brand-title">
-        <h1>点阵屏项目 <span class="badge-pill" id="headerSpecBadge">393 CSP LEDs · 23×23</span></h1>
+        <h1>点阵屏项目 <span class="badge-pill" id="headerSpecBadge">333 Square LEDs · 21×21</span></h1>
         <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (106 款动画)</p>
       </div>
     </div>
     <div class="top-actions">
       <div class="view-modes" style="margin-right:2px" title="切换物理点阵灯板样式（393原版保持不变）">
-        <button class="view-btn active" id="topMatrix393Btn" onclick="setMatrixStyle('393')">393灯 · 原版</button>
-        <button class="view-btn" id="topMatrix333Btn" onclick="setMatrixStyle('333')">333灯 · 方阵</button>
+        <button class="view-btn" id="topMatrix393Btn" onclick="setMatrixStyle('393')">393灯 · 原版</button>
+        <button class="view-btn active" id="topMatrix333Btn" onclick="setMatrixStyle('333')">333灯 · 方阵</button>
       </div>
-      <span class="badge-pill" id="litCountBadge">0 / 393 亮起 (0%)</span>
+      <span class="badge-pill" id="litCountBadge">0 / 333 亮起 (0%)</span>
       <a class="repo-link" href="docs.html" target="_blank" style="background:rgba(255,212,94,0.12);border-color:rgba(255,212,94,0.4);color:var(--accent);font-weight:600">
         📝 需求说明文档
       </a>
@@ -1209,16 +1209,16 @@
       <div class="panel-section">
         <div class="section-title">
           <span>硬件规格 / 灯板样式</span>
-          <span id="hardwareSpecChip" style="color:var(--accent)">0707CSP</span>
+          <span id="hardwareSpecChip" style="color:var(--accent)">333 方灯版</span>
         </div>
         <div class="btn-group" style="margin-bottom:8px">
-          <button class="btn active" id="matrixStyle393Btn" onclick="setMatrixStyle('393')">393灯 (23×23)</button>
-          <button class="btn" id="matrixStyle333Btn" onclick="setMatrixStyle('333')">333灯 (21×21 方灯)</button>
+          <button class="btn" id="matrixStyle393Btn" onclick="setMatrixStyle('393')">393灯 (23×23)</button>
+          <button class="btn active" id="matrixStyle333Btn" onclick="setMatrixStyle('333')">333灯 (21×21 方灯)</button>
         </div>
         <div id="hardwareSpecText" style="font-size:11px;color:var(--muted);line-height:1.55">
-          • 物理灯板：Φ20.00mm 圆形铝基板<br>
-          • 阵列结构：23行对称圆阵 (共 393 点)<br>
-          • 中心对齐：(11, 11) 基准点坐标
+          • 物理灯板：深灰圆形基板 · 红色轮廓边界<br>
+          • 阵列结构：21行对称圆阵 (共 333 颗方灯)<br>
+          • 中心对齐：(10, 10) 基准点 · 紧凑方阵排列
         </div>
       </div>
 
@@ -1434,7 +1434,7 @@
         </div>
         <div class="view-modes">
           <button class="view-btn active" id="viewDualBtn" onclick="setViewMode('dual')">双模并列对比</button>
-          <button class="view-btn" id="viewMatrixBtn" onclick="setViewMode('matrix')">仅 393 点阵屏</button>
+          <button class="view-btn" id="viewMatrixBtn" onclick="setViewMode('matrix')">仅 333 点阵屏</button>
           <button class="view-btn" id="viewVectorBtn" onclick="setViewMode('vector')">仅正常显示效果</button>
         </div>
       </div>
@@ -1447,7 +1447,7 @@
             <canvas id="matrixCanvas" width="760" height="760"></canvas>
           </div>
           <div class="display-label" id="matrixBoardLabel">
-            <span></span> 393 物理点阵显示 (23×23 Circular Board)
+            <span></span> 333 方灯点阵显示 (21×21 Square-Bead Board)
           </div>
         </div>
 
@@ -1680,7 +1680,7 @@
     };
 
     function getActiveMatrixPreset() {
-      const key = (typeof state !== 'undefined' && state.matrixStyle && MATRIX_PRESETS[state.matrixStyle]) ? state.matrixStyle : '393';
+      const key = (typeof state !== 'undefined' && state.matrixStyle && MATRIX_PRESETS[state.matrixStyle]) ? state.matrixStyle : '333';
       return MATRIX_PRESETS[key];
     }
 
@@ -2521,9 +2521,7 @@
       const d = opt.now ? new Date(opt.now) : new Date();
       const hh = String((opt.hour !== undefined) ? opt.hour : d.getHours()).padStart(2, '0');
       const mm = String((opt.minute !== undefined) ? opt.minute : d.getMinutes()).padStart(2, '0');
-      
-      // 两排占 y=2~9、13~20；y=10、12 留白，中线连续五点。
-      clockText(hh, 2);
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
 
       // 中间 5 个点，严格居中分布 (x=9~13, 中心为 x=11)，1 秒闪一次 (500ms 亮 / 500ms 灭，支持实时走时与逐帧步进同频)
       const nowMs = (opt.now ? opt.now.getTime() : Date.now()) % 1000;
@@ -2531,17 +2529,48 @@
         ? ((frame % 12) < 6)
         : (nowMs < 500);
 
-      if (isBlinkOn) {
-        [9, 10, 11, 12, 13].forEach(x => put(x, 11));
+      if (is333) {
+        // 333 方阵专属适配：5×7 圆角数字字模，占 y=3~9 与 y=13~19，x=6~16 居中，避开 y=2/y=20 窄边裁切
+        const clockDigits5x7_333 = [
+          '01110/10001/10001/10001/10001/10001/01110',
+          '00100/01100/00100/00100/00100/00100/11111',
+          '01110/10001/00001/00110/01000/10000/11111',
+          '01110/10001/00001/00110/00001/10001/01110',
+          '00010/00110/01010/10010/11111/00010/00010',
+          '11110/10000/10000/11110/00001/10001/01110',
+          '00110/01000/10000/11110/10001/10001/01110',
+          '11111/00001/00010/00100/01000/01000/01000',
+          '01110/10001/10001/01110/10001/10001/01110',
+          '01110/10001/10001/01111/00001/00010/01100'
+        ];
+        const clockText333 = (value, y) => {
+          [...value].forEach((c, i) => mask(clockDigits5x7_333[+c], 6 + i * 6, y));
+        };
+        clockText333(hh, 3);
+        if (isBlinkOn) {
+          [9, 10, 11, 12, 13].forEach(x => put(x, 11));
+        }
+        clockText333(mm, 13);
+      } else {
+        // 原版 393 保持不变：两排占 y=2~9、13~20；y=10、12 留白，中线连续五点。
+        clockText(hh, 2);
+        if (isBlinkOn) {
+          [9, 10, 11, 12, 13].forEach(x => put(x, 11));
+        }
+        clockText(mm, 13);
       }
-
-      clockText(mm, 13);
       break;
     }
     case 'AIRPLANE_MODE': {
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
       const travel = frame % 48;
       const dx = travel < 12 ? Math.round(-18 * (1 - travel / 12)) : travel > 35 ? Math.round((travel - 35) / 12 * 22) : 0;
-      mask('0000001000000/0000001000000/0000011100000/0000011100000/0000111110000/0011111111100/1111111111111/0000011100000/0000011100000/0000011100000/0000111110000/0001111111000', 5 + dx, 5);
+      if (is333) {
+        // 333 方阵专属：机身水平向右，从左往右飞行 (12×13 横向飞机字模)
+        mask('000001000000/000001000000/000001100000/100001100000/110001110000/111111111100/111111111111/111111111100/110001110000/100001100000/000001100000/000001000000/000001000000', 5 + dx, 5);
+      } else {
+        mask('0000001000000/0000001000000/0000011100000/0000011100000/0000111110000/0011111111100/1111111111111/0000011100000/0000011100000/0000011100000/0000111110000/0001111111000', 5 + dx, 5);
+      }
       break;
     }
     case 'POWER_SAVER': {
@@ -2654,7 +2683,8 @@
       break;
     }
     case 'BATTERY': {
-      // 横向 5×9 大字与 7×9 百分号；100% 使用窄字模，完整落在物理圆阵内。
+      // 横向 5×9 大字与百分号；393 原版使用 7×9 百分号，333 方阵使用 5×9 紧凑百分号并按 333 物理行宽居中防裁切
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
       const value = String(Math.max(0, Math.min(100, Math.round(opt.battery ?? 20))));
       const largeDigits = [
         '11111/10001/10001/10001/10001/10001/10001/10001/11111',
@@ -2682,12 +2712,20 @@
         appendGlyph(value.length === 3 ? narrowDigits[c] : largeDigits[+c], x);
         x += digitWidth + 1;
       });
-      // 百分号与数字留两列间距，按实际亮点重心选择最接近屏心的整列位置。
-      appendGlyph('1110001/1010001/1110010/0000100/0001000/0010000/0100111/1000101/1000111', x + 1);
+      if (is333) {
+        // 333 方阵专属：5×9 紧凑百分号 + 1 列间距，总宽 <= 17，完整落入 y=7~15 (最窄19列) 物理圆阵内
+        appendGlyph('11001/11001/00010/00100/00100/00100/01000/10011/10011', x);
+      } else {
+        // 原版 393 保持不变：百分号与数字留两列间距
+        appendGlyph('1110001/1010001/1110010/0000100/0001000/0010000/0100111/1000101/1000111', x + 1);
+      }
       const centerX = pixels.reduce((sum, point) => sum + point[0], 0) / pixels.length;
       const candidates = Array.from({ length: 23 }, (_, i) => i - 11)
-        .filter(offset => pixels.every(([px, py]) => Math.abs(px + offset - 11) <= (rows[py] - 1) / 2));
-      const offsetX = candidates.sort((a, b) => Math.abs(centerX + a - 11) - Math.abs(centerX + b - 11))[0];
+        .filter(offset => pixels.every(([px, py]) => {
+          const rowWidth = is333 ? (MATRIX_ROWS_333[py - 1] || 0) : (rows[py] || 0);
+          return Math.abs(px + offset - 11) <= (rowWidth - 1) / 2;
+        }));
+      const offsetX = candidates.length ? candidates.sort((a, b) => Math.abs(centerX + a - 11) - Math.abs(centerX + b - 11))[0] : 0;
       pixels.forEach(([px, py]) => put(px + offsetX, py));
       break;
     }
@@ -5265,7 +5303,7 @@
 
     /* 全局运行状态 */
     const state = {
-      matrixStyle: '393',    // '393' (原版保留不动) | '333' (新增21×21方灯样式)
+      matrixStyle: '333',    // '393' (原版保留不动) | '333' (默认21×21方灯样式)
       mode: 'face',          // 'face', 'blob', 'invert', 'contour'
       algo: 'pwm',           // 'pwm', 'binary'
       threshold: 0.35,       // 阈值
@@ -5312,6 +5350,7 @@
       initEditorCanvas();
       updatePendingUI();
       syncPendingToUrl();
+      setMatrixStyle(state.matrixStyle, { silent: true });
     }
 
     function selectMainCategory(catId) {
@@ -5658,8 +5697,8 @@
     function onSpeedChange(val) { state.speed = parseFloat(val); }
 
     /* 点阵灯板规格切换（393原版 / 333方灯版） */
-    function setMatrixStyle(styleId) {
-      const preset = MATRIX_PRESETS[styleId] || MATRIX_PRESETS['393'];
+    function setMatrixStyle(styleId, opt = {}) {
+      const preset = MATRIX_PRESETS[styleId] || MATRIX_PRESETS['333'];
       state.matrixStyle = preset.id;
       const is333 = preset.id === '333';
 
@@ -5698,11 +5737,13 @@
       if (typeof updatePowerUI === 'function') updatePowerUI();
       renderMatrix();
       updateCodeExports();
-      if (typeof editorState !== 'undefined' && editorState.active) {
+      if (!opt.silent && editorState && editorState.active) {
         drawEditorCanvas();
         drawEditorMiniPreview();
       }
-      showToast(is333 ? '已切换至 333 颗方灯点阵样式 (21×21)' : '已切换至 393 颗原版点阵样式 (23×23)');
+      if (!opt.silent) {
+        showToast(is333 ? '已切换至 333 颗方灯点阵样式 (21×21)' : '已切换至 393 颗原版点阵样式 (23×23)');
+      }
     }
 
     /* 呈现风格与参数 */
@@ -7724,9 +7765,10 @@
         }
 
         case 'AIRPLANE_MODE': {
+          const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
           const travel=curF%48;
           const dx=travel<12?-360*(1-travel/12):travel>35?(travel-35)/12*440:0;
-          ctx.save();ctx.translate(cx+dx,cy);ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=15;
+          ctx.save();ctx.translate(cx+dx,cy);if(is333)ctx.rotate(Math.PI/2);ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=15;
           ctx.beginPath();ctx.moveTo(0,-112);ctx.quadraticCurveTo(14,-110,14,-84);ctx.lineTo(14,-20);ctx.lineTo(112,36);ctx.lineTo(112,56);ctx.lineTo(14,25);ctx.lineTo(14,76);ctx.lineTo(45,97);ctx.lineTo(45,112);ctx.lineTo(0,99);ctx.lineTo(-45,112);ctx.lineTo(-45,97);ctx.lineTo(-14,76);ctx.lineTo(-14,25);ctx.lineTo(-112,56);ctx.lineTo(-112,36);ctx.lineTo(-14,-20);ctx.lineTo(-14,-84);ctx.quadraticCurveTo(-14,-110,0,-112);ctx.fill();ctx.restore();break;
         }
         case 'POWER_SAVER': {
@@ -9715,7 +9757,7 @@
     /* ==========================================================================
        动画编辑器系统：逐帧画板、参数编辑、多帧时间轴
        ========================================================================== */
-    const editorState = {
+    var editorState = {
       active: false,
       isNew: false,
       editingAnimId: null,
