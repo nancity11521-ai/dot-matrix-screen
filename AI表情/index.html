@@ -1177,11 +1177,15 @@
         </svg>
       </div>
       <div class="brand-title">
-        <h1>点阵屏项目 <span class="badge-pill">393 CSP LEDs · 23×23</span></h1>
+        <h1>点阵屏项目 <span class="badge-pill" id="headerSpecBadge">393 CSP LEDs · 23×23</span></h1>
         <p>全场景动画分类定制开发平台 · 表情 / 系统 / 活动 / 生活 / 氛围 (106 款动画)</p>
       </div>
     </div>
     <div class="top-actions">
+      <div class="view-modes" style="margin-right:2px" title="切换物理点阵灯板样式（393原版保持不变）">
+        <button class="view-btn active" id="topMatrix393Btn" onclick="setMatrixStyle('393')">393灯 · 原版</button>
+        <button class="view-btn" id="topMatrix333Btn" onclick="setMatrixStyle('333')">333灯 · 方阵</button>
+      </div>
       <span class="badge-pill" id="litCountBadge">0 / 393 亮起 (0%)</span>
       <a class="repo-link" href="docs.html" target="_blank" style="background:rgba(255,212,94,0.12);border-color:rgba(255,212,94,0.4);color:var(--accent);font-weight:600">
         📝 需求说明文档
@@ -1204,10 +1208,14 @@
       <!-- 硬件参数 -->
       <div class="panel-section">
         <div class="section-title">
-          <span>硬件规格</span>
-          <span style="color:var(--accent)">0707CSP</span>
+          <span>硬件规格 / 灯板样式</span>
+          <span id="hardwareSpecChip" style="color:var(--accent)">0707CSP</span>
         </div>
-        <div style="font-size:11px;color:var(--muted);line-height:1.55">
+        <div class="btn-group" style="margin-bottom:8px">
+          <button class="btn active" id="matrixStyle393Btn" onclick="setMatrixStyle('393')">393灯 (23×23)</button>
+          <button class="btn" id="matrixStyle333Btn" onclick="setMatrixStyle('333')">333灯 (21×21 方灯)</button>
+        </div>
+        <div id="hardwareSpecText" style="font-size:11px;color:var(--muted);line-height:1.55">
           • 物理灯板：Φ20.00mm 圆形铝基板<br>
           • 阵列结构：23行对称圆阵 (共 393 点)<br>
           • 中心对齐：(11, 11) 基准点坐标
@@ -1432,13 +1440,13 @@
       </div>
 
       <div class="displays-wrapper" id="displaysWrapper">
-        <!-- 393物理点阵屏 -->
+        <!-- 物理点阵屏 -->
         <div class="display-card" id="matrixCard">
           <div class="matrix-frame" id="matrixFrame">
             <div class="matrix-halo" id="matrixHalo"></div>
             <canvas id="matrixCanvas" width="760" height="760"></canvas>
           </div>
-          <div class="display-label">
+          <div class="display-label" id="matrixBoardLabel">
             <span></span> 393 物理点阵显示 (23×23 Circular Board)
           </div>
         </div>
@@ -1553,10 +1561,10 @@
 
         <div class="panel-section" style="margin-bottom:12px">
           <div class="section-title">
-            <span>50 字节 C 语言位图数组</span>
+            <span id="exportBitmaskTitle">50 字节 C 语言位图数组</span>
             <button class="btn" style="padding:2px 7px;font-size:10px" onclick="copyBitmaskCode()">📋 复制</button>
           </div>
-          <p style="font-size:10px;color:var(--muted)">
+          <p id="exportBitmaskDesc" style="font-size:10px;color:var(--muted)">
             将 393 颗灯压缩为 50 字节 (8点/字节)，适合 ESP32/STM32 内部 Flash 极小开销存储。
           </p>
           <div class="code-preview" id="codeBitmaskBox">正在计算...</div>
@@ -1564,7 +1572,7 @@
 
         <div class="panel-section" style="margin-bottom:12px">
           <div class="section-title">
-            <span>23 行独立 uint32_t 行掩码</span>
+            <span id="exportRowsTitle">23 行独立 uint32_t 行掩码</span>
             <button class="btn" style="padding:2px 7px;font-size:10px" onclick="copyRowsCode()">📋 复制</button>
           </div>
           <p style="font-size:10px;color:var(--muted)">
@@ -1589,7 +1597,7 @@
 
   <script>
     /* ==========================================================================
-       393 点阵几何定义
+       393 点阵几何定义（原版保留不动） + 333 点阵方灯样式定义
        ========================================================================== */
     const MATRIX_ROWS = [5, 9, 13, 15, 17, 19, 19, 21, 21, 23, 23, 23, 23, 23, 21, 21, 19, 19, 17, 15, 13, 9, 5];
     const TOTAL_LEDS = 393;
@@ -1612,7 +1620,69 @@
       });
       return pts;
     }
-    const PHYSICAL_POINTS = build393Points();
+    const PHYSICAL_POINTS = build393Points(); // 原版 393 物理点位，保持不变
+
+    const MATRIX_ROWS_333 = [5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21, 19, 19, 17, 17, 15, 13, 9, 5];
+    const TOTAL_LEDS_333 = 333;
+
+    function build333Points() {
+      const pts = [];
+      MATRIX_ROWS_333.forEach((m, r) => {
+        const startC = (21 - m) / 2;
+        for (let i = 0; i < m; i++) {
+          const c = startC + i;
+          pts.push({
+            x: (c - 10) / 10.5,
+            y: (r - 10) / 10.5,
+            r,
+            c,
+            // 中心 (10,10) 映射至 23×23 坐标系的 (11,11)，无缝兼容全部动画与编辑器
+            gridId: (r + 1) * 23 + (c + 1),
+            idx: pts.length
+          });
+        }
+      });
+      return pts;
+    }
+    const PHYSICAL_POINTS_333 = build333Points();
+
+    const MATRIX_PRESETS = {
+      '393': {
+        id: '393',
+        total: TOTAL_LEDS,
+        rows: MATRIX_ROWS,
+        rowCount: 23,
+        byteCount: 50,
+        points: PHYSICAL_POINTS,
+        headerBadge: '393 CSP LEDs · 23×23',
+        chipLabel: '0707CSP',
+        specHtml: '• 物理灯板：Φ20.00mm 圆形铝基板<br>• 阵列结构：23行对称圆阵 (共 393 点)<br>• 中心对齐：(11, 11) 基准点坐标',
+        viewBtnLabel: '仅 393 点阵屏',
+        boardLabel: '393 物理点阵显示 (23×23 Circular Board)',
+        bitmaskSymbol: 'BLOUB_FRAME_393',
+        rowsSymbol: 'BLOUB_ROWS'
+      },
+      '333': {
+        id: '333',
+        total: TOTAL_LEDS_333,
+        rows: MATRIX_ROWS_333,
+        rowCount: 21,
+        byteCount: 42,
+        points: PHYSICAL_POINTS_333,
+        headerBadge: '333 Square LEDs · 21×21',
+        chipLabel: '333 方灯版',
+        specHtml: '• 物理灯板：深灰圆形基板 · 红色轮廓边界<br>• 阵列结构：21行对称圆阵 (共 333 颗方灯)<br>• 中心对齐：(10, 10) 基准点 · 紧凑方阵排列',
+        viewBtnLabel: '仅 333 点阵屏',
+        boardLabel: '333 方灯点阵显示 (21×21 Square-Bead Board)',
+        bitmaskSymbol: 'BLOUB_FRAME_333',
+        rowsSymbol: 'BLOUB_ROWS_333'
+      }
+    };
+
+    function getActiveMatrixPreset() {
+      const key = (typeof state !== 'undefined' && state.matrixStyle && MATRIX_PRESETS[state.matrixStyle]) ? state.matrixStyle : '393';
+      return MATRIX_PRESETS[key];
+    }
 
     /* ==========================================================================
        数学与基础工具
@@ -2348,26 +2418,23 @@
       return;
     }
 
-    // 惊讶瞪大 (10列×13行物理扩瞳眼眶 + 微缩震颤瞳孔)
+    // 惊讶瞪大 (8列×12行圆润撑开眼眶 + 骤缩3×4精致瞳孔与高光)
     if (style === 'surprise') {
-      const ex = lx - 1;
       const ey = ty - 1;
-      for (let r = 0; r < 13; r++) {
-        for (let c = 0; c < 10; c++) {
-          if ((r === 0 || r === 12) && !(c >= 3 && c <= 6)) continue;
-          if ((r === 1 || r === 11) && !(c >= 1 && c <= 8)) continue;
-          if ((r === 2 || r === 10) && !(c >= 1 && c <= 8)) continue;
-          put(ex + c, ey + r, true);
+      for (let r = 0; r < 12; r++) {
+        for (let c = 0; c < 8; c++) {
+          if ((r === 0 || r === 11) && !(c >= 2 && c <= 5)) continue;
+          if ((r === 1 || r === 10) && !(c >= 1 && c <= 6)) continue;
+          put(lx + c, ey + r, true);
         }
       }
-      // 惊呆微缩震颤瞳孔 (2×2 镂空 + 高光)
-      const px = lx + 3 + pdx;
-      const py = ty + 5 + pdy;
-      put(px, py, false);
-      put(px + 1, py, false);
-      put(px, py + 1, false);
-      put(px + 1, py + 1, false);
-      put(px, py, true);
+      // 骤缩 3×4 精致瞳孔 + 左上单点高光
+      for (let r = 4; r <= 7; r++) {
+        for (let c = 2; c <= 4; c++) {
+          put(lx + c, ey + r + pdy, false);
+        }
+      }
+      put(lx + 2, ey + 4 + pdy, true);
       return;
     }
 
@@ -2403,9 +2470,9 @@
         if ((r === 1 || r === 9) && !(c >= 1 && c <= 6)) continue;
 
         if (style === 'angry') {
-          // 怒眉倒八字 \ /：内眼角下压，外眼角上挑
-          const tilt = (isRight ? (7 - c) : c) * 0.65;
-          if ((r - lidTop) < 1.2 + tilt) continue;
+          // 怒眉倒八字 \ /：保留饱满下半眼眶与完整瞳孔，仅斜切上眼睑
+          const tilt = Math.round((isRight ? (7 - c) : c) * 0.45);
+          if (r < lidTop + tilt) continue;
         } else if (style === 'sad') {
           // 委屈八字眉 / \：内眼角高，外眼角低垂
           const tilt = (isRight ? c : (7 - c)) * 0.6;
@@ -3901,20 +3968,15 @@
       break;
     }
     case 'BIG_SURPRISE': {
-      // #98 · EMO-44 大眼 · 惊讶瞪大 (蓄力微眯 -> 物理扩瞳瞪大 + 瞳孔震颤 + 惊叹星芒 -> 眨眼回神)
+      // #98 · EMO-44 大眼 · 惊讶瞪大 (轻微蓄力 -> 8×12圆睁扩瞳 + 骤缩3×4瞳孔震颤定格 -> 清脆回神眨眼)
       const f = t % 24;
       if (f <= 2) {
-        drawBigEye(false, 0, 0, 2, 2, 'normal');
-        drawBigEye(true, 0, 0, 2, 2, 'normal');
+        drawBigEye(false, 0, 0, 1, 1, 'normal');
+        drawBigEye(true, 0, 0, 1, 1, 'normal');
       } else if (f <= 18) {
-        const jx = (f >= 4 && f <= 9) ? (f % 2 === 0 ? 1 : 0) : 0;
-        const jy = (f >= 4 && f <= 9) ? (f % 3 === 0 ? -1 : 0) : 0;
-        drawBigEye(false, jx, jy, 0, 0, 'surprise');
-        drawBigEye(true, -jx, jy, 0, 0, 'surprise');
-        if (f >= 4 && f <= 10) {
-          put(11, 3, true);
-          put(11, 4, true);
-        }
+        const jy = (f === 3 || f === 5) ? -1 : 0;
+        drawBigEye(false, 0, jy, 0, 0, 'surprise');
+        drawBigEye(true, 0, jy, 0, 0, 'surprise');
       } else if (f <= 21) {
         const lid = [4, 7, 3][f - 19];
         drawBigEye(false, 0, 0, lid, lid, 'normal');
@@ -3936,41 +3998,31 @@
       break;
     }
     case 'BIG_SAD': {
-      // #100 · EMO-46 大眼 · 委屈难过 (八字垂眉 / \ + 低垂泪眸 + 下睑微颤 + 晶莹泪珠滑落 + 沉重慢眨)
+      // #100 · EMO-46 大眼 · 委屈难过 (八字垂眉 / \ + 柔和低垂叹息 + 晶莹泪光与泪珠缓缓滑落)
       const f = t % 32;
-      if (f >= 24 && f <= 29) {
-        const lid = [3, 6, 8, 8, 5, 2][f - 24];
-        drawBigEye(false, 0, 1, lid, Math.min(4, lid), 'sad');
-        drawBigEye(true, 0, 1, lid, Math.min(4, lid), 'sad');
-      } else {
-        const quiver = (f >= 12 && f <= 18 && f % 2 === 0) ? 1 : 0;
-        drawBigEye(false, 0, 1, 1, quiver, 'sad');
-        drawBigEye(true, 0, 1, 1, quiver, 'sad');
-        // 泪光双星芒
-        put(2 + 2, 6 + 7, true);
-        put(13 + 2, 6 + 7, true);
-        // 委屈泪珠自外眼角缓缓滑落
-        if (f >= 8 && f <= 21) {
-          const dropY = 15 + Math.floor((f - 8) / 3.5);
-          if (dropY <= 18) {
-            put(3, dropY, true);
-            put(19, dropY, true);
-          }
+      const droop = (f >= 14 && f <= 24) ? 1 : 0;
+      const pdy = (f >= 12 && f <= 25) ? 2 : 1;
+      drawBigEye(false, 0, pdy, 1 + droop, 0, 'sad');
+      drawBigEye(true, 0, pdy, 1 + droop, 0, 'sad');
+      // 柔和泪光高光点
+      put(2 + 2, 6 + 6 + (pdy - 1), true);
+      put(13 + 2, 6 + 6 + (pdy - 1), true);
+      // 委屈泪珠自外眼角平滑滑落
+      if (f >= 6 && f <= 21) {
+        const dropY = 15 + Math.floor((f - 6) / 4);
+        if (dropY <= 18) {
+          put(3, dropY, true);
+          put(19, dropY, true);
         }
       }
       break;
     }
     case 'BIG_ANGRY': {
-      // #101 · EMO-47 大眼 · 严肃生气 (锐利倒八字怒眉 \ / + 怒视上抬瞳孔 + 紧锁眉头微颤)
+      // #101 · EMO-47 大眼 · 严肃生气 (干净锐利的倒八字斜切怒眉 \ / + 完整清晰瞳孔凝视 + 沉稳压低眼帘)
       const f = t % 24;
-      const pulse = (f >= 6 && f <= 15) ? 1 : 0;
-      const shake = (f >= 8 && f <= 13 && f % 2 === 0) ? 1 : 0;
-      drawBigEye(false, shake, -1, 1 + pulse, 0, 'angry');
-      drawBigEye(true, shake, -1, 1 + pulse, 0, 'angry');
-      if (pulse) {
-        put(7, 5, true); put(8, 6, true);
-        put(15, 5, true); put(14, 6, true);
-      }
+      const pulse = (f >= 6 && f <= 16) ? 1 : 0;
+      drawBigEye(false, 0, 0, 1 + pulse, 0, 'angry');
+      drawBigEye(true, 0, 0, 1 + pulse, 0, 'angry');
       break;
     }
     case 'BIG_SMUG': {
@@ -4019,19 +4071,14 @@
       break;
     }
     case 'BIG_SLEEP': {
-      // #106 · EMO-52 大眼 · 安然睡眠 (柔和呼吸起伏闭合弧线 + 清晰像素 Z 字缓步飘升)
+      // #106 · EMO-52 大眼 · 安然睡眠 (柔和呼吸起伏闭合弧线 + 单个光点缓缓向上飘升)
       const f = t % 32;
       const floatY = (f >= 8 && f <= 23) ? 1 : 0;
       drawBigEye(false, 0, floatY, 0, 0, 'sleep');
       drawBigEye(true, 0, floatY, 0, 0, 'sleep');
-      const zStep = Math.floor((f % 16) / 4); // 0..3 逐格飘升
-      const zy = 4 - zStep;
-      const zx = 10;
-      if (zy >= 1 && zy <= 4) {
-        // 3×3 清晰像素 Z 字
-        put(zx, zy, true); put(zx + 1, zy, true); put(zx + 2, zy, true);
-        put(zx + 1, zy + 1, true);
-        put(zx, zy + 2, true); put(zx + 1, zy + 2, true); put(zx + 2, zy + 2, true);
+      const dotY = 7 - Math.floor(f / 5); // 7 -> 1 缓慢逐格上升
+      if (dotY >= 1 && dotY <= 7) {
+        put(11, dotY, true);
       }
       break;
     }
@@ -5218,6 +5265,7 @@
 
     /* 全局运行状态 */
     const state = {
+      matrixStyle: '393',    // '393' (原版保留不动) | '333' (新增21×21方灯样式)
       mode: 'face',          // 'face', 'blob', 'invert', 'contour'
       algo: 'pwm',           // 'pwm', 'binary'
       threshold: 0.35,       // 阈值
@@ -5609,6 +5657,54 @@
     function onScrub(val) { state.time = parseFloat(val); }
     function onSpeedChange(val) { state.speed = parseFloat(val); }
 
+    /* 点阵灯板规格切换（393原版 / 333方灯版） */
+    function setMatrixStyle(styleId) {
+      const preset = MATRIX_PRESETS[styleId] || MATRIX_PRESETS['393'];
+      state.matrixStyle = preset.id;
+      const is333 = preset.id === '333';
+
+      const btn393 = document.getElementById('matrixStyle393Btn');
+      const btn333 = document.getElementById('matrixStyle333Btn');
+      const top393 = document.getElementById('topMatrix393Btn');
+      const top333 = document.getElementById('topMatrix333Btn');
+      if (btn393) btn393.classList.toggle('active', !is333);
+      if (btn333) btn333.classList.toggle('active', is333);
+      if (top393) top393.classList.toggle('active', !is333);
+      if (top333) top333.classList.toggle('active', is333);
+
+      const headerBadge = document.getElementById('headerSpecBadge');
+      if (headerBadge) headerBadge.textContent = preset.headerBadge;
+      const specChip = document.getElementById('hardwareSpecChip');
+      if (specChip) specChip.textContent = preset.chipLabel;
+      const specText = document.getElementById('hardwareSpecText');
+      if (specText) specText.innerHTML = preset.specHtml;
+      const viewMatrixBtn = document.getElementById('viewMatrixBtn');
+      if (viewMatrixBtn) viewMatrixBtn.textContent = preset.viewBtnLabel;
+      const boardLabel = document.getElementById('matrixBoardLabel');
+      if (boardLabel) boardLabel.innerHTML = `<span></span> ${preset.boardLabel}`;
+
+      const exportBitmaskTitle = document.getElementById('exportBitmaskTitle');
+      if (exportBitmaskTitle) exportBitmaskTitle.textContent = `${preset.byteCount} 字节 C 语言位图数组`;
+      const exportBitmaskDesc = document.getElementById('exportBitmaskDesc');
+      if (exportBitmaskDesc) exportBitmaskDesc.textContent = `将 ${preset.total} 颗灯压缩为 ${preset.byteCount} 字节 (8点/字节)，适合 ESP32/STM32 内部 Flash 极小开销存储。`;
+      const exportRowsTitle = document.getElementById('exportRowsTitle');
+      if (exportRowsTitle) exportRowsTitle.textContent = `${preset.rowCount} 行独立 uint32_t 行掩码`;
+
+      const matrixFrame = document.getElementById('matrixFrame');
+      if (matrixFrame) {
+        matrixFrame.style.borderColor = is333 ? 'rgba(239, 68, 68, 0.35)' : '';
+      }
+
+      if (typeof updatePowerUI === 'function') updatePowerUI();
+      renderMatrix();
+      updateCodeExports();
+      if (typeof editorState !== 'undefined' && editorState.active) {
+        drawEditorCanvas();
+        drawEditorMiniPreview();
+      }
+      showToast(is333 ? '已切换至 333 颗方灯点阵样式 (21×21)' : '已切换至 393 颗原版点阵样式 (23×23)');
+    }
+
     /* 呈现风格与参数 */
     function setRenderMode(m) {
       state.mode = m;
@@ -5837,19 +5933,42 @@
     }
 
     function renderMatrix() {
-      const W = canvas.width, cx = W / 2, scale = W * 0.415, cell = 18.0;
+      const preset = getActiveMatrixPreset();
+      const is333 = preset.id === '333';
+      const activePoints = preset.points;
+      const activeTotal = preset.total;
+      const W = canvas.width, cx = W / 2;
+      const scale = is333 ? W * 0.422 : W * 0.415;
+      const cell = is333 ? 24.0 : 18.0;
       ctx.clearRect(0, 0, W, W);
 
-      // 暗夜圆形底板
-      ctx.fillStyle = '#030507';
-      ctx.beginPath();
-      ctx.arc(cx, cx, W * 0.485, 0, TAU);
-      ctx.fill();
-      ctx.strokeStyle = '#0d151c';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      if (is333) {
+        // 333 方灯版深灰圆形底板 + 红色圆形轮廓边界（匹配参考图样式）
+        ctx.fillStyle = '#1c232b';
+        ctx.beginPath();
+        ctx.arc(cx, cx, W * 0.485, 0, TAU);
+        ctx.fill();
+        ctx.strokeStyle = '#2a3440';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
 
-      const brightnessArray = new Float32Array(TOTAL_LEDS);
+        ctx.beginPath();
+        ctx.arc(cx, cx, W * 0.452, 0, TAU);
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.55)';
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      } else {
+        // 原版 393 暗夜圆形底板（保持不变）
+        ctx.fillStyle = '#030507';
+        ctx.beginPath();
+        ctx.arc(cx, cx, W * 0.485, 0, TAU);
+        ctx.fill();
+        ctx.strokeStyle = '#0d151c';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      const brightnessArray = new Float32Array(activeTotal);
       let litCount = 0;
       const anim = state.currentAnim;
 
@@ -5877,7 +5996,7 @@
           normCtx.fillText('点击小部件或控制中心开关开启', W/2, H/2 + 45);
         }
       }
-      // 2. 点阵屏手电筒模式：393 颗灯全亮！
+      // 2. 点阵屏手电筒模式：全灯珠满亮！
       else if (state.matrixTorch) {
         brightnessArray.fill(1.0);
         // 右视窗展示 100% 满功率白光手电筒照明
@@ -5908,14 +6027,14 @@
           normCtx.fillText('🔦 点阵手电筒', W/2, H/2 - 20);
           normCtx.font = 'bold 24px system-ui';
           normCtx.fillStyle = '#475569';
-          normCtx.fillText('393 / 393 满亮泛光照明', W/2, H/2 + 35);
+          normCtx.fillText(`${activeTotal} / ${activeTotal} 满亮泛光照明`, W/2, H/2 + 35);
         }
       }
       // 3. 正常动画播放模式
       else if (anim.isAvatar) {
         // AI 表情 3D 模型光线追踪采样
         const frameData = evaluateAvatarFrame(state.time, anim);
-        PHYSICAL_POINTS.forEach((pt, idx) => {
+        activePoints.forEach((pt, idx) => {
           let maxVal = 0.0;
           const px = pt.x, py = pt.y, dist = Math.hypot(px, py);
 
@@ -6003,7 +6122,7 @@
         const frameData = anim.customFrames[curF] || [];
         const frameSet = new Set(frameData);
 
-        PHYSICAL_POINTS.forEach((pt, idx) => {
+        activePoints.forEach((pt, idx) => {
           brightnessArray[idx] = frameSet.has(pt.gridId) ? 1.0 : 0.0;
         });
 
@@ -6011,7 +6130,7 @@
         renderNormalDisplay(anim, state.time, null, refinedOptions(), frameSet);
 
       } else {
-        // 栅格动画直接使用 23×23 精准绘制
+        // 栅格动画直接使用 23×23 精准绘制（333 模式自动居中映射）
         const totalF = anim.frames || 24;
         const curF = anim.id === 'SAND' ? Math.min(Math.floor(state.time), totalF - 1) : Math.floor(state.time) % totalF;
         const options = refinedOptions();
@@ -6022,7 +6141,7 @@
           ? ((options.musicStyle === 'flowers' || anim.id === 'INFINIX_FLOWERS') ? flowerPixels(curF, options)
             : (options.musicStyle === 'ripples' || anim.id === 'INFINIX_RIPPLES') ? ripplePixels(curF, options) : null)
           : null;
-        PHYSICAL_POINTS.forEach((pt, idx) => {
+        activePoints.forEach((pt, idx) => {
           brightnessArray[idx] = flowers ? (flowers.get(pt.gridId) || 0) : (gridSet.has(pt.gridId) ? pulse : 0);
         });
 
@@ -6035,7 +6154,7 @@
       lastRowBits.fill(0);
 
       // 绘制各灯珠发光体
-      PHYSICAL_POINTS.forEach((pt, idx) => {
+      activePoints.forEach((pt, idx) => {
         const val = brightnessArray[idx];
         const isLit = state.algo === 'pwm' ? (val >= state.threshold * 0.5) : (val >= state.threshold);
         const finalAlpha = isLit ? (state.algo === 'pwm' ? val * state.brightness : state.brightness) : 0;
@@ -6048,28 +6167,49 @@
 
         const sx = cx + pt.x * scale, sy = cx + pt.y * scale;
 
-        // 灯珠基座
-        ctx.fillStyle = '#0f171e';
-        ctx.fillRect(sx - cell / 2, sy - cell / 2, cell, cell);
+        if (is333) {
+          // 333 方灯样式：饱满利落的正方形发光块 + 紧凑深灰暗格间隙
+          ctx.fillStyle = '#232c36';
+          ctx.fillRect(sx - cell / 2, sy - cell / 2, cell, cell);
 
-        if (finalAlpha > 0.02) {
-          ctx.shadowColor = state.color;
-          ctx.shadowBlur = state.glow * finalAlpha;
-          ctx.fillStyle = state.color;
-          ctx.globalAlpha = finalAlpha;
-          ctx.fillRect(sx - cell / 2 + 1, sy - cell / 2 + 1, cell - 2, cell - 2);
-          ctx.globalAlpha = 1.0;
-          ctx.shadowBlur = 0;
+          if (finalAlpha > 0.02) {
+            const litColor = state.color === '#ffd45e' ? '#ffb700' : state.color;
+            ctx.shadowColor = litColor;
+            ctx.shadowBlur = Math.min(state.glow * 0.65, 10) * finalAlpha;
+            ctx.fillStyle = litColor;
+            ctx.globalAlpha = finalAlpha;
+            ctx.fillRect(sx - cell / 2, sy - cell / 2, cell, cell);
+            ctx.globalAlpha = 1.0;
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.strokeStyle = '#2b3642';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(sx - cell / 2, sy - cell / 2, cell, cell);
+          }
         } else {
-          ctx.strokeStyle = '#18242e';
-          ctx.lineWidth = 1;
-          ctx.strokeRect(sx - cell / 2, sy - cell / 2, cell, cell);
+          // 原版 393 灯珠基座与发光体（保持不变）
+          ctx.fillStyle = '#0f171e';
+          ctx.fillRect(sx - cell / 2, sy - cell / 2, cell, cell);
+
+          if (finalAlpha > 0.02) {
+            ctx.shadowColor = state.color;
+            ctx.shadowBlur = state.glow * finalAlpha;
+            ctx.fillStyle = state.color;
+            ctx.globalAlpha = finalAlpha;
+            ctx.fillRect(sx - cell / 2 + 1, sy - cell / 2 + 1, cell - 2, cell - 2);
+            ctx.globalAlpha = 1.0;
+            ctx.shadowBlur = 0;
+          } else {
+            ctx.strokeStyle = '#18242e';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(sx - cell / 2, sy - cell / 2, cell, cell);
+          }
         }
       });
 
       lastLitCount = litCount;
-      const pct = ((litCount / TOTAL_LEDS) * 100).toFixed(1);
-      document.getElementById('litCountBadge').textContent = `${litCount} / 393 亮起 (${pct}%)`;
+      const pct = ((litCount / activeTotal) * 100).toFixed(1);
+      document.getElementById('litCountBadge').textContent = `${litCount} / ${activeTotal} 亮起 (${pct}%)`;
     }
 
     /* ==========================================================================
@@ -7116,12 +7256,12 @@
       } else if (id === 'BIG_SURPRISE') {
         const f = curF % 24;
         if (f <= 2) {
-          lidTop = 0.22; lidBot = 0.22;
+          lidTop = 0.16; lidBot = 0.16;
         } else if (f <= 18) {
           style = 'surprise';
-          if (f >= 4 && f <= 9) {
-            pdx = (f % 2 === 0 ? 0.25 : -0.25);
-            pdy = (f % 3 === 0 ? -0.25 : 0.25);
+          if (f >= 3 && f <= 7) {
+            pdx = (f % 2 === 0 ? 0.18 : -0.18);
+            pdy = (f === 3 || f === 5 ? -0.35 : 0);
           }
         } else if (f <= 21) {
           lidTop = lidBot = [0.4, 0.9, 0.3][f - 19];
@@ -7134,19 +7274,13 @@
       } else if (id === 'BIG_SAD') {
         const f = curF % 32;
         style = 'sad';
-        pdy = 1.1;
-        if (f >= 24 && f <= 29) {
-          lidTop = [0.3, 0.65, 0.95, 0.95, 0.55, 0.2][f - 24];
-          lidBot = Math.min(0.4, lidTop * 0.4);
-        } else if (f >= 12 && f <= 18 && f % 2 === 0) {
-          lidBot = 0.08;
-        }
+        pdy = 1.0 + Math.sin((f / 32) * Math.PI * 2) * 0.35;
+        lidTop = (f >= 14 && f <= 24) ? 0.14 : 0.06;
       } else if (id === 'BIG_ANGRY') {
         const f = curF % 24;
         style = 'angry';
-        pdy = -0.9;
-        lidTop = (f >= 6 && f <= 15) ? 0.24 : 0.14;
-        if (f >= 8 && f <= 13 && f % 2 === 0) pdx = 0.35;
+        pdy = 0;
+        lidTop = (f >= 6 && f <= 16) ? 0.28 : 0.18;
       } else if (id === 'BIG_SMUG') {
         const f = curF % 28;
         style = 'smug';
@@ -7239,16 +7373,13 @@
           return;
         }
 
-        // 惊讶瞪大：物理扩瞳放大
-        const popScale = style === 'surprise' ? 1.2 : 1.0;
-        const curEw = ew * popScale, curEh = eh * popScale, curCr = cornerR * popScale;
+        // 惊讶瞪大：纵向撑圆，保留鼻梁呼吸空间
+        const popW = style === 'surprise' ? 1.06 : 1.0;
+        const popH = style === 'surprise' ? 1.16 : 1.0;
+        const curEw = ew * popW, curEh = eh * popH, curCr = cornerR * 1.08;
 
         ctx.save();
-        if (style === 'angry') {
-          ctx.translate(ecx, ecy);
-          ctx.rotate(isRight ? -0.24 : 0.24);
-          ctx.translate(-ecx, -ecy);
-        } else if (style === 'sad') {
+        if (style === 'sad') {
           ctx.translate(ecx, ecy);
           ctx.rotate(isRight ? 0.20 : -0.20);
           ctx.translate(-ecx, -ecy);
@@ -7275,7 +7406,24 @@
           effLidTop = isRight ? 0.24 : (0.38 + squint);
           effLidBot = 0.12;
         }
-        if (effLidTop > 0) {
+        if (style === 'angry') {
+          // 锐利倒八字斜切上眼睑 \ /
+          const outerDrop = curEh * (effLidTop * 0.45);
+          const innerDrop = curEh * (effLidTop * 1.45);
+          ctx.fillStyle = '#0a0d14';
+          ctx.beginPath();
+          ctx.moveTo(ecx - curEw, ecy - curEh);
+          ctx.lineTo(ecx + curEw, ecy - curEh);
+          if (isRight) {
+            ctx.lineTo(ecx + curEw/2, ecy - curEh/2 + outerDrop);
+            ctx.lineTo(ecx - curEw/2, ecy - curEh/2 + innerDrop);
+          } else {
+            ctx.lineTo(ecx + curEw/2, ecy - curEh/2 + innerDrop);
+            ctx.lineTo(ecx - curEw/2, ecy - curEh/2 + outerDrop);
+          }
+          ctx.closePath();
+          ctx.fill();
+        } else if (effLidTop > 0) {
           ctx.fillStyle = '#0a0d14';
           ctx.fillRect(ecx - curEw, ecy - curEh/2, curEw * 2, curEh * effLidTop);
         }
@@ -7307,14 +7455,16 @@
         }
 
         if (style === 'surprise') {
-          // 惊呆微缩震颤瞳孔
+          // 惊呆骤缩圆瞳 + 晶莹高光
           ctx.fillStyle = '#0a0d14';
           ctx.beginPath();
-          ctx.arc(pupilCx, pupilCy, 13, 0, Math.PI * 2);
+          ctx.arc(pupilCx, pupilCy, 17, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 8;
           ctx.beginPath();
-          ctx.arc(pupilCx - 3, pupilCy - 4, 3.5, 0, Math.PI * 2);
+          ctx.arc(pupilCx - 5, pupilCy - 5, 4.5, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
           return;
@@ -7382,19 +7532,6 @@
         ctx.restore();
       }
 
-      // 惊讶瞪大：上方感叹闪光
-      if (id === 'BIG_SURPRISE' && (curF % 24 >= 4 && curF % 24 <= 10)) {
-        ctx.save();
-        ctx.fillStyle = col;
-        ctx.shadowColor = col;
-        ctx.shadowBlur = 14;
-        ctx.beginPath();
-        ctx.roundRect(cx - 4, eyeCy - 125, 8, 22, 4);
-        ctx.arc(cx, eyeCy - 94, 4, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
       // 委屈难过：外眼角晶莹泪珠滑落
       if (id === 'BIG_SAD' && (curF % 32 >= 8 && curF % 32 <= 21)) {
         const dropProg = (curF % 32 - 8) / 13;
@@ -7410,21 +7547,6 @@
           ctx.quadraticCurveTo(tx - 8, dy + 2, tx, dy - 11);
           ctx.fill();
         }
-        ctx.restore();
-      }
-
-      // 严肃生气：眉心倒八字怒眉线
-      if (id === 'BIG_ANGRY' && (curF % 24 >= 6 && curF % 24 <= 15)) {
-        ctx.save();
-        ctx.strokeStyle = col;
-        ctx.lineWidth = 6;
-        ctx.lineCap = 'round';
-        ctx.shadowColor = col;
-        ctx.shadowBlur = 14;
-        ctx.beginPath();
-        ctx.moveTo(leftCx + 18, eyeCy - 86); ctx.lineTo(leftCx + 46, eyeCy - 68);
-        ctx.moveTo(rightCx - 18, eyeCy - 86); ctx.lineTo(rightCx - 46, eyeCy - 68);
-        ctx.stroke();
         ctx.restore();
       }
 
@@ -7460,21 +7582,19 @@
         ctx.restore();
       }
 
-      // 安详入眠向上漂浮 Zz
+      // 安详入眠：单个光点缓缓向上飘升
       if (isSleep) {
         ctx.save();
         const f = curF % 32;
-        const prog = (f % 16) / 16;
-        const zy = eyeCy - 40 - prog * 56;
+        const prog = f / 32;
+        const dotY = eyeCy - 20 - prog * 80;
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 26px monospace';
-        ctx.textAlign = 'center';
-        ctx.globalAlpha = 1 - prog * 0.65;
+        ctx.globalAlpha = Math.sin(prog * Math.PI);
         ctx.shadowColor = col;
         ctx.shadowBlur = 14;
-        ctx.fillText('Z', cx, zy);
-        ctx.font = 'bold 18px monospace';
-        ctx.fillText('z', cx + 18, zy + 18);
+        ctx.beginPath();
+        ctx.arc(cx, dotY, 6, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
       }
     }
@@ -9115,24 +9235,25 @@
 
     /* 代码导出功能 */
     function updateCodeExports() {
+      const preset = getActiveMatrixPreset();
       const hexList = [];
-      for (let i = 0; i < 50; i++) hexList.push('0x' + lastFrameBytes[i].toString(16).padStart(2, '0').toUpperCase());
+      for (let i = 0; i < preset.byteCount; i++) hexList.push('0x' + lastFrameBytes[i].toString(16).padStart(2, '0').toUpperCase());
 
-      let bitmaskStr = '// 393点阵单帧位图 (共50字节, 393位)\n';
+      let bitmaskStr = `// ${preset.total}点阵单帧位图 (共${preset.byteCount}字节, ${preset.total}位)\n`;
       const animTag = (state.currentAnim.num ? state.currentAnim.num + ' ' : '') + (state.currentAnim.no ? '[' + state.currentAnim.no + '] ' : '');
-      bitmaskStr += '// 当前动画: ' + animTag + state.currentAnim.name + ' | 亮灯数: ' + lastLitCount + ' / 393\n';
-      bitmaskStr += 'const uint8_t PROGMEM BLOUB_FRAME_393[50] = {\n  ';
-      for (let i = 0; i < 50; i++) {
-        bitmaskStr += hexList[i] + (i < 49 ? ', ' : '');
-        if ((i + 1) % 10 === 0 && i < 49) bitmaskStr += '\n  ';
+      bitmaskStr += '// 当前动画: ' + animTag + state.currentAnim.name + ' | 亮灯数: ' + lastLitCount + ' / ' + preset.total + '\n';
+      bitmaskStr += `const uint8_t PROGMEM ${preset.bitmaskSymbol}[${preset.byteCount}] = {\n  `;
+      for (let i = 0; i < preset.byteCount; i++) {
+        bitmaskStr += hexList[i] + (i < preset.byteCount - 1 ? ', ' : '');
+        if ((i + 1) % 10 === 0 && i < preset.byteCount - 1) bitmaskStr += '\n  ';
       }
       bitmaskStr += '\n};';
       document.getElementById('codeBitmaskBox').textContent = bitmaskStr;
 
-      let rowStr = '// 23行独立扫描掩码 (uint32_t)\n';
-      rowStr += 'const uint32_t PROGMEM BLOUB_ROWS[23] = {\n';
-      for (let r = 0; r < 23; r++) {
-        rowStr += '  0x' + lastRowBits[r].toString(16).padStart(6, '0').toUpperCase() + ', // 行 ' + r.toString().padStart(2, '0') + ': ' + MATRIX_ROWS[r] + ' 点\n';
+      let rowStr = `// ${preset.rowCount}行独立扫描掩码 (uint32_t)\n`;
+      rowStr += `const uint32_t PROGMEM ${preset.rowsSymbol}[${preset.rowCount}] = {\n`;
+      for (let r = 0; r < preset.rowCount; r++) {
+        rowStr += '  0x' + lastRowBits[r].toString(16).padStart(6, '0').toUpperCase() + ', // 行 ' + r.toString().padStart(2, '0') + ': ' + preset.rows[r] + ' 点\n';
       }
       rowStr += '};';
       document.getElementById('codeRowsBox').textContent = rowStr;
@@ -9154,22 +9275,26 @@
     }
 
     function copyBitmaskCode() {
-      navigator.clipboard.writeText(document.getElementById('codeBitmaskBox').textContent).then(() => showToast('已成功复制 50 字节 C 语言位图数组！'));
+      const preset = getActiveMatrixPreset();
+      navigator.clipboard.writeText(document.getElementById('codeBitmaskBox').textContent).then(() => showToast(`已成功复制 ${preset.byteCount} 字节 C 语言位图数组！`));
     }
 
     function copyRowsCode() {
-      navigator.clipboard.writeText(document.getElementById('codeRowsBox').textContent).then(() => showToast('已成功复制 23 行独立扫描掩码！'));
+      const preset = getActiveMatrixPreset();
+      navigator.clipboard.writeText(document.getElementById('codeRowsBox').textContent).then(() => showToast(`已成功复制 ${preset.rowCount} 行独立扫描掩码！`));
     }
 
     function captureFramePng() {
+      const preset = getActiveMatrixPreset();
       const link = document.createElement('a');
-      link.download = `matrix_393_${state.currentAnim.id}_${Date.now()}.png`;
+      link.download = `matrix_${preset.id}_${state.currentAnim.id}_${Date.now()}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      showToast('已保存当前点阵高清 PNG 图片');
+      showToast(`已保存当前 ${preset.total} 点阵高清 PNG 图片`);
     }
 
     function exportAnimJson() {
+      const preset = getActiveMatrixPreset();
       const frames = [];
       const totalF = state.currentAnim.isAvatar ? 24 : (state.currentAnim.frames || 24);
       const originalTime = state.time;
@@ -9178,7 +9303,7 @@
         state.time = state.currentAnim.isAvatar ? ((f / totalF) * (state.currentAnim.duration || 3.0)) : f;
         renderMatrix();
         const bits = [];
-        PHYSICAL_POINTS.forEach((pt, i) => {
+        preset.points.forEach((pt, i) => {
           const byteIdx = Math.floor(i / 8);
           const bitIdx = i % 8;
           bits.push((lastFrameBytes[byteIdx] & (1 << bitIdx)) ? 1 : 0);
@@ -9188,8 +9313,8 @@
       state.time = originalTime;
 
       const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify({
-        totalLeds: 393,
-        rows: MATRIX_ROWS,
+        totalLeds: preset.total,
+        rows: preset.rows,
         number: state.currentAnim.num || '',
         code: state.currentAnim.no || '',
         animation: state.currentAnim.name,
@@ -9199,9 +9324,9 @@
       }, null, 2));
       const link = document.createElement('a');
       link.setAttribute('href', dataStr);
-      link.setAttribute('download', `matrix_393_${state.currentAnim.id}.json`);
+      link.setAttribute('download', `matrix_${preset.id}_${state.currentAnim.id}.json`);
       link.click();
-      showToast('已导出完整的 393 点阵动画 JSON');
+      showToast(`已导出完整的 ${preset.total} 点阵动画 JSON`);
     }
 
     /* ==========================================================================
@@ -9334,8 +9459,9 @@
       const ccTorchBtn = document.getElementById('ccMatrixTorchBtn');
       const ccTorchSub = document.getElementById('ccTorchSub');
       if (ccTorchBtn) {
+        const preset = getActiveMatrixPreset();
         ccTorchBtn.classList.toggle('active', state.matrixTorch);
-        if (ccTorchSub) ccTorchSub.textContent = state.matrixTorch ? '393灯全亮' : '全矩阵照明';
+        if (ccTorchSub) ccTorchSub.textContent = state.matrixTorch ? `${preset.total}灯全亮` : '全矩阵照明';
       }
 
       // 控制中心按钮 3: 系统机身手电筒
@@ -9372,7 +9498,7 @@
        自定义点阵画板矢量同步渲染 (右侧视窗)
        ========================================================================== */
     function drawNormalCustom(ctx, cx, cy, t, curF, anim, frameSet, col) {
-      const litPoints = PHYSICAL_POINTS.filter(pt => frameSet.has(pt.gridId));
+      const litPoints = getActiveMatrixPreset().points.filter(pt => frameSet.has(pt.gridId));
       if (litPoints.length === 0) return;
 
       const scale = 210;
@@ -9564,7 +9690,7 @@
         const t = (frameIdx / totalF) * duration;
         const frameData = evaluateAvatarFrame(t, anim);
         const set = new Set();
-        PHYSICAL_POINTS.forEach((pt) => {
+        getActiveMatrixPreset().points.forEach((pt) => {
           let maxVal = 0.0;
           const px = pt.x, py = pt.y;
           for (const eye of frameData.eyes) {
@@ -9702,7 +9828,7 @@
     function invertEditorFrame() {
       const curSet = editorState.framesData[editorState.currentFrameIdx];
       if (!curSet) return;
-      PHYSICAL_POINTS.forEach(pt => {
+      getActiveMatrixPreset().points.forEach(pt => {
         if (curSet.has(pt.gridId)) curSet.delete(pt.gridId);
         else curSet.add(pt.gridId);
       });
@@ -9713,7 +9839,7 @@
     function fillAllEditorFrame() {
       const curSet = editorState.framesData[editorState.currentFrameIdx];
       if (!curSet) return;
-      PHYSICAL_POINTS.forEach(pt => curSet.add(pt.gridId));
+      getActiveMatrixPreset().points.forEach(pt => curSet.add(pt.gridId));
       drawEditorCanvas();
       drawEditorMiniPreview();
     }
@@ -9843,11 +9969,12 @@
       function paintAtPos(pos) {
         const curSet = editorState.framesData[editorState.currentFrameIdx];
         if (!curSet) return;
+        const preset = getActiveMatrixPreset();
         const W = eCanvas.width, cx = W / 2, cy = W / 2;
         const scale = 200;
 
         let changed = false;
-        PHYSICAL_POINTS.forEach(pt => {
+        preset.points.forEach(pt => {
           const px = cx + pt.x * scale;
           const py = cy + pt.y * scale;
           const dist = Math.hypot(pos.x - px, pos.y - py);
@@ -9882,11 +10009,12 @@
       }
 
       function updateHover(pos) {
+        const preset = getActiveMatrixPreset();
         const W = eCanvas.width, cx = W / 2, cy = W / 2;
         const scale = 200;
         let closest = null;
         let minDist = 14;
-        PHYSICAL_POINTS.forEach(pt => {
+        preset.points.forEach(pt => {
           const px = cx + pt.x * scale;
           const py = cy + pt.y * scale;
           const d = Math.hypot(pos.x - px, pos.y - py);
@@ -9974,41 +10102,47 @@
       const W = eCanvas.width, cx = W / 2, cy = W / 2;
       const scale = 200;
 
+      const preset = getActiveMatrixPreset();
+      const is333 = preset.id === '333';
+      const beadSize = is333 ? 15 : 13;
+      const halfBead = beadSize / 2;
+
       eCtx.clearRect(0, 0, W, W);
 
-      eCtx.fillStyle = '#05080c';
+      eCtx.fillStyle = is333 ? '#1c232b' : '#05080c';
       eCtx.beginPath();
       eCtx.arc(cx, cy, cx - 4, 0, Math.PI * 2);
       eCtx.fill();
-      eCtx.strokeStyle = '#182430';
+      eCtx.strokeStyle = is333 ? 'rgba(239, 68, 68, 0.55)' : '#182430';
       eCtx.lineWidth = 2;
       eCtx.stroke();
 
       const curSet = editorState.framesData[editorState.currentFrameIdx] || new Set();
       let litCount = 0;
 
-      PHYSICAL_POINTS.forEach(pt => {
+      preset.points.forEach(pt => {
         const px = cx + pt.x * scale;
         const py = cy + pt.y * scale;
         const isLit = curSet.has(pt.gridId);
 
         if (isLit) {
           litCount++;
+          const litColor = (is333 && state.color === '#ffd45e') ? '#ffb700' : (state.color || '#ffd45e');
           eCtx.beginPath();
-          eCtx.rect(px - 6.5, py - 6.5, 13, 13);
-          eCtx.fillStyle = state.color || '#ffd45e';
-          eCtx.shadowColor = state.color || '#ffd45e';
-          eCtx.shadowBlur = 8;
+          eCtx.rect(px - halfBead, py - halfBead, beadSize, beadSize);
+          eCtx.fillStyle = litColor;
+          eCtx.shadowColor = litColor;
+          eCtx.shadowBlur = is333 ? 5 : 8;
           eCtx.fill();
 
           eCtx.shadowBlur = 0;
         } else {
           eCtx.beginPath();
-          eCtx.rect(px - 6.5, py - 6.5, 13, 13);
-          eCtx.fillStyle = '#101720';
+          eCtx.rect(px - halfBead, py - halfBead, beadSize, beadSize);
+          eCtx.fillStyle = is333 ? '#232c36' : '#101720';
           eCtx.shadowBlur = 0;
           eCtx.fill();
-          eCtx.strokeStyle = '#1b2836';
+          eCtx.strokeStyle = is333 ? '#2d3845' : '#1b2836';
           eCtx.lineWidth = 1;
           eCtx.stroke();
         }
@@ -10016,12 +10150,12 @@
 
       // 绘制正方形悬浮指引
       if (editorState.hoverGridId !== null) {
-        const hoverPt = PHYSICAL_POINTS.find(p => p.gridId === editorState.hoverGridId);
+        const hoverPt = preset.points.find(p => p.gridId === editorState.hoverGridId);
         if (hoverPt) {
           const px = cx + hoverPt.x * scale;
           const py = cy + hoverPt.y * scale;
           eCtx.beginPath();
-          eCtx.rect(px - 8.5, py - 8.5, 17, 17);
+          eCtx.rect(px - (halfBead + 2), py - (halfBead + 2), beadSize + 4, beadSize + 4);
           eCtx.strokeStyle = editorState.tool === 'eraser' ? '#f87171' : '#ffffff';
           eCtx.lineWidth = 1.6;
           eCtx.shadowColor = editorState.tool === 'eraser' ? '#f87171' : '#ffffff';
@@ -10031,9 +10165,9 @@
         }
       }
 
-      const pct = ((litCount / TOTAL_LEDS) * 100).toFixed(1);
+      const pct = ((litCount / preset.total) * 100).toFixed(1);
       const litBadge = document.getElementById('editorLitBadge');
-      if (litBadge) litBadge.textContent = `${litCount} / 393 亮起 (${pct}%)`;
+      if (litBadge) litBadge.textContent = `${litCount} / ${preset.total} 亮起 (${pct}%)`;
     }
 
     let miniPreviewFrame = 0;
@@ -10074,25 +10208,29 @@
     function drawEditorMiniPreview(frameIdx = editorState.currentFrameIdx) {
       const pCanvas = document.getElementById('editorMiniPreviewCanvas');
       if (!pCanvas) return;
+      const preset = getActiveMatrixPreset();
+      const is333 = preset.id === '333';
       const pCtx = pCanvas.getContext('2d');
       const W = pCanvas.width, cx = W / 2, cy = W / 2;
       const scale = 78;
 
       pCtx.clearRect(0, 0, W, W);
-      pCtx.fillStyle = '#060a0f';
+      pCtx.fillStyle = is333 ? '#1c232b' : '#060a0f';
       pCtx.beginPath();
       pCtx.arc(cx, cy, cx - 2, 0, Math.PI * 2);
       pCtx.fill();
 
       const fSet = editorState.framesData[frameIdx] || new Set();
-      const col = state.color || '#ffd45e';
+      const col = (is333 && state.color === '#ffd45e') ? '#ffb700' : (state.color || '#ffd45e');
+      const miniSize = is333 ? 6.0 : 5.2;
+      const miniHalf = miniSize / 2;
 
-      PHYSICAL_POINTS.forEach(pt => {
+      preset.points.forEach(pt => {
         const px = cx + pt.x * scale;
         const py = cy + pt.y * scale;
         if (fSet.has(pt.gridId)) {
           pCtx.beginPath();
-          pCtx.rect(px - 2.6, py - 2.6, 5.2, 5.2);
+          pCtx.rect(px - miniHalf, py - miniHalf, miniSize, miniSize);
           pCtx.fillStyle = col;
           pCtx.fill();
         }
