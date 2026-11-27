@@ -2951,6 +2951,40 @@
       break;
     }
     case 'DOG': {
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
+      if (is333) {
+        // 333 方阵专属：重绘正面 Q 版灵动小狗 (垂耳弹跳 + 眨眼 + 吐舌 + 摇尾)
+        const earUp = (t % 12 < 4) ? 1 : 0;
+        const blink = (t % 24 >= 21);
+        const tongue = (t % 8 < 4);
+        const wag = (t % 6 < 3) ? 1 : 0;
+        const head = [
+          '00111111100',
+          '01000000010',
+          '10000000001',
+          '10110001101',
+          '10110001101',
+          '10000100001',
+          '10001110001',
+          '01000000010',
+          '00111111100'
+        ];
+        mask(head.join('/'), 6, 6);
+        if (blink) {
+          line(8, 9, 9, 9, false); line(13, 9, 14, 9, false);
+        }
+        const ey = 8 - earUp;
+        for (let dy = 0; dy < 4; dy++) {
+          put(4, ey + dy); put(5, ey + dy);
+          put(17, ey + dy); put(18, ey + dy);
+        }
+        put(8, 15); put(8, 16);
+        put(14, 15); put(14, 16);
+        line(9, 17, 13, 17);
+        if (tongue) { put(11, 13); put(11, 14); }
+        put(16 + wag, 15); put(17 + wag, 14);
+        break;
+      }
       const dog = dogPose(t);
       // 柯基：尖耳、长圆身、短腿，重新绘制独立轮廓。
       [-4, -2, 0, 2].forEach((x, i) => {
@@ -2991,6 +3025,32 @@
       break;
     }
     case 'FISH': {
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
+      if (is333) {
+        // 333 方阵专属：重绘游动金鱼 (饱满鱼身 + 镂空鱼眼 + 灵动摆尾 + 上升气泡)
+        const swimY = (t % 12 < 6) ? 0 : 1;
+        const tailSwish = (t % 8 < 4) ? 0 : 1;
+        const fishBody = [
+          '000001110000000',
+          '000111111100001',
+          '001111111110011',
+          '011001111111111',
+          '111001111111110',
+          '011111111111111',
+          '001111111110011',
+          '000111111000001'
+        ];
+        mask(fishBody.join('/'), 4, 7 + swimY);
+        if (tailSwish === 1) {
+          put(18, 8 + swimY, false); put(18, 14 + swimY, false);
+          put(17, 7 + swimY); put(17, 15 + swimY);
+        }
+        const bStep = t % 12;
+        if (bStep < 4) put(3, 8);
+        else if (bStep < 8) put(3, 6);
+        else { put(3, 5); put(4, 7); }
+        break;
+      }
       mask('00001100000000/00111110000010/01111111000110/11x11111111111/11111111111111/01111111000110/00111110000010/00001100000000', 4, 7);
       if(phase % 2) { put(18, 8, false); put(18, 14, false); put(17, 8); put(17, 14); }
       put(3, 4 + (phase % 2) * 2);
@@ -3019,10 +3079,23 @@
       break;
     }
     case 'SUCCESS': {
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
       circle(11, 11, 8);
       const n = Math.min(10, t);
-      if(n > 0) line(7, 11, Math.min(10, 7 + n), Math.min(15, 11 + n));
-      if(n > 3) line(10, 15, Math.min(16, 10 + n - 3), Math.max(7, 15 - (n - 3)));
+      if (is333) {
+        // 333 方阵专属：严格 45° 等斜率直线对号 (7,11)->(10,14)->(16,8)，居中无折弯
+        if (n > 0) {
+          const k1 = Math.min(3, n);
+          line(7, 11, 7 + k1, 11 + k1);
+        }
+        if (n > 3) {
+          const k2 = Math.min(6, n - 3);
+          line(10, 14, 10 + k2, 14 - k2);
+        }
+      } else {
+        if(n > 0) line(7, 11, Math.min(10, 7 + n), Math.min(15, 11 + n));
+        if(n > 3) line(10, 15, Math.min(16, 10 + n - 3), Math.max(7, 15 - (n - 3)));
+      }
       break;
     }
     case 'LOCK': {
@@ -3653,6 +3726,36 @@
       break;
     }
     case 'CAT': {
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
+      if (is333) {
+        // 333 方阵专属：重绘清晰镂空轮廓像素小猫 (灵动竖耳 + 眨眼 + 萌系w嘴 + 清晰胡须)
+        const twitch = (t % 16 < 4) ? 1 : 0;
+        const blink = (t % 20 >= 17);
+        const catMask = [
+          '01100000110',
+          '10010001001',
+          '10001110001',
+          '10000000001',
+          '10110001101',
+          '10110001101',
+          '10000000001',
+          '01000100010',
+          '01001010010',
+          '00110001100',
+          '00001110000'
+        ];
+        mask(catMask.join('/'), 6, 6);
+        if (twitch) {
+          put(7, 6, false); put(8, 6, false); put(7, 5); put(8, 5);
+          put(14, 6, false); put(15, 6, false); put(14, 5); put(15, 5);
+        }
+        if (blink) {
+          line(8, 10, 9, 10, false); line(13, 10, 14, 10, false);
+        }
+        put(3, 11); put(4, 11); put(3, 13); put(4, 13);
+        put(18, 11); put(19, 11); put(18, 13); put(19, 13);
+        break;
+      }
       // 猫咪头部
       circle(11, 12, 6, true);
       // 猫耳 (左耳与右耳随帧率灵动微动)
@@ -3672,6 +3775,28 @@
       break;
     }
     case 'BIRD': {
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
+      if (is333) {
+        // 333 方阵专属：重绘侧身向右飞翔小鸟 (圆润头部 + 尖喙尾羽 + 三段式振翅扑翼)
+        const stage = Math.floor((t % 12) / 3); // 0:上扬, 1:平展, 2:下扑, 3:平展
+        const wing = stage === 0 ? 0 : stage === 2 ? 2 : 1;
+        const flyY = stage === 0 ? 1 : stage === 2 ? -1 : 0;
+        const birdBody = [
+          '000000000011100',
+          '000000000110111',
+          '110001111111100',
+          '011111111111000',
+          '000000111100000'
+        ];
+        mask(birdBody.join('/'), 4, 9 + flyY);
+        const wingPts = wing === 0
+          ? [[7,6],[8,6],[8,7],[9,7],[10,7],[9,8],[10,8],[11,8],[10,9],[11,9],[12,9],[11,10]]
+          : wing === 1
+          ? [[7,9],[8,9],[9,9],[10,10],[11,10],[12,10]]
+          : [[9,13],[10,13],[11,13],[8,14],[9,14],[10,14],[7,15],[8,15],[9,15],[7,16],[8,16]];
+        wingPts.forEach(([wx, wy]) => put(wx, wy + flyY));
+        break;
+      }
       // 飞翔飞鸟扑翼
       const wingPhase = t % 12;
       box(10, 10, 3, 2, true); // 鸟身体
@@ -3710,6 +3835,38 @@
       break;
     }
     case 'CANDLE': {
+      const is333 = (typeof getActiveMatrixPreset === 'function' && getActiveMatrixPreset().id === '333');
+      if (is333) {
+        // 333 方阵专属：重绘摇曳烛火 (烛台托盘 + 滴蜡质感柱体 + 烛芯 + 镂空泪滴摇曳火苗 + 氛围星芒)
+        line(7, 19, 15, 19);
+        line(8, 20, 14, 20);
+        box(9, 12, 5, 7, true);
+        line(11, 14, 11, 17, false);
+        put(8, 13); put(8, 14); put(14, 13);
+        put(11, 11);
+
+        const cPhase = (t % 72) / 72 * Math.PI * 2;
+        const sway = Math.sin(cPhase * 2) * 0.7 + Math.sin(cPhase * 5) * 0.35;
+        const tipDx = Math.round(sway * 1.4);
+        const midDx = Math.round(sway * 0.7);
+        const tall = Math.sin(cPhase * 3 + 0.5) > 0.25 ? 1 : 0;
+
+        line(10, 10, 12, 10);
+        box(9 + midDx, 8, 5, 2, true);
+        put(11 + midDx, 8, false);
+        put(11 + midDx, 9, false);
+        line(10 + midDx, 7, 12 + midDx, 7);
+        put(11 + tipDx, 6);
+        put(11 + tipDx, 5);
+        if (tall) put(11 + tipDx, 4);
+
+        const sp = Math.floor(t / 6) % 4;
+        if (sp === 0) { put(6, 7); put(16, 9); }
+        else if (sp === 1) { put(7, 5); put(15, 7); }
+        else if (sp === 2) { put(6, 9); put(16, 6); }
+        else { put(7, 8); put(15, 5); }
+        break;
+      }
       box(9, 11, 5, 9, true);
       line(11, 9, 11, 11);
       const flame = candleFlame(t);
@@ -4972,8 +5129,6 @@
 
       /* --- 活动 / 运动健康 --- */
       { num: '#48', no: 'ACT-01', id: 'RUNNER', name: '动感奔跑者', cat: 'activity', subcat: 'fitness', icon: '🏃', frames: 12 },
-      { num: '#49', no: 'ACT-02', id: 'STEPS', name: '万步达成', cat: 'activity', subcat: 'fitness', icon: '👟', frames: 24 },
-      { num: '#50', no: 'ACT-03', id: 'WORKOUT', name: '健身律动', cat: 'activity', subcat: 'fitness', icon: '💪', frames: 16 },
       { num: '#51', no: 'ACT-04', id: 'PERSON', name: '跃动小人', cat: 'activity', subcat: 'fitness', icon: '🧍', frames: 24 },
 
       /* --- 活动 / 专注效率 --- */
@@ -5019,7 +5174,6 @@
       { num: '#80', no: 'AMB-04', id: 'ORBIT', name: '星际轨道', cat: 'ambience', subcat: 'visual', icon: '🪐', frames: 24 },
       { num: '#81', no: 'AMB-05', id: 'PULSE', name: '深空脉冲', cat: 'ambience', subcat: 'visual', icon: '◉', frames: 18 },
       { num: '#82', no: 'AMB-06', id: 'PORTAL', name: '空间传送门', cat: 'ambience', subcat: 'visual', icon: '🌀', frames: 24 },
-      { num: '#83', no: 'AMB-07', id: 'FIREFLY', name: '微光萤火', cat: 'ambience', subcat: 'visual', icon: '✨', frames: 24, isPending: true },
       { num: '#84', no: 'AMB-08', id: 'BLOOM', name: '夜色绽放', cat: 'ambience', subcat: 'visual', icon: '🌸', frames: 24 },
 
       /* --- 传音 Infinix Note 60 Pro (5G) 专属音乐律动动效 --- */
@@ -5078,8 +5232,7 @@
       'DOG',         // #73 · LIF-14 灵动小狗 (萌宠生灵)
       'FISH',        // #74 · LIF-15 游动金鱼 (萌宠生灵)
       'BIRD',        // #75 · LIF-16 飞翔小鸟 (萌宠生灵)
-      'CANDLE',      // #78 · AMB-02 摇曳烛火 (氛围灯效)
-      'FIREFLY'      // #83 · AMB-07 微光萤火 (氛围微光)
+      'CANDLE'       // #78 · AMB-02 摇曳烛火 (氛围灯效)
     ];
 
     /* 待修改项本地存储、URL状态流转与线上基准同步系统 */
@@ -9594,8 +9747,8 @@
         if (data && Array.isArray(data.animations)) {
           const loaded = [];
           for (const item of data.animations) {
-            // 彻底过滤已下线的全部游戏分类动画
-            if (item.cat === 'game' || (item.no && item.no.startsWith('GAM')) || RETIRED_GAME_IDS.has(item.id)) {
+            // 彻底过滤已下线的全部游戏分类动画及已下线的 STEPS / WORKOUT / FIREFLY
+            if (item.cat === 'game' || (item.no && item.no.startsWith('GAM')) || RETIRED_GAME_IDS.has(item.id) || item.id === 'STEPS' || item.id === 'WORKOUT' || item.id === 'FIREFLY') {
               continue;
             }
             const def = DEFAULT_ANIMATIONS.find(d => d.id === item.id);
